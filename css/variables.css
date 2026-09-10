@@ -1,0 +1,58 @@
+/* ==========================================================================
+   CSS Variables & Theme Definitions
+   ========================================================================== */
+
+:root {
+  --font-main: 'Noto Sans KR', sans-serif;
+  --font-quote: 'Gowun Batang', serif;
+  --font-accent: 'Outfit', sans-serif;
+
+  /* Theme Defaults (Midnight) */
+  --bg-gradient: radial-gradient(circle at 50% 20%, #1a162b 0%, #0d0a17 60%, #05040a 100%);
+  --accent-gold: #f4c465;
+  --accent-gold-light: #ffe5a3;
+  --accent-glow: rgba(244, 196, 101, 0.4);
+  --card-bg: rgba(25, 20, 38, 0.85);
+  --card-border: rgba(244, 196, 101, 0.25);
+  --text-main: #f0eaf8;
+  --text-sub: #a89cb8;
+  --paper-bg: linear-gradient(135deg, #fffdf8 0%, #f6edd9 100%);
+  --paper-text: #2a2016;
+  --paper-accent: #9a651a;
+  --chip-bg: rgba(255, 255, 255, 0.08);
+  --chip-hover: rgba(244, 196, 101, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="golden"] {
+  --bg-gradient: radial-gradient(circle at 50% 20%, #2c1a0e 0%, #180d06 60%, #0a0402 100%);
+  --accent-gold: #ffb834;
+  --accent-gold-light: #fff0aa;
+  --accent-glow: rgba(255, 184, 52, 0.45);
+  --card-bg: rgba(38, 22, 12, 0.88);
+  --card-border: rgba(255, 184, 52, 0.3);
+  --text-main: #fdf5eb;
+  --text-sub: #c4a993;
+}
+
+[data-theme="sakura"] {
+  --bg-gradient: radial-gradient(circle at 50% 20%, #2a1525 0%, #160a14 60%, #090308 100%);
+  --accent-gold: #ff9ebb;
+  --accent-gold-light: #ffd4e2;
+  --accent-glow: rgba(255, 158, 187, 0.4);
+  --card-bg: rgba(38, 18, 33, 0.88);
+  --card-border: rgba(255, 158, 187, 0.3);
+  --text-main: #fdf0f4;
+  --text-sub: #c9a5b3;
+}
+
+[data-theme="mystic"] {
+  --bg-gradient: radial-gradient(circle at 50% 20%, #151d2a 0%, #0a0f18 60%, #03060a 100%);
+  --accent-gold: #64dfdf;
+  --accent-gold-light: #c7f9cc;
+  --accent-glow: rgba(100, 223, 223, 0.4);
+  --card-bg: rgba(16, 26, 38, 0.88);
+  --card-border: rgba(100, 223, 223, 0.3);
+  --text-main: #f0fafb;
+  --text-sub: #90b3c2;
+}

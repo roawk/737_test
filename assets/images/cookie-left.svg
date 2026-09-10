@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="cookieGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE0A2"/>
+      <stop offset="45%" stop-color="#E8AD51"/>
+      <stop offset="85%" stop-color="#C27A23"/>
+      <stop offset="100%" stop-color="#8A4A06"/>
+    </linearGradient>
+    <linearGradient id="innerShadowLeft" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(0,0,0,0.3)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer Curve & Fold Body -->
+  <path class="cookie-body" d="M 100 25 C 50 25, 20 65, 25 125 C 28 160, 65 178, 100 178 Z" fill="url(#cookieGradLeft)" />
+  <!-- Shadow creases for realistic fold -->
+  <path class="cookie-fold" d="M 100 25 C 75 70, 55 120, 100 178 Z" fill="url(#innerShadowLeft)" opacity="0.7"/>
+  <!-- Texture Highlights -->
+  <path d="M 40 70 Q 30 110 50 145" fill="none" stroke="#FFF0C4" stroke-width="3" opacity="0.4" stroke-linecap="round"/>
+  <path d="M 65 50 Q 55 90 75 160" fill="none" stroke="#FFE49E" stroke-width="2.5" opacity="0.5" stroke-linecap="round"/>
+</svg>

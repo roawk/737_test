@@ -1,0 +1,594 @@
+/* AeroRescue 737 AI - Boeing / Incheon Airport / Korean Air Inspired Theme */
+
+:root {
+  /* Color Palette inspired by Boeing Navy, Korean Air Sky Blue, Incheon Airport White/Cyan */
+  --boeing-navy: #002244;
+  --boeing-dark: #001833;
+  --boeing-deep-blue: #0b2545;
+  --korean-air-blue: #0064d2;
+  --korean-air-light: #e8f3ff;
+  --korean-air-sky: #4ba3e3;
+  --incheon-cyan: #00a8cc;
+  --incheon-bg-gradient: linear-gradient(180deg, #eef5fc 0%, #f6faff 60%, #ffffff 100%);
+  
+  --bg-app: #f2f7fc;
+  --card-bg: #ffffff;
+  --card-border: #d7e4f2;
+  --card-border-hover: #b8d4f4;
+  --card-shadow: 0 4px 20px rgba(12, 35, 64, 0.07);
+  --card-shadow-hover: 0 8px 30px rgba(0, 100, 210, 0.12);
+
+  --text-title: #0a1c33;
+  --text-body: #2c3e55;
+  --text-muted: #6b829e;
+  --text-light: #8ea4be;
+
+  --accent-green: #00b894;
+  --accent-cyan: #0064d2;
+  --accent-amber: #e67e22;
+  --accent-red: #d63031;
+
+  --font-hud: 'Orbitron', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Outfit', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.cockpit-theme {
+  background: var(--incheon-bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-body);
+  font-family: var(--font-sans);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #edf3fa;
+}
+::-webkit-scrollbar-thumb {
+  background: #bccde0;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0064d2;
+}
+
+/* 1. TOP BOEING / KOREAN AIR STYLE HEADER */
+.avionics-header {
+  height: 68px;
+  background: #ffffff;
+  border-bottom: 1px solid #dbe6f3;
+  box-shadow: 0 2px 14px rgba(10, 28, 51, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+  position: relative;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Boeing / SAFTER Team Badge */
+.team-badge {
+  background: linear-gradient(135deg, #002244 0%, #004080 100%);
+  border: 1px solid #002244;
+  border-radius: 20px;
+  padding: 4px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 34, 68, 0.2);
+}
+
+.team-badge .team-label {
+  font-size: 8.5px;
+  font-family: var(--font-mono);
+  color: #8bbce8;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+}
+
+.team-badge .team-name {
+  font-family: var(--font-hud);
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 24px;
+  color: #0064d2;
+}
+
+.brand-title {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  letter-spacing: 0.5px;
+}
+
+.brand-title strong {
+  color: #0064d2;
+  font-weight: 900;
+}
+
+.brand-sub {
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  letter-spacing: 0.4px;
+}
+
+.airframe-badge {
+  background: var(--korean-air-light);
+  border: 1px solid #c2defc;
+  border-radius: 6px;
+  padding: 3px 9px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+}
+
+.airframe-badge .badge-label {
+  font-size: 9px;
+  color: #0050a8;
+  font-weight: 700;
+}
+
+.airframe-badge .badge-val {
+  font-size: 11px;
+  font-weight: 800;
+  color: #003673;
+}
+
+/* Header Right Utilities */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.master-annunciator {
+  display: flex;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.annunciator-box {
+  width: 78px;
+  height: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  font-family: var(--font-hud);
+  font-size: 8.5px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.annunciator-box.red {
+  background: #fdf0f0;
+  color: #d63031;
+  border-color: #fab1a0;
+}
+
+.annunciator-box.red.active-blink {
+  background: #ffe5e5;
+  box-shadow: 0 0 10px rgba(214, 48, 49, 0.35);
+  animation: blinkRed 1.2s infinite alternate;
+}
+
+.annunciator-box.amber {
+  background: #fff8eb;
+  color: #e67e22;
+  border-color: #fed79e;
+}
+
+@keyframes blinkRed {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.sound-toggle-btn {
+  background: #f1f6fc;
+  border: 1px solid #d0e0f2;
+  color: #0064d2;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.sound-toggle-btn:hover {
+  background: #e1effe;
+  border-color: #0064d2;
+}
+
+.sound-toggle-btn.muted {
+  color: #9ab2cc;
+}
+
+.utc-clock {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  background: #edf4fc;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #d2e3f5;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* 2. MAIN WORKSPACE CONTAINER */
+.cockpit-container {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr 390px;
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden;
+  height: calc(100vh - 68px);
+}
+
+/* Side Panels - Compact & Smoothly Scrollable / Draggable */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+}
+
+.side-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.side-panel::-webkit-scrollbar-track {
+  background: #edf3fa;
+  border-radius: 4px;
+}
+.side-panel::-webkit-scrollbar-thumb {
+  background: #a9c6e8;
+  border-radius: 4px;
+}
+.side-panel::-webkit-scrollbar-thumb:hover {
+  background: #0064d2;
+}
+
+/* Clean White Aviation Cards (Korean Air & Incheon Airport Style) */
+.panel-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.panel-card:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.card-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eaf1f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafcff;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-title h3 {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  color: var(--boeing-navy);
+}
+
+.card-tag {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #eef5fc;
+  color: #0064d2;
+  border: 1px solid #cce2fa;
+}
+
+.card-tag.alert-tag {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.card-tag.cyan-tag {
+  background: #e0f2fe;
+  color: #0284c7;
+  border-color: #bae6fd;
+}
+
+.card-content {
+  padding: 10px 12px;
+}
+
+/* Select Dropdown */
+.cockpit-select {
+  width: 100%;
+  background: #f8fbff;
+  border: 1.5px solid #c9def5;
+  border-radius: 6px;
+  color: var(--boeing-navy);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.cockpit-select:focus {
+  border-color: #0064d2;
+  box-shadow: 0 0 0 3px rgba(0, 100, 210, 0.15);
+  background: #fff;
+}
+
+.scenario-desc {
+  font-size: 11px;
+  color: var(--text-body);
+  line-height: 1.45;
+  margin-top: 6px;
+  background: #fbfdff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2ecf7;
+  border-left: 3.5px solid var(--accent-amber);
+}
+
+/* 3. CENTER AIRPORT RADAR MAP PANEL */
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #d5e2f0;
+  box-shadow: var(--card-shadow);
+  background: #ffffff;
+}
+
+.map-overlay-header {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.map-status-pill {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid #d0e1f3;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--boeing-navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00b894;
+  box-shadow: 0 0 6px #00b894;
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+}
+
+.map-legend {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid #d0e1f3;
+  border-radius: 20px;
+  padding: 6px 14px;
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--text-body);
+  pointer-events: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.dot-glide { background: #ff2255; box-shadow: 0 0 6px rgba(255, 34, 85, 0.4); }
+.dot-rank1 { background: #00b894; box-shadow: 0 0 6px rgba(0, 184, 148, 0.4); }
+.dot-rank2 { background: #0064d2; box-shadow: 0 0 6px rgba(0, 100, 210, 0.4); }
+.dot-rank3 { background: #e67e22; box-shadow: 0 0 6px rgba(230, 126, 34, 0.4); }
+.dot-traffic { background: #6c5ce7; box-shadow: 0 0 6px rgba(108, 92, 231, 0.4); }
+
+.radar-map-view {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: #edf4fa !important;
+}
+
+/* Map Bottom Status Bar */
+.map-bottom-bar {
+  background: #ffffff;
+  border-top: 1px solid #dbe6f3;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 500;
+  font-size: 12px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.status-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.status-summary-item strong {
+  color: var(--text-title);
+  font-weight: 700;
+}
+
+/* Priority Info Box (Left Bottom) */
+.priority-infobox {
+  background: #ffffff;
+  border: 1px solid #dce7f3;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--card-shadow);
+  flex-shrink: 0;
+}
+
+.p-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.p-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.priority-1 .p-badge {
+  background: #e6f9f3;
+  color: #00a884;
+  border: 1px solid #a3ebd9;
+}
+
+.priority-2 .p-badge {
+  background: #eaf3fd;
+  color: #0064d2;
+  border: 1px solid #b6d7fa;
+}
+
+.p-content strong {
+  font-size: 11px;
+  color: var(--boeing-navy);
+  display: block;
+}
+
+.p-content p {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  line-height: 1.35;
+}
+
+/* Text Colors */
+.text-green { color: #00a884 !important; }
+.text-cyan { color: #0064d2 !important; }
+.text-amber { color: #d35400 !important; }
+.text-red { color: #c0392b !important; }
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .cockpit-container {
+    grid-template-columns: 300px 1fr 370px;
+  }
+}
+@media (max-width: 1100px) {
+  .cockpit-container {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+    height: auto;
+  }
+  .radar-map-view {
+    min-height: 480px;
+  }
+}

@@ -1,0 +1,1081 @@
+/* AeroRescue 737 AI - Components & Aviation Widgets (Boeing / Incheon Airport / Korean Air Style) */
+
+/* 1. TELEMETRY WIDGETS - Compact & Clean */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.telemetry-stat {
+  background: #f8fbff;
+  border: 1px solid #dce8f5;
+  border-radius: 8px;
+  padding: 5px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  transition: all var(--transition-fast);
+}
+
+.telemetry-stat:hover {
+  background: #f2f7fd;
+  border-color: #c4dcf7;
+}
+
+.telemetry-stat.primary {
+  grid-column: span 1;
+}
+
+.telemetry-stat.full-width {
+  grid-column: span 2;
+  background: #edf5fc;
+  border-color: #cde2f8;
+  padding: 5px 8px;
+}
+
+.stat-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  line-height: 1.2;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  margin-top: 1px;
+}
+
+.stat-value small {
+  font-size: 8.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.stat-bar-container {
+  width: 100%;
+  height: 3.5px;
+  background: #e2ecf7;
+  border-radius: 2px;
+  margin-top: 2px;
+  overflow: hidden;
+}
+
+.stat-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0064d2 0%, #4ba3e3 100%);
+  border-radius: 2px;
+  transition: width var(--transition-normal);
+}
+
+.stat-bar.bg-amber {
+  background: linear-gradient(90deg, #e67e22 0%, #f39c12 100%);
+}
+
+.weight-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weight-badge {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #e6f9f3;
+  color: #00a884;
+  border: 1px solid #a3ebd9;
+}
+
+.weight-badge.overweight {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Controls Form Sliders & Direct Inputs - Compact */
+.controls-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.control-label-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.control-label-wrap span {
+  color: var(--boeing-navy);
+  font-weight: 600;
+}
+
+/* Direct Numeric Input Box */
+.num-input-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #f8fbff;
+  border: 1px solid #d2e4f7;
+  border-radius: 5px;
+  padding: 1px 6px;
+  transition: all var(--transition-fast);
+}
+
+.num-input-group:hover,
+.num-input-group:focus-within {
+  border-color: #0064d2;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 100, 210, 0.12);
+}
+
+.cockpit-num-input {
+  width: 56px;
+  background: transparent;
+  border: none;
+  color: #004b9e;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 800;
+  text-align: right;
+  outline: none;
+  cursor: text;
+}
+
+.cockpit-num-input.wind-input {
+  width: 36px;
+}
+
+.unit-tag {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cockpit-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #e2ecf7;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.cockpit-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #0064d2;
+  box-shadow: 0 1px 4px rgba(0, 100, 210, 0.4);
+  cursor: pointer;
+  border: 1.5px solid #ffffff;
+  transition: transform var(--transition-fast);
+}
+
+.cockpit-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #004b9e;
+}
+
+/* 2. LEAFLET MAP CUSTOM ELEMENTS (Bright Theme) */
+.custom-radar-plane {
+  background: transparent !important;
+  border: none !important;
+}
+
+.radar-plane-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 8px rgba(0, 50, 120, 0.4));
+}
+
+.radar-label {
+  position: absolute;
+  top: -26px;
+  left: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #0064d2;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.radar-label .callsign {
+  font-weight: 800;
+  color: var(--boeing-navy);
+}
+
+.radar-label .alt-spd {
+  color: #0064d2;
+  font-weight: 700;
+}
+
+.surrounding-plane-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+}
+
+.traffic-mini-label {
+  position: absolute;
+  top: -18px;
+  left: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #cadbf0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-body);
+  display: flex;
+  gap: 4px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.traffic-mini-label.conflict-risk {
+  border-color: #f39c12;
+  color: #d35400;
+  font-weight: 700;
+}
+
+/* Site Markers */
+.custom-site-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.site-marker-pin {
+  width: 38px;
+  height: 38px;
+  background: #ffffff;
+  border: 2px solid #00b894;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 30, 80, 0.15);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.site-marker-pin:hover {
+  transform: scale(1.18);
+  box-shadow: 0 6px 16px rgba(0, 100, 210, 0.25);
+}
+
+.site-marker-pin.unreachable {
+  opacity: 0.5;
+  border-style: dashed;
+  background: #f1f4f8;
+}
+
+.site-icon {
+  font-size: 14px;
+}
+
+.site-code {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+}
+
+/* Radar Popups */
+.radar-popup {
+  background: #ffffff;
+  color: var(--text-body);
+  font-family: var(--font-sans);
+  padding: 4px;
+  min-width: 250px;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  border: 1px solid #d0e1f3 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 28px rgba(12, 35, 64, 0.15) !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+.popup-header {
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-header h4 {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+}
+
+.popup-body {
+  font-size: 11.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popup-body p {
+  margin: 0;
+  color: var(--text-body);
+}
+
+.popup-body strong {
+  color: var(--boeing-navy);
+}
+
+.popup-select-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #0064d2 0%, #004b9e 100%);
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 7px 0;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(0, 100, 210, 0.3);
+}
+
+.popup-select-btn:hover {
+  background: #003673;
+}
+
+/* 3. TACTICAL RECOMMENDED ROUTE CARDS (Korean Air & Incheon Airport Style) */
+.ranking-mode-group {
+  display: flex;
+  gap: 3px;
+  background: #edf4fb;
+  border: 1px solid #d4e3f4;
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.rank-mode-btn {
+  background: transparent;
+  border: none;
+  color: #4b6482;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.rank-mode-btn:hover {
+  color: var(--boeing-navy);
+}
+
+.rank-mode-btn.active {
+  background: #002244;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 34, 68, 0.25);
+}
+
+.routes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.route-card {
+  background: #ffffff;
+  border: 1.5px solid #dce8f5;
+  border-radius: 14px;
+  padding: 13px 15px 13px 15px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 20, 60, 0.04);
+}
+
+.route-card:hover {
+  border-color: #9ac4fb;
+  background: #fbfdff;
+  box-shadow: 0 6px 20px rgba(0, 100, 210, 0.1);
+  transform: translateY(-2px);
+}
+
+.route-card.selected {
+  border-color: #0064d2;
+  background: #f7faff;
+  box-shadow: 0 8px 24px rgba(0, 100, 210, 0.15);
+}
+
+.route-card.selected::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 5px;
+  background: #0064d2;
+}
+
+.route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.route-tag-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.route-letter-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.route-card.rank1 .route-letter-badge {
+  background: #e6f9f3;
+  color: #00a884;
+  border: 1px solid #a3ebd9;
+}
+.route-card.rank2 .route-letter-badge {
+  background: #eaf3fd;
+  color: #0064d2;
+  border: 1px solid #b6d7fa;
+}
+.route-card.rank3 .route-letter-badge {
+  background: #fff4e5;
+  color: #e67e22;
+  border: 1px solid #fed79e;
+}
+
+.route-card.rank1.selected::before { background: #00b894; }
+.route-card.rank2.selected::before { background: #0064d2; }
+.route-card.rank3.selected::before { background: #e67e22; }
+
+.route-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+}
+
+.score-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.score-badge .score-val {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.score-badge .score-lbl {
+  font-size: 8.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.route-strategy-desc {
+  font-size: 11.5px;
+  color: var(--text-body);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.route-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #f2f7fc;
+  border-radius: 8px;
+  padding: 8px 6px;
+  gap: 4px;
+}
+
+.metric-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric-cell span {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.metric-cell strong {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--boeing-navy);
+  margin-top: 2px;
+  font-weight: 800;
+}
+
+.route-impact-summary {
+  margin-top: 8px;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-muted);
+  border-top: 1px dashed #dce7f3;
+  padding-top: 6px;
+}
+
+.route-impact-summary strong {
+  color: var(--boeing-navy);
+}
+
+/* 4. TACTICAL TABS (Korean Air Blue Underline Style) */
+.tactical-tabs-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.card-tabs {
+  display: flex;
+  background: #f8fbff;
+  border-bottom: 1px solid #dce8f5;
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  padding: 11px 6px;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.tab-btn:hover {
+  color: var(--boeing-navy);
+  background: #f0f6fc;
+}
+
+.tab-btn.active {
+  color: #0064d2;
+  border-bottom-color: #0064d2;
+  background: #ffffff;
+}
+
+.tab-content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.tab-pane {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tab-pane.active {
+  display: flex;
+}
+
+/* AI DECISION RATIONALE TAB (Bright Aero Theme) */
+.rationale-header {
+  border-bottom: 1px solid #e2ecf7;
+  padding-bottom: 10px;
+}
+
+.r-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.r-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #eaf3fd;
+  color: #0064d2;
+  border: 1px solid #b8d7fa;
+}
+
+.r-title-group h4 {
+  font-size: 13.5px;
+  color: var(--boeing-navy);
+  font-weight: 800;
+}
+
+.r-desc {
+  font-size: 11.5px;
+  color: var(--text-body);
+  line-height: 1.5;
+  margin-top: 6px;
+  background: #f6faff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #dce8f5;
+  border-left: 4px solid #0064d2;
+}
+
+.rationale-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.rationale-item-card {
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.rationale-item-card.rank1 { border-left: 4px solid #00b894; }
+.rationale-item-card.rank2 { border-left: 4px solid #0064d2; }
+.rationale-item-card.rank3 { border-left: 4px solid #e67e22; }
+
+.r-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.r-card-rank-tag {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.r-card-score-pill {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.r-key-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.reason-bullet {
+  font-size: 11.5px;
+  color: var(--text-body);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.45;
+}
+
+.reason-bullet i {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.r-score-breakdown-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: #f4f8fd;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.bar-chunk span {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  display: block;
+  font-weight: 600;
+}
+
+.bar-chunk strong {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rationale-matrix-wrap {
+  margin-top: 10px;
+  border-top: 1px dashed #dce7f3;
+  padding-top: 10px;
+}
+
+.rationale-matrix-wrap h5 {
+  font-size: 12px;
+  color: var(--boeing-navy);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* 5. QRH & Checklists */
+.qrh-header {
+  border-bottom: 1px solid #e2ecf7;
+  padding-bottom: 8px;
+}
+
+.qrh-badge {
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: #0064d2;
+}
+
+.qrh-header h4 {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--boeing-navy);
+  margin-top: 2px;
+  font-weight: 800;
+}
+
+.qrh-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-title {
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checklist-item {
+  background: #f8fbff;
+  border: 1px solid #dce8f5;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.checklist-item:hover {
+  background: #f1f7fe;
+  border-color: #b8d6fa;
+}
+
+.checklist-item.checked {
+  background: #e6f9f3;
+  border-color: #a3ebd9;
+}
+
+.chk-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #0064d2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #00a884;
+  margin-top: 2px;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.checklist-item.checked .chk-box {
+  background: #00b894;
+  color: #fff;
+  border-color: #00b894;
+}
+
+.chk-action {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--boeing-navy);
+  font-family: var(--font-mono);
+}
+
+.chk-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.atc-item {
+  background: #fff9f0;
+  border-left: 3.5px solid #e67e22;
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+}
+
+.atc-phrase {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: #b75e07;
+  font-weight: 700;
+}
+
+.atc-code {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.prep-item {
+  background: #f8fbff;
+  border: 1px solid #dce8f5;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+
+.prep-item strong {
+  color: #0064d2;
+  font-family: var(--font-mono);
+}
+
+.prep-item span {
+  color: var(--text-body);
+}
+
+/* 6. POST-LANDING MAINTENANCE MATRIX */
+.maint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2ecf7;
+  padding-bottom: 8px;
+}
+
+.maint-overview-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+}
+
+.maint-downtime-pill {
+  background: #eaf3fd;
+  border: 1px solid #b8d7fa;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0064d2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+}
+
+.maint-hub-note {
+  font-size: 11.5px;
+  color: var(--text-body);
+  background: #e6f9f3;
+  border-left: 4px solid #00b894;
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+  line-height: 1.45;
+}
+
+.maint-stages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stage-title-bar {
+  font-size: 11.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+}
+
+.maint-task-card {
+  background: #ffffff;
+  border: 1px solid #dce8f5;
+  border-radius: 8px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-id {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.task-p-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.task-p-badge.p1 { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+.task-p-badge.p2 { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+.task-p-badge.p3 { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+
+.task-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--boeing-navy);
+}
+
+.task-desc {
+  font-size: 11px;
+  color: var(--text-body);
+  line-height: 1.4;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* 7. TRAFFIC & DELAY ANALYSIS TAB */
+.impact-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.impact-metric-box {
+  background: #f8fbff;
+  border: 1px solid #dce8f5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.impact-metric-box .m-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.impact-metric-box .m-val {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  margin: 4px 0 2px 0;
+}
+
+.impact-metric-box .m-sub {
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.cockpit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.cockpit-table th {
+  background: #eef5fc;
+  color: var(--boeing-navy);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1.5px solid #d2e3f5;
+}
+
+.cockpit-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #edf3fa;
+  color: var(--text-body);
+}
+
+.cockpit-table tr:hover td {
+  background: #f5f9ff;
+}
