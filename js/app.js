@@ -603,11 +603,11 @@ function bindEventListeners() {
 
   function updateTrafficToggleUI() {
     const isVisible = state.showTraffic;
-    const textStr = isVisible ? "ON" : "OFF";
 
     if (toggleTrafficQuickBtn) {
       toggleTrafficQuickBtn.className = `traffic-quick-toggle-pill ${isVisible ? 'active' : 'inactive'}`;
-      toggleTrafficQuickBtn.innerHTML = `<i class="fa-solid fa-${isVisible ? 'toggle-on' : 'toggle-off'}"></i> 주변기 ${textStr}`;
+      toggleTrafficQuickBtn.innerHTML = `<i class="fa-solid fa-${isVisible ? 'toggle-on' : 'toggle-off'}"></i> 주변기 표시`;
+      toggleTrafficQuickBtn.setAttribute("title", `주변기 레이더 표시 ${isVisible ? '끄기' : '켜기'}`);
     }
   }
 
