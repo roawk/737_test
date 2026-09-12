@@ -19,7 +19,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/components.css?v=6">
+  <link rel="stylesheet" href="css/components.css?v=7">
 </head>
 <body class="cockpit-theme">
 
@@ -679,9 +679,12 @@
         <div class="damage-grid-columns">
           <!-- Left Column: Subsystem Damage Breakdown -->
           <div class="damage-col-left">
-            <div class="col-title">
-              <i class="fa-solid fa-microchip text-cyan"></i>
-              <h4>주요 서브시스템별 실시간 손상도</h4>
+            <div class="col-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-microchip text-cyan"></i>
+                <h4>주요 서브시스템별 실시간 손상도</h4>
+              </div>
+              <span class="dmg-sort-badge"><i class="fa-solid fa-arrow-down-wide-short"></i> 심각도 높은 순 정렬</span>
             </div>
             <!-- Subsystem Category Filter Pills -->
             <div class="dmg-category-filter">
@@ -746,6 +749,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=6"></script>
+  <script type="module" src="js/app.js?v=7"></script>
 </body>
 </html>
