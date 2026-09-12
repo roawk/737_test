@@ -392,20 +392,25 @@ body.cockpit-theme {
   padding: 6px 8px;
 }
 
-.right-panel .tactical-tabs-card {
-  flex: 1 1 auto;
-  min-height: 220px;
+.tactical-tabs-card {
+  background: #ffffff;
+  border: 1.5px solid #0064d2;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 100, 210, 0.12);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  margin-top: 0;
-  animation: slideUpTabs 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 4px 0 6px 0;
+  max-height: 420px;
+  animation: accordionSlideDown 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 5;
 }
 
-@keyframes slideUpTabs {
+@keyframes accordionSlideDown {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
@@ -413,10 +418,10 @@ body.cockpit-theme {
   }
 }
 
-.right-panel .tactical-tabs-card .tab-content-area {
-  flex: 1;
+.tactical-tabs-card .tab-content-area {
+  max-height: 350px;
   overflow-y: auto;
-  padding: 8px 10px;
+  padding: 10px 12px;
   scrollbar-width: thin;
 }
 

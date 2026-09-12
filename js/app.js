@@ -759,9 +759,37 @@ function enableHorizontalDragToScroll(element) {
 }
 
 function selectRoute(tag) {
+  const tabsCard = document.getElementById("tacticalTabsCard");
+  const isToggleClose = state.detailsVisible && state.activeRouteTag === tag;
+
+  if (isToggleClose) {
+    state.detailsVisible = false;
+    if (tabsCard) {
+      tabsCard.style.display = "none";
+      tabsCard.classList.remove("visible");
+    }
+    document.querySelectorAll(".route-card").forEach(c => {
+      c.classList.remove("selected");
+      const triggerIcon = c.querySelector(".route-details-trigger i.fa-solid:last-child");
+      if (triggerIcon) triggerIcon.className = 'fa-solid fa-chevron-right';
+    });
+    return;
+  }
+
   state.activeRouteTag = tag;
   state.detailsVisible = true;
   playEmergencyChime();
+
+  // Find the clicked route card:
+  // 1순위 클릭 -> 1순위와 2순위 사이에 배치 (clickedCard.after(tabsCard))
+  // 2순위 클릭 -> 2순위와 3순위 사이에 배치 (clickedCard.after(tabsCard))
+  // 3순위 클릭 -> 3순위 아래(기존 위치)에 배치 (clickedCard.after(tabsCard))
+  const clickedCard = document.querySelector(`.route-card[data-tag="${tag}"]`);
+  if (tabsCard && clickedCard) {
+    clickedCard.after(tabsCard);
+    tabsCard.style.display = "flex";
+    tabsCard.classList.add("visible");
+  }
 
   // Highlight card and chevron
   document.querySelectorAll(".route-card").forEach(c => {
@@ -772,13 +800,6 @@ function selectRoute(tag) {
       triggerIcon.className = `fa-solid ${isThis ? 'fa-chevron-down' : 'fa-chevron-right'}`;
     }
   });
-
-  // Make bottom tabs card visible immediately on clicking 1, 2, or 3 순위!
-  const tabsCard = document.getElementById("tacticalTabsCard");
-  if (tabsCard) {
-    tabsCard.style.display = "flex";
-    tabsCard.classList.add("visible");
-  }
 
   // Redraw map route polylines
   state.mapRenderer.drawRoutes(state.aircraft, state.evaluationResult.topRecommendations, state.activeRouteTag);
@@ -804,10 +825,12 @@ function selectRoute(tag) {
                        (tag === 'bravo' && rc.classList.contains('rank2')) ||
                        (tag === 'charlie' && rc.classList.contains('rank3'));
       rc.classList.toggle("highlighted-rank", isTarget);
-      if (isTarget) {
-        rc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
     });
+
+    // Smooth scroll into view
+    setTimeout(() => {
+      tabsCard?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 60);
   }
 }
 
@@ -913,6 +936,14 @@ function recomputeAndRender() {
 
 function renderRecommendationCards(recs) {
   const container = document.getElementById("routesContainer");
+  const tabsCard = document.getElementById("tacticalTabsCard");
+
+  // Safeguard: temporarily move tabsCard outside container before container.innerHTML = ""
+  if (tabsCard && tabsCard.parentElement === container) {
+    const rightPanel = document.querySelector(".right-panel");
+    if (rightPanel) rightPanel.appendChild(tabsCard);
+  }
+
   container.innerHTML = "";
 
   const routeList = [
@@ -1004,6 +1035,16 @@ function renderRecommendationCards(recs) {
 
     container.appendChild(card);
   });
+
+  // If details are visible, position tabsCard directly under the active card
+  if (state.detailsVisible && tabsCard) {
+    const activeCard = container.querySelector(`.route-card[data-tag="${state.activeRouteTag}"]`);
+    if (activeCard) {
+      activeCard.after(tabsCard);
+      tabsCard.style.display = "flex";
+      tabsCard.classList.add("visible");
+    }
+  }
 }
 
 function renderAIRationale(recs, emergencyKey, capabilities) {
