@@ -42,6 +42,7 @@ const state = {
   audioEnabled: false,
   evaluationResult: null,
   mapRenderer: null,
+  showTraffic: true,
   trafficList: []
 };
 
@@ -568,6 +569,37 @@ function bindEventListeners() {
   enableDragToScroll(document.querySelector(".left-panel"));
   enableDragToScroll(document.querySelector(".right-panel"));
 
+  // Surrounding Traffic Toggle Controls
+  const toggleTrafficBtn = document.getElementById("toggleTrafficBtn");
+  const toggleTrafficQuickBtn = document.getElementById("toggleTrafficQuickBtn");
+
+  function updateTrafficToggleUI() {
+    const isVisible = state.showTraffic;
+    const textStr = isVisible ? "ON" : "OFF";
+
+    if (toggleTrafficBtn) {
+      toggleTrafficBtn.className = `map-traffic-toggle-btn ${isVisible ? 'active' : 'inactive'}`;
+      const statusText = document.getElementById("trafficToggleStatusText");
+      if (statusText) statusText.textContent = textStr;
+    }
+
+    if (toggleTrafficQuickBtn) {
+      toggleTrafficQuickBtn.className = `traffic-quick-toggle-pill ${isVisible ? 'active' : 'inactive'}`;
+      toggleTrafficQuickBtn.innerHTML = `<i class="fa-solid fa-${isVisible ? 'toggle-on' : 'toggle-off'}"></i> 주변기 ${textStr}`;
+    }
+  }
+
+  function handleTrafficToggle() {
+    state.showTraffic = !state.showTraffic;
+    updateTrafficToggleUI();
+    if (state.mapRenderer) {
+      state.mapRenderer.updateSurroundingTraffic(state.trafficList, state.showTraffic);
+    }
+  }
+
+  if (toggleTrafficBtn) toggleTrafficBtn.addEventListener("click", handleTrafficToggle);
+  if (toggleTrafficQuickBtn) toggleTrafficQuickBtn.addEventListener("click", handleTrafficToggle);
+
   // Initial flight controls sync
   syncFlightControlsUI();
 }
@@ -672,17 +704,28 @@ function recomputeAndRender() {
   // 4. Update Center Radar Map
   state.mapRenderer.updateAircraft(state.aircraft, currentScenario);
   state.mapRenderer.updateGlideCone(state.aircraft.lat, state.aircraft.lng, cap.maxGlideRangeNM, cap.isDualFlameout);
-  state.mapRenderer.updateSurroundingTraffic(state.trafficList);
+  state.mapRenderer.updateSurroundingTraffic(state.trafficList, state.showTraffic);
   state.mapRenderer.updateLandingSites(state.evaluationResult.allEvaluated);
   state.mapRenderer.drawRoutes(state.aircraft, recs, state.activeRouteTag);
 
-  // Update Bottom Status Counters
+  // Update Bottom Status Counters (3-tier breakdown: Danger, Caution, Safe)
   const reachableList = state.evaluationResult.allEvaluated.filter(r => r.isReachable);
   document.getElementById("reachableCount").textContent = `${state.evaluationResult.allEvaluated.length}개소`;
   document.getElementById("viableCount").textContent = `${reachableList.length}개소`;
   document.getElementById("trafficCount").textContent = `${state.trafficList.length}대`;
-  const conflictTrafficCount = state.trafficList.filter(t => t.isConflictRisk).length;
-  document.getElementById("conflictCount").textContent = `${conflictTrafficCount}대`;
+  
+  const dangerTrafficCount = state.trafficList.filter(t => t.riskTier === 'danger' || t.isConflictRisk).length;
+  const cautionTrafficCount = state.trafficList.filter(t => t.riskTier === 'caution').length;
+  const safeTrafficCount = state.trafficList.filter(t => t.riskTier === 'safe' || (!t.isConflictRisk && t.riskTier !== 'caution')).length;
+
+  const dangerEl = document.getElementById("conflictDangerCount");
+  if (dangerEl) dangerEl.textContent = `${dangerTrafficCount}대`;
+  const cautionEl = document.getElementById("conflictCautionCount");
+  if (cautionEl) cautionEl.textContent = `${cautionTrafficCount}대`;
+  const safeEl = document.getElementById("conflictSafeCount");
+  if (safeEl) safeEl.textContent = `${safeTrafficCount}대`;
+  const legacyConflictEl = document.getElementById("conflictCount");
+  if (legacyConflictEl) legacyConflictEl.textContent = `${dangerTrafficCount}대`;
 
   // 5. Render Right Top Recommendation Cards (1st, 2nd, 3rd)
   renderRecommendationCards(recs);
@@ -992,19 +1035,35 @@ function renderAirspaceAnalysis(evaluatedItem) {
 
   document.getElementById("impactCostUSD").textContent = `$${evaluatedItem.estimatedDisruptionCostUSD.toLocaleString()} USD`;
 
-  // Populate Airborne Traffic Table
+  // Populate Airborne Traffic Table with 3-tier colors
   const tbody = document.getElementById("airborneTrafficTbody");
   tbody.innerHTML = "";
 
   state.trafficList.forEach(trf => {
+    const tier = trf.riskTier || (trf.isConflictRisk ? 'danger' : 'safe');
+    let tierColor = "#00e676";
+    let tierBadge = '<span style="background:#00e67622; color:#00a854; border:1px solid #00e676; padding:1px 5px; border-radius:3px; font-weight:700;">안전</span>';
+    let statusDesc = "정상 통과 (안전 간격 확보)";
+
+    if (tier === 'danger' || trf.isConflictRisk) {
+      tierColor = "#ff1744";
+      tierBadge = '<span style="background:#ff174422; color:#d50000; border:1px solid #ff1744; padding:1px 5px; border-radius:3px; font-weight:700;">위험 (간섭)</span>';
+      statusDesc = `+${trf.estimatedDelayMinIfRerouted}분 긴급 우회 (+${trf.fuelBurnPenaltyKg}kg)`;
+    } else if (tier === 'caution') {
+      tierColor = "#ffaa00";
+      tierBadge = '<span style="background:#ffaa0022; color:#b26a00; border:1px solid #ffaa00; padding:1px 5px; border-radius:3px; font-weight:700;">주의 (잠재)</span>';
+      statusDesc = `인접 고도 주의 모니터링 (+${trf.estimatedDelayMinIfRerouted}분 우회 가능)`;
+    }
+
     const row = document.createElement("tr");
     row.innerHTML = `
       <td><strong>${trf.callsign}</strong></td>
       <td>${trf.aircraft}</td>
       <td>${trf.origin}➔${trf.dest}</td>
       <td>FL${Math.round(trf.altFt / 100)}</td>
-      <td style="color: ${trf.isConflictRisk ? '#ff9900' : '#00e676'}; font-weight:600;">
-        ${trf.isConflictRisk ? `+${trf.estimatedDelayMinIfRerouted}분 우회 (+${trf.fuelBurnPenaltyKg}kg)` : '정상 통과'}
+      <td>${tierBadge}</td>
+      <td style="color: ${tierColor}; font-weight:600;">
+        ${statusDesc}
       </td>
     `;
     tbody.appendChild(row);

@@ -114,42 +114,89 @@ export class AirspaceMapRenderer {
     );
   }
 
-  updateSurroundingTraffic(trafficList, onTrafficClick) {
+  updateSurroundingTraffic(trafficList, showTraffic = true) {
     if (!this.map) return;
 
-    // Clear previous
+    // Clear previous markers
     this.trafficMarkers.forEach(m => this.map.removeLayer(m));
     this.trafficMarkers = [];
 
+    // If surrounding traffic is turned OFF, stop rendering
+    if (!showTraffic || !trafficList || trafficList.length === 0) {
+      return;
+    }
+
     trafficList.forEach(trf => {
-      const color = trf.isConflictRisk ? "#ff9900" : "#88a0c0";
+      // 3-Tier Color & Risk Classification
+      // 1. 빨간색: 지금 항공기에 간섭이 되거나 위험적 (danger)
+      // 2. 노란색: 아직은 아니지만 위험이 될 가능성이 있음 (caution)
+      // 3. 초록색: 안전함 (safe)
+      let color = "#00e676"; // safe default
+      let tierKey = trf.riskTier || (trf.isConflictRisk ? "danger" : "safe");
+      let tierBadgeClass = "safe";
+      let tierText = "안전";
+
+      if (tierKey === "danger" || trf.isConflictRisk) {
+        color = "#ff1744"; // Red
+        tierBadgeClass = "danger";
+        tierText = "위험 (간섭)";
+      } else if (tierKey === "caution") {
+        color = "#ffaa00"; // Yellow
+        tierBadgeClass = "caution";
+        tierText = "주의 (잠재)";
+      } else {
+        color = "#00e676"; // Green
+        tierBadgeClass = "safe";
+        tierText = "안전";
+      }
+
+      // Aircraft SVG Icon with thick white outline (stroke-width: 3.5px, paint-order: stroke fill)
+      // and crisp shadow for maximum contrast on any map background
       const iconHtml = `
         <div class="surrounding-plane-icon" style="transform: rotate(${trf.heading}deg);">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="${color}">
-            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+          <svg viewBox="0 0 24 24" width="28" height="28" style="overflow: visible;">
+            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+              fill="${color}"
+              stroke="#ffffff"
+              stroke-width="3.5"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              paint-order="stroke fill"
+            />
           </svg>
         </div>
-        <div class="traffic-mini-label ${trf.isConflictRisk ? 'conflict-risk' : ''}">
-          <span>${trf.callsign}</span>
-          <span>FL${Math.round(trf.altFt / 100)}</span>
+        <div class="traffic-mini-label ${tierBadgeClass}">
+          <span class="trf-callsign">${trf.callsign}</span>
+          <span class="trf-tier-tag ${tierBadgeClass}">${tierText}</span>
+          <span class="trf-fl">FL${Math.round(trf.altFt / 100)}</span>
         </div>
       `;
 
       const icon = L.divIcon({
         html: iconHtml,
         className: 'custom-traffic-plane',
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
       });
 
       const marker = L.marker([trf.lat, trf.lng], { icon }).addTo(this.map);
+      
+      const popupBadgeColor = color;
       marker.bindPopup(`
         <div class="radar-popup">
-          <h4>✈ ${trf.callsign} (${trf.aircraft})</h4>
-          <p><strong>구간:</strong> ${trf.origin} ➔ ${trf.dest}</p>
-          <p><strong>고도/속도:</strong> ${trf.altFt.toLocaleString()} ft / ${trf.speedKts} kts</p>
-          <p><strong>탑승객:</strong> ${trf.passengers}명</p>
-          <p><strong>비상기 회피 영향:</strong> ${trf.isConflictRisk ? '<span style="color:#ff9900;">충돌 회피 우회 대상 (약 ' + trf.estimatedDelayMinIfRerouted + '분 지연 예상)</span>' : '정상 항로 유지'}</p>
+          <div class="popup-header" style="border-bottom: 2px solid ${popupBadgeColor}; display:flex; justify-content:space-between; align-items:center;">
+            <h4>✈ ${trf.callsign} (${trf.aircraft})</h4>
+            <span class="badge" style="background:${popupBadgeColor}22; color:${popupBadgeColor}; border:1px solid ${popupBadgeColor}; font-weight:700;">
+              ${tierText}
+            </span>
+          </div>
+          <div class="popup-body" style="margin-top:8px;">
+            <p><strong>구간:</strong> ${trf.origin} ➔ ${trf.dest}</p>
+            <p><strong>고도 / 속도:</strong> ${trf.altFt.toLocaleString()} ft / ${trf.speedKts} kts (방위 ${trf.heading}°)</p>
+            <p><strong>탑승객:</strong> ${trf.passengers}명</p>
+            <p><strong>상태 및 영향도:</strong> ${trf.riskText || (tierKey === 'danger' ? '비상기 강하 항로 직접 간섭 (우회 필요)' : tierKey === 'caution' ? '인접 고도대 주의 요망' : '충분한 안전 간격 확보')}</p>
+            ${trf.estimatedDelayMinIfRerouted ? `<p><strong>예상 우회 지연:</strong> 약 +${trf.estimatedDelayMinIfRerouted}분 (+${trf.fuelBurnPenaltyKg}kg)</p>` : ''}
+          </div>
         </div>
       `);
 

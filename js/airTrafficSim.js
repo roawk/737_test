@@ -341,83 +341,100 @@ export const LANDING_SITES = [
 ];
 
 // Generate dynamic neighboring airborne commercial traffic relative to current aircraft position
-export function generateSurroundingAirTraffic(emergencyPos = { lat: 36.88, lng: 126.32 }) {
+// Classified into 3 tiers: DANGER (Red), CAUTION (Yellow), SAFE (Green)
+export function generateSurroundingAirTraffic(emergencyPos = { lat: 36.88, lng: 126.32 }, currentAltFt = 31000) {
   const eLat = emergencyPos.lat || 36.88;
   const eLng = emergencyPos.lng || 126.32;
+  const alt = currentAltFt || 31000;
 
   return [
     {
       callsign: "KAL721",
       aircraft: "B777-300ER",
-      lat: Number((eLat + 0.28).toFixed(4)),
-      lng: Number((eLng - 0.22).toFixed(4)),
-      altFt: 28000,
-      heading: 140,
+      lat: Number((eLat + 0.16).toFixed(4)),
+      lng: Number((eLng - 0.14).toFixed(4)),
+      altFt: Math.max(5000, Math.round(alt - 1500)),
+      heading: 145,
       speedKts: 440,
       origin: "ICN",
       dest: "SIN",
       passengers: 290,
+      riskTier: "danger", // 빨간색: 비상기 경로 직접 간섭 / 위험
+      color: "#ff1744",
       isConflictRisk: true,
+      riskText: "비상기 강하 항로 직접 간섭 (충돌 위험 / 긴급 우회 요망)",
       estimatedDelayMinIfRerouted: 18,
       fuelBurnPenaltyKg: 1400
     },
     {
       callsign: "AAR102",
       aircraft: "A321neo",
-      lat: Number((eLat + 0.12).toFixed(4)),
-      lng: Number((eLng + 0.35).toFixed(4)),
-      altFt: 18000,
+      lat: Number((eLat + 0.32).toFixed(4)),
+      lng: Number((eLng + 0.28).toFixed(4)),
+      altFt: Math.max(5000, Math.round(alt - 4800)),
       heading: 325,
       speedKts: 360,
       origin: "CJU",
       dest: "GMP",
       passengers: 180,
-      isConflictRisk: true,
+      riskTier: "caution", // 노란색: 아직은 아니지만 위험 가능성 있음
+      color: "#ffaa00",
+      isConflictRisk: false,
+      riskText: "인접 고도대 통과 중 (잠재적 간섭 위험 / 모니터링 필요)",
       estimatedDelayMinIfRerouted: 14,
       fuelBurnPenaltyKg: 650
     },
     {
+      callsign: "TWB204",
+      aircraft: "B737-MAX8",
+      lat: Number((eLat - 0.25).toFixed(4)),
+      lng: Number((eLng + 0.24).toFixed(4)),
+      altFt: Math.max(5000, Math.round(alt - 6200)),
+      heading: 210,
+      speedKts: 290,
+      origin: "GMP",
+      dest: "CJU",
+      passengers: 186,
+      riskTier: "caution", // 노란색: 아직은 아니지만 위험 가능성 있음
+      color: "#ffaa00",
+      isConflictRisk: false,
+      riskText: "하강 선회권 인접 (잠재적 간섭 위험)",
+      estimatedDelayMinIfRerouted: 12,
+      fuelBurnPenaltyKg: 490
+    },
+    {
       callsign: "JNA415",
       aircraft: "B737-800",
-      lat: Number((eLat - 0.38).toFixed(4)),
-      lng: Number((eLng + 0.25).toFixed(4)),
+      lat: Number((eLat - 0.48).toFixed(4)),
+      lng: Number((eLng + 0.38).toFixed(4)),
       altFt: 12000,
       heading: 340,
       speedKts: 310,
       origin: "PUS",
       dest: "ICN",
       passengers: 189,
+      riskTier: "safe", // 초록색: 안전함
+      color: "#00e676",
       isConflictRisk: false,
+      riskText: "충분한 수평 분리 간격 확보 (안전)",
       estimatedDelayMinIfRerouted: 8,
       fuelBurnPenaltyKg: 380
     },
     {
-      callsign: "TWB204",
-      aircraft: "B737-MAX8",
-      lat: Number((eLat + 0.42).toFixed(4)),
-      lng: Number((eLng + 0.45).toFixed(4)),
-      altFt: 9000,
-      heading: 210,
-      speedKts: 260,
-      origin: "GMP",
-      dest: "CJU",
-      passengers: 186,
-      isConflictRisk: false,
-      estimatedDelayMinIfRerouted: 12,
-      fuelBurnPenaltyKg: 490
-    },
-    {
       callsign: "CPA469",
       aircraft: "A350-900",
-      lat: Number((eLat - 0.22).toFixed(4)),
-      lng: Number((eLng - 0.42).toFixed(4)),
-      altFt: 34000,
+      lat: Number((eLat + 0.52).toFixed(4)),
+      lng: Number((eLng - 0.45).toFixed(4)),
+      altFt: 38000,
       heading: 200,
-      speedKts: 460,
+      speedKts: 465,
       origin: "ICN",
       dest: "HKG",
       passengers: 310,
+      riskTier: "safe", // 초록색: 안전함
+      color: "#00e676",
       isConflictRisk: false,
+      riskText: "상층 고도 분리 통과 (안전)",
       estimatedDelayMinIfRerouted: 6,
       fuelBurnPenaltyKg: 520
     }
