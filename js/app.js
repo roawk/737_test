@@ -605,8 +605,8 @@ function bindEventListeners() {
   enableDragToScroll(rightPanel);
   if (tabContent) {
     enableDragToScroll(tabContent);
-    enableDragToScroll(tabsCard, tabContent);
   }
+  initTacticalCardResizer();
   enableHorizontalDragToScroll(document.querySelector(".map-bottom-bar"));
 
   // Surrounding Traffic Quick Toggle Control (Bottom Bar)
@@ -655,20 +655,122 @@ function bindEventListeners() {
   syncFlightControlsUI();
 }
 
+function initTacticalCardResizer() {
+  const resizer = document.getElementById("tacticalCardResizer");
+  const tabsCard = document.getElementById("tacticalTabsCard");
+  const tabContent = tabsCard?.querySelector(".tab-content-area");
+  if (!resizer || !tabsCard || !tabContent) return;
+
+  let isResizing = false;
+  let startY = 0;
+  let startCardHeight = 0;
+  let startContentHeight = 0;
+
+  resizer.addEventListener("mousedown", (e) => {
+    isResizing = true;
+    startY = e.pageY;
+    startCardHeight = tabsCard.getBoundingClientRect().height;
+    startContentHeight = tabContent.getBoundingClientRect().height;
+    resizer.classList.add("is-resizing");
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "ns-resize";
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isResizing) return;
+    const dy = e.pageY - startY;
+    const newCardHeight = Math.min(750, Math.max(180, startCardHeight + dy));
+    const newContentHeight = Math.max(110, startContentHeight + dy);
+    
+    tabsCard.style.maxHeight = `${newCardHeight}px`;
+    tabsCard.style.height = `${newCardHeight}px`;
+    tabContent.style.maxHeight = `${newContentHeight}px`;
+    tabContent.style.height = `${newContentHeight}px`;
+    e.preventDefault();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (isResizing) {
+      isResizing = false;
+      resizer.classList.remove("is-resizing");
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+    }
+  });
+
+  // Touch support for resizing
+  resizer.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return;
+    isResizing = true;
+    startY = e.touches[0].pageY;
+    startCardHeight = tabsCard.getBoundingClientRect().height;
+    startContentHeight = tabContent.getBoundingClientRect().height;
+    resizer.classList.add("is-resizing");
+    e.stopPropagation();
+  }, { passive: true });
+
+  window.addEventListener("touchmove", (e) => {
+    if (!isResizing || e.touches.length !== 1) return;
+    const dy = e.touches[0].pageY - startY;
+    const newCardHeight = Math.min(750, Math.max(180, startCardHeight + dy));
+    const newContentHeight = Math.max(110, startContentHeight + dy);
+    
+    tabsCard.style.maxHeight = `${newCardHeight}px`;
+    tabsCard.style.height = `${newCardHeight}px`;
+    tabContent.style.maxHeight = `${newContentHeight}px`;
+    tabContent.style.height = `${newContentHeight}px`;
+  }, { passive: true });
+
+  window.addEventListener("touchend", () => {
+    if (isResizing) {
+      isResizing = false;
+      resizer.classList.remove("is-resizing");
+    }
+  });
+
+  // Double click toggles between compact (380px) and expanded (620px)
+  resizer.addEventListener("dblclick", () => {
+    const curH = tabsCard.getBoundingClientRect().height;
+    const targetH = curH > 480 ? 380 : 620;
+    const targetContentH = targetH - 65;
+
+    tabsCard.style.maxHeight = `${targetH}px`;
+    tabsCard.style.height = `${targetH}px`;
+    tabContent.style.maxHeight = `${targetContentH}px`;
+    tabContent.style.height = `${targetContentH}px`;
+  });
+}
+
 function enableDragToScroll(element, scrollTarget = element) {
   if (!element || !scrollTarget) return;
   let isDown = false;
   let startY = 0;
   let scrollTop = 0;
 
+  // Prevent default native image/text drag inside the scrollable container
+  element.addEventListener('dragstart', (e) => {
+    if (e.offsetX <= element.clientWidth) {
+      e.preventDefault();
+    }
+  });
+
   element.addEventListener('mousedown', (e) => {
+    // 1. If clicking on native scrollbar (thumb or track), do NOT intercept!
+    // In browsers, clicking the vertical scrollbar has offsetX > clientWidth
+    if (e.offsetX > element.clientWidth) {
+      return; // Let native scrollbar drag work smoothly without interference!
+    }
+
     const tag = e.target.tagName;
     if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || 
         e.target.closest('button') || 
         e.target.closest('select') || 
         e.target.closest('.cockpit-slider') || 
         e.target.closest('.num-input-group') || 
-        e.target.closest('.tab-btn')) {
+        e.target.closest('.tab-btn') ||
+        e.target.closest('.tactical-card-resizer')) {
       return;
     }
 
@@ -697,7 +799,7 @@ function enableDragToScroll(element, scrollTarget = element) {
       document.body.style.userSelect = 'none';
       document.body.style.cursor = 'grabbing';
       element.classList.add('is-dragging');
-      scrollTarget.scrollTop = scrollTop - (dy * 1.5);
+      scrollTarget.scrollTop = scrollTop - dy;
     }
   });
 
@@ -705,7 +807,9 @@ function enableDragToScroll(element, scrollTarget = element) {
   element.addEventListener('touchstart', (e) => {
     if (e.touches.length !== 1) return;
     const tag = e.target.tagName;
-    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || e.target.closest('button')) return;
+    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || 
+        e.target.closest('button') ||
+        e.target.closest('.tactical-card-resizer')) return;
     isDown = true;
     startY = e.touches[0].pageY;
     scrollTop = scrollTarget.scrollTop;
