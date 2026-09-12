@@ -1,7 +1,7 @@
 // AeroRescue 737 AI - Main Application Controller
 
 import { calculateFlightCapabilities, EMERGENCY_SCENARIOS } from "./b737Engine.js";
-import { generateSurroundingAirTraffic, LANDING_SITES, cycleNextTrafficPattern, getCurrentTrafficPattern, randomizeTrafficPattern } from "./airTrafficSim.js";
+import { generateSurroundingAirTraffic, LANDING_SITES } from "./airTrafficSim.js";
 import { evaluateLandingSites, calculateDistanceNM, calculateBearing } from "./routeOptimizer.js";
 import { QRH_PROCEDURES } from "./actionChecklist.js";
 import { generateMaintenanceMatrix } from "./postLandingMaint.js";
@@ -372,9 +372,6 @@ function bindEventListeners() {
     // Sync sliders & numeric inputs UI
     syncFlightControlsUI();
 
-    // Cycle surrounding aircraft sector on scenario change
-    cycleNextTrafficPattern();
-
     playEmergencyChime();
     recomputeAndRender();
   });
@@ -462,20 +459,6 @@ function bindEventListeners() {
     updateWindLabel(val);
     recomputeAndRender();
   });
-
-  // Cycle surrounding aircraft positions whenever a condition slider is released/changed
-  const triggerTrafficPatternCycle = () => {
-    cycleNextTrafficPattern();
-    recomputeAndRender();
-  };
-  altSlider.addEventListener("change", triggerTrafficPatternCycle);
-  speedSlider.addEventListener("change", triggerTrafficPatternCycle);
-  fuelSlider.addEventListener("change", triggerTrafficPatternCycle);
-  windSlider.addEventListener("change", triggerTrafficPatternCycle);
-  inputAlt.addEventListener("change", triggerTrafficPatternCycle);
-  inputSpeed.addEventListener("change", triggerTrafficPatternCycle);
-  inputFuel.addEventListener("change", triggerTrafficPatternCycle);
-  inputWind.addEventListener("change", triggerTrafficPatternCycle);
 
   // Sound toggle button (if present)
   const soundBtn = document.getElementById("soundToggleBtn");
@@ -638,15 +621,6 @@ function bindEventListeners() {
   }
 
   if (toggleTrafficQuickBtn) toggleTrafficQuickBtn.addEventListener("click", handleTrafficToggle);
-
-  // Surrounding Traffic Pattern Cycling Button (Bottom Bar)
-  const cycleTrafficPatternBtn = document.getElementById("cycleTrafficPatternBtn");
-  if (cycleTrafficPatternBtn) {
-    cycleTrafficPatternBtn.addEventListener("click", () => {
-      cycleNextTrafficPattern();
-      recomputeAndRender();
-    });
-  }
 
   // Initial flight controls sync
   syncFlightControlsUI();
@@ -838,14 +812,6 @@ function recomputeAndRender() {
   if (safeEl) safeEl.textContent = `${safeTrafficCount}대`;
   const legacyConflictEl = document.getElementById("conflictCount");
   if (legacyConflictEl) legacyConflictEl.textContent = `${dangerTrafficCount}대`;
-
-  const patternBadge = document.getElementById("trafficPatternBadge");
-  if (patternBadge) {
-    const curPattern = getCurrentTrafficPattern();
-    if (curPattern) {
-      patternBadge.textContent = curPattern.shortName;
-    }
-  }
 
   // 5. Render Right Top Recommendation Cards (1st, 2nd, 3rd)
   renderRecommendationCards(recs);
