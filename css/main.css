@@ -90,63 +90,60 @@ body.cockpit-theme {
   gap: 16px;
 }
 
-/* Boeing / SAFTER Team Badge */
-.team-badge {
-  background: linear-gradient(135deg, #002244 0%, #004080 100%);
-  border: 1px solid #002244;
-  border-radius: 20px;
-  padding: 4px 14px;
+/* Boeing Brand Badge in place of former team badge */
+.boeing-brand-badge {
+  background: #002244;
+  border: 1px solid #001830;
+  border-radius: 8px;
+  padding: 4px 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 8px rgba(0, 34, 68, 0.2);
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 34, 68, 0.25);
+  height: 38px;
 }
 
-.team-badge .team-label {
-  font-size: 8.5px;
-  font-family: var(--font-mono);
-  color: #8bbce8;
-  letter-spacing: 0.8px;
-  font-weight: 700;
-}
-
-.team-badge .team-name {
-  font-family: var(--font-hud);
-  font-size: 13px;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 1.5px;
+.header-boeing-logo {
+  height: 22px;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.logo-icon {
-  font-size: 24px;
-  color: #0064d2;
 }
 
 .brand-title {
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--boeing-navy);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  line-height: 1.2;
+  margin-bottom: 2px;
 }
 
 .brand-title strong {
   color: #0064d2;
   font-weight: 900;
+  letter-spacing: 0.8px;
 }
 
-.brand-sub {
-  font-size: 9.5px;
+.brand-sub-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.brand-sub-lines .sub-line {
+  font-size: 9px;
   font-family: var(--font-mono);
   color: var(--text-muted);
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
+  text-align: left;
+  line-height: 1.25;
 }
 
 .airframe-badge {
