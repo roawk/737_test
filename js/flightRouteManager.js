@@ -135,3 +135,92 @@ export function computeFlightPositionAlongRoute(originAirport, destAirport, prog
     progressPercent: Math.round(t * 100)
   };
 }
+
+/**
+ * Determines the airspace, country, flag, and timezone based on aircraft coordinates
+ */
+export function getAirspaceInfo(lat, lng) {
+  if (typeof lat !== 'number' || typeof lng !== 'number') {
+    return {
+      country: "대한민국",
+      fir: "Incheon FIR (RKRR)",
+      flag: "🇰🇷",
+      timeZone: "Asia/Seoul",
+      code: "KST",
+      utcOffset: "+09:00"
+    };
+  }
+
+  // 1. North Korea (Pyongyang FIR)
+  if (lat > 37.95 && lng >= 124.5 && lng <= 130.5) {
+    return {
+      country: "북한",
+      fir: "Pyongyang FIR (ZKKP)",
+      flag: "🇰🇵",
+      timeZone: "Asia/Pyongyang",
+      code: "KST",
+      utcOffset: "+09:00"
+    };
+  }
+
+  // 2. Japan Airspace (Fukuoka FIR)
+  const isJapan = (lng >= 130.5 && lat <= 41.0) ||
+                  (lng >= 129.5 && lat <= 35.0) ||
+                  (lng >= 128.5 && lat <= 32.5);
+  if (isJapan) {
+    return {
+      country: "일본",
+      fir: "Fukuoka FIR (RJJJ)",
+      flag: "🇯🇵",
+      timeZone: "Asia/Tokyo",
+      code: "JST",
+      utcOffset: "+09:00"
+    };
+  }
+
+  // 3. Taiwan Airspace (Taipei FIR)
+  if (lat <= 26.0 && lng < 124.0 && lng >= 118.0) {
+    return {
+      country: "대만",
+      fir: "Taipei FIR (RCAA)",
+      flag: "🇹🇼",
+      timeZone: "Asia/Taipei",
+      code: "CST",
+      utcOffset: "+08:00"
+    };
+  }
+
+  // 4. China Airspace (Shanghai / Beijing FIR)
+  if (lng < 124.0 && lat >= 24.0) {
+    return {
+      country: "중국",
+      fir: lat > 38 ? "Beijing FIR (ZBPE)" : "Shanghai FIR (ZSHA)",
+      flag: "🇨🇳",
+      timeZone: "Asia/Shanghai",
+      code: "CST",
+      utcOffset: "+08:00"
+    };
+  }
+
+  // 5. Russia Far East (Vladivostok FIR)
+  if (lat >= 42.0 || (lat >= 41.0 && lng >= 131.0)) {
+    return {
+      country: "러시아",
+      fir: "Vladivostok FIR (UHWW)",
+      flag: "🇷🇺",
+      timeZone: "Asia/Vladivostok",
+      code: "VLAT",
+      utcOffset: "+10:00"
+    };
+  }
+
+  // Default: South Korea (Incheon FIR)
+  return {
+    country: "대한민국",
+    fir: "Incheon FIR (RKRR)",
+    flag: "🇰🇷",
+    timeZone: "Asia/Seoul",
+    code: "KST",
+    utcOffset: "+09:00"
+  };
+}

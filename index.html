@@ -59,7 +59,17 @@
         <span>기체 손상 & 부품 진단</span>
         <span class="damage-pill-badge" id="headerDamageBadge">82% 손상</span>
       </button>
-      <div class="utc-clock" id="utcClock">12:35:42 KST</div>
+      <div class="airspace-clock" id="utcClock" title="항공기 현재 위치 공역 기준 현지 날짜 및 시각">
+        <div class="clock-airspace-tag">
+          <span class="clock-flag" id="clockFlag">🇰🇷</span>
+          <span class="clock-country" id="clockCountry">대한민국 공역</span>
+          <span class="clock-zone-badge" id="clockZoneBadge">KST</span>
+        </div>
+        <div class="clock-datetime-wrap">
+          <span class="clock-date" id="clockDate">2026.09.12 (토)</span>
+          <span class="clock-time" id="clockTime">15:15:00</span>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -746,6 +756,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=13"></script>
+  <script type="module" src="js/app.js?v=14"></script>
 </body>
 </html>

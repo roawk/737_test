@@ -11,7 +11,8 @@ import {
   POPULAR_ROUTES, 
   getAirportByIcao, 
   generatePlannedRouteWaypoints, 
-  computeFlightPositionAlongRoute 
+  computeFlightPositionAlongRoute,
+  getAirspaceInfo
 } from "./flightRouteManager.js";
 import { updateWeatherHudUI } from "./enRouteWeather.js";
 import { updateDamageModalUI, setDamageCategoryFilter } from "./aircraftDamageMro.js";
@@ -744,6 +745,9 @@ function recomputeAndRender() {
 
   // 8. Update Real-Time Aircraft Damage & Parts Manifest
   updateDamageModalUI(state.emergencyKey);
+
+  // 9. Update Real-Time Airspace Country Date & Time
+  if (updateAirspaceClockRef) updateAirspaceClockRef();
 }
 
 function renderRecommendationCards(recs) {
@@ -1070,15 +1074,57 @@ function renderAirspaceAnalysis(evaluatedItem) {
   });
 }
 
+let updateAirspaceClockRef = null;
+
 function startUtcClock() {
+  const clockFlag = document.getElementById("clockFlag");
+  const clockCountry = document.getElementById("clockCountry");
+  const clockZoneBadge = document.getElementById("clockZoneBadge");
+  const clockDate = document.getElementById("clockDate");
+  const clockTime = document.getElementById("clockTime");
   const clockEl = document.getElementById("utcClock");
-  function updateTime() {
+
+  function updateClock() {
+    const lat = state.aircraft?.lat ?? 36.5;
+    const lng = state.aircraft?.lng ?? 126.7;
+    const airspace = getAirspaceInfo(lat, lng);
+
     const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    clockEl.textContent = `${h}:${m}:${s} KST`;
+    
+    try {
+      // Localized date formatter for the aircraft's current airspace country
+      const dtfDate = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: airspace.timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        weekday: 'short'
+      });
+      // Localized time formatter for the aircraft's current airspace country
+      const dtfTime = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: airspace.timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+
+      if (clockFlag) clockFlag.textContent = airspace.flag;
+      if (clockCountry) clockCountry.textContent = `${airspace.country} 공역`;
+      if (clockZoneBadge) clockZoneBadge.textContent = airspace.code;
+      if (clockDate) clockDate.textContent = dtfDate.format(now);
+      if (clockTime) clockTime.textContent = dtfTime.format(now);
+
+      if (clockEl) {
+        clockEl.title = `기체 위치 (${lat.toFixed(2)}°, ${lng.toFixed(2)}°) • ${airspace.country} (${airspace.fir}) 현지 일시`;
+      }
+    } catch (e) {
+      if (clockDate) clockDate.textContent = now.toLocaleDateString('ko-KR');
+      if (clockTime) clockTime.textContent = now.toTimeString().split(' ')[0];
+    }
   }
-  updateTime();
-  setInterval(updateTime, 1000);
+
+  updateAirspaceClockRef = updateClock;
+  updateClock();
+  setInterval(updateClock, 1000);
 }
