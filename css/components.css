@@ -352,73 +352,212 @@
 }
 
 /* Radar Popups */
-.radar-popup {
-  background: #ffffff;
-  color: var(--text-body);
-  font-family: var(--font-sans);
-  padding: 4px;
-  min-width: 250px;
-}
-
 .leaflet-popup-content-wrapper {
   background: #ffffff !important;
-  border: 1px solid #d0e1f3 !important;
+  border: 1px solid #cbd5e1 !important;
   border-radius: 12px !important;
-  box-shadow: 0 8px 28px rgba(12, 35, 64, 0.15) !important;
+  box-shadow: 0 10px 30px rgba(12, 35, 64, 0.18) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px 14px 14px !important;
+  line-height: 1.4 !important;
+  width: auto !important;
 }
 
 .leaflet-popup-tip {
   background: #ffffff !important;
 }
 
-.popup-header {
-  padding-bottom: 6px;
+.leaflet-popup-close-button {
+  top: 8px !important;
+  right: 10px !important;
+  color: #94a3b8 !important;
+  font-size: 16px !important;
+  padding: 4px !important;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #0c2340 !important;
+  transform: scale(1.15);
+}
+
+.radar-popup {
+  background: #ffffff;
+  color: #1e293b;
+  font-family: var(--font-sans);
+  width: 320px;
+  max-width: 90vw;
+  box-sizing: border-box;
+}
+
+.radar-popup .popup-header {
+  padding-bottom: 7px;
   margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  padding-right: 16px; /* space for close button */
 }
 
-.popup-header h4 {
+.radar-popup .popup-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.radar-popup .popup-site-name {
   font-size: 13.5px;
   font-weight: 800;
-  color: var(--boeing-navy);
+  color: #0c2340;
+  margin: 0;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.popup-body {
-  font-size: 11.5px;
+.radar-popup .popup-site-icao {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0064d2;
+  background: #eef6ff;
+  border: 1px solid #bfdbfe;
+  padding: 1px 5px;
+  border-radius: 4px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.radar-popup .popup-status-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.radar-popup .popup-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 1.5px;
+  font-size: 11.5px;
 }
 
-.popup-body p {
-  margin: 0;
-  color: var(--text-body);
+.radar-popup .popup-data-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 3.5px 6px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
 }
 
-.popup-body strong {
-  color: var(--boeing-navy);
+.radar-popup .popup-data-row:nth-child(even) {
+  background: #f8fafc;
 }
 
-.popup-select-btn {
+.radar-popup .popup-data-row .p-label {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.radar-popup .popup-data-row .p-label i {
+  font-size: 10.5px;
+  width: 12px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.radar-popup .popup-data-row .p-val {
+  color: #334155;
+  font-size: 11.5px;
+  text-align: right;
+  font-weight: 500;
+}
+
+.radar-popup .popup-data-row .p-val strong {
+  color: #0c2340;
+  font-weight: 700;
+}
+
+.radar-popup .popup-data-row .p-val .sub-text {
+  color: #64748b;
+  font-size: 10px;
+}
+
+.radar-popup .popup-data-row.score-row {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  margin-top: 4px;
+  padding: 4px 8px;
+}
+
+.radar-popup .score-badge {
+  color: #15803d !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+}
+
+.radar-popup .sub-score {
+  color: #475569;
+  font-size: 10px;
+}
+
+.radar-popup .popup-data-row.note-row {
+  align-items: flex-start;
+}
+
+.radar-popup .note-val {
+  max-width: 190px;
+  line-height: 1.35;
+  word-break: keep-all;
+  text-align: right;
+}
+
+.radar-popup .penalty-row .text-amber {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.radar-popup .popup-select-btn {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 8px;
   background: linear-gradient(135deg, #0064d2 0%, #004b9e 100%);
   border: none;
-  border-radius: 6px;
+  border-radius: 7px;
   color: #ffffff;
   font-family: var(--font-sans);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   padding: 7px 0;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   transition: var(--transition-fast);
-  box-shadow: 0 2px 6px rgba(0, 100, 210, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 100, 210, 0.25);
 }
 
-.popup-select-btn:hover {
-  background: #003673;
+.radar-popup .popup-select-btn:hover {
+  background: linear-gradient(135deg, #004b9e 0%, #003673 100%);
+  box-shadow: 0 4px 10px rgba(0, 100, 210, 0.35);
+  transform: translateY(-1px);
 }
 
 /* 3. TACTICAL RECOMMENDED ROUTE CARDS (Korean Air & Incheon Airport Style) */

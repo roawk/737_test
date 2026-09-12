@@ -183,22 +183,42 @@ export class AirspaceMapRenderer {
       
       const popupBadgeColor = color;
       marker.bindPopup(`
-        <div class="radar-popup">
-          <div class="popup-header" style="border-bottom: 2px solid ${popupBadgeColor}; display:flex; justify-content:space-between; align-items:center;">
-            <h4>✈ ${trf.callsign} (${trf.aircraft})</h4>
-            <span class="badge" style="background:${popupBadgeColor}22; color:${popupBadgeColor}; border:1px solid ${popupBadgeColor}; font-weight:700;">
+        <div class="radar-popup traffic-popup">
+          <div class="popup-header" style="border-bottom: 2px solid ${popupBadgeColor};">
+            <div class="popup-title-group">
+              <h4 class="popup-site-name">✈ ${trf.callsign}</h4>
+              <span class="popup-site-icao">${trf.aircraft}</span>
+            </div>
+            <span class="popup-status-badge" style="background:${popupBadgeColor}18; color:${popupBadgeColor}; border:1px solid ${popupBadgeColor};">
               ${tierText}
             </span>
           </div>
-          <div class="popup-body" style="margin-top:8px;">
-            <p><strong>구간:</strong> ${trf.origin} ➔ ${trf.dest}</p>
-            <p><strong>고도 / 속도:</strong> ${trf.altFt.toLocaleString()} ft / ${trf.speedKts} kts (방위 ${trf.heading}°)</p>
-            <p><strong>탑승객:</strong> ${trf.passengers}명</p>
-            <p><strong>상태 및 영향도:</strong> ${trf.riskText || (tierKey === 'danger' ? '비상기 강하 항로 직접 간섭 (우회 필요)' : tierKey === 'caution' ? '인접 고도대 주의 요망' : '충분한 안전 간격 확보')}</p>
-            ${trf.estimatedDelayMinIfRerouted ? `<p><strong>예상 우회 지연:</strong> 약 +${trf.estimatedDelayMinIfRerouted}분 (+${trf.fuelBurnPenaltyKg}kg)</p>` : ''}
+          <div class="popup-body">
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-route"></i> 비행 구간</span>
+              <span class="p-val"><strong>${trf.origin}</strong> ➔ <strong>${trf.dest}</strong></span>
+            </div>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-gauge-high"></i> 고도 / 속도</span>
+              <span class="p-val"><strong>${trf.altFt.toLocaleString()} ft</strong> / ${trf.speedKts} kts (${trf.heading}°)</span>
+            </div>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-users"></i> 탑승객 수</span>
+              <span class="p-val">약 <strong>${trf.passengers}명</strong></span>
+            </div>
+            <div class="popup-data-row note-row">
+              <span class="p-label"><i class="fa-solid fa-shield-halved"></i> 상태/영향</span>
+              <span class="p-val note-val">${trf.riskText || (tierKey === 'danger' ? '비상기 강하 항로 직접 간섭 (우회 필요)' : tierKey === 'caution' ? '인접 고도대 주의 요망' : '충분한 안전 간격 확보')}</span>
+            </div>
+            ${trf.estimatedDelayMinIfRerouted ? `
+            <div class="popup-data-row penalty-row">
+              <span class="p-label"><i class="fa-solid fa-clock-rotate-left"></i> 우회 지연</span>
+              <span class="p-val text-amber">+${trf.estimatedDelayMinIfRerouted}분 (+${trf.fuelBurnPenaltyKg}kg)</span>
+            </div>
+            ` : ''}
           </div>
         </div>
-      `);
+      `, { maxWidth: 350, minWidth: 300 });
 
       this.trafficMarkers.push(marker);
     });
@@ -250,25 +270,54 @@ export class AirspaceMapRenderer {
       const marker = L.marker([site.lat, site.lng], { icon }).addTo(this.map);
 
       marker.bindPopup(`
-        <div class="radar-popup">
-          <div class="popup-header" style="border-bottom: 2px solid ${badgeColor}">
-            <h4>${site.name} (${site.icao})</h4>
-            <span class="badge" style="background:${badgeColor}22; color:${badgeColor}; border:1px solid ${badgeColor};">
-              ${item.isReachable ? '착륙 도달 가능' : '무동력 비행 한계 초과'}
+        <div class="radar-popup airport-popup">
+          <div class="popup-header" style="border-bottom: 2px solid ${badgeColor};">
+            <div class="popup-title-group">
+              <h4 class="popup-site-name">${site.name}</h4>
+              <span class="popup-site-icao">${site.icao}</span>
+            </div>
+            <span class="popup-status-badge" style="background:${badgeColor}18; color:${badgeColor}; border:1px solid ${badgeColor};">
+              ${item.isReachable ? '착륙 도달 가능' : '무동력 한계 초과'}
             </span>
           </div>
           <div class="popup-body">
-            <p><strong>거리 / 방위:</strong> ${item.distanceNM} NM / ${item.bearingDeg}°</p>
-            <p><strong>예상 비행시간:</strong> 약 ${item.estimatedMinutes}분</p>
-            <p><strong>활주로 길이:</strong> ${site.maxRunwayLength.toLocaleString()}m (${site.runways[0]?.ilsCat || 'N/A'})</p>
-            <p><strong>소방 등급:</strong> ARFF Cat ${site.arffCategory}</p>
-            <p><strong>기상 조건:</strong> ${site.weather.wind}, ${site.weather.vis || site.weather.seaState}</p>
-            <p><strong>공항 대기편 수:</strong> ${site.activeQueuedFlights}대 대기 (스케줄 영향도)</p>
-            <p><strong>종합 평가점수:</strong> <span style="font-weight:bold; color:#00ffcc;">${item.compositeScore}점</span> (안전: ${item.safetyScore} / 운영: ${item.efficiencyScore})</p>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-arrows-split-up-and-left"></i> 거리 / 방위</span>
+              <span class="p-val"><strong>${item.distanceNM} NM</strong> / ${item.bearingDeg}°</span>
+            </div>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-stopwatch"></i> 예상 비행시간</span>
+              <span class="p-val">약 <strong>${item.estimatedMinutes}분</strong></span>
+            </div>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-road"></i> 활주로 길이</span>
+              <span class="p-val"><strong>${site.maxRunwayLength.toLocaleString()}m</strong> <span class="sub-text">(${site.runways[0]?.ilsCat || 'N/A'})</span></span>
+            </div>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-fire-extinguisher"></i> 소방 등급</span>
+              <span class="p-val">ARFF Cat <strong>${site.arffCategory}</strong></span>
+            </div>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-cloud-sun"></i> 기상 조건</span>
+              <span class="p-val">${site.weather.wind}, ${site.weather.vis || site.weather.seaState}</span>
+            </div>
+            <div class="popup-data-row">
+              <span class="p-label"><i class="fa-solid fa-plane-arrival"></i> 공항 대기편</span>
+              <span class="p-val">${site.activeQueuedFlights}대 대기 <span class="sub-text">(스케줄)</span></span>
+            </div>
+            <div class="popup-data-row score-row">
+              <span class="p-label"><i class="fa-solid fa-star text-amber"></i> 종합 평가점수</span>
+              <span class="p-val">
+                <strong class="score-badge">${item.compositeScore}점</strong> 
+                <span class="sub-score">(안전 ${item.safetyScore} / 운영 ${item.efficiencyScore})</span>
+              </span>
+            </div>
           </div>
-          <button class="popup-select-btn" onclick="window.selectEmergencyRoute('${site.id}')">이 착륙지로 루트 연결</button>
+          <button class="popup-select-btn" onclick="window.selectEmergencyRoute('${site.id}')">
+            <i class="fa-solid fa-location-arrow"></i> 이 착륙지로 루트 연결
+          </button>
         </div>
-      `);
+      `, { maxWidth: 360, minWidth: 320 });
 
       this.airportMarkers.push(marker);
     });
