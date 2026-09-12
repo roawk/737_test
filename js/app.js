@@ -731,7 +731,7 @@ function renderRecommendationCards(recs) {
         <div class="route-scores">
           <div class="score-badge">
             <span class="score-val" style="color: ${item.colorCode};">${rData.compositeScore}점</span>
-            <span class="score-lbl">종합 최적도</span>
+            <span class="score-lbl">${rData.compositeScore < 0 ? '도달불능 감점' : '종합 최적도'}</span>
           </div>
         </div>
       </div>
@@ -747,7 +747,7 @@ function renderRecommendationCards(recs) {
         </div>
         <div class="metric-cell">
           <span>안전 점수 (1순위)</span>
-          <strong class="text-green">${rData.safetyScore} / 100</strong>
+          <strong class="${rData.safetyScore < 0 ? 'text-red' : 'text-green'}">${rData.safetyScore} / 100</strong>
         </div>
         <div class="metric-cell">
           <span>운영 점수 (2순위)</span>
@@ -789,6 +789,13 @@ function renderAIRationale(recs, emergencyKey, capabilities) {
     card.className = `rationale-item-card ${item.cssClass}`;
 
     // Generate logical reasons
+    let reachabilityBullet = !rData.isReachable
+      ? `<div class="reason-bullet" style="background: rgba(213,0,0,0.06); border-left: 3px solid #d50000; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px;">
+           <i class="fa-solid fa-triangle-exclamation text-red"></i>
+           <span><strong class="text-red">[도달 마진 부족]</strong> 비상 활공 반경 대비 <strong>${Math.abs(rData.glideMarginNM)} NM</strong> 거리 부족 (안전 결손 감점 ${rData.safetyScore}점 적용)</span>
+         </div>`
+      : '';
+
     let safetyBullet1 = `활주로 길이 <strong>${site.maxRunwayLength.toLocaleString()}m</strong> 보유 (요구 길이 ${capabilities.requiredRunwayMeters.toLocaleString()}m 대비 <span class="${marginClass}">${runwayMarginMeters >= 0 ? '+' : ''}${runwayMarginMeters}m</span> 여유 확보)`;
     let safetyBullet2 = `소방 구조대 <strong>ARFF Cat ${site.arffCategory}</strong> 등급 배속 (비상 화재 진압 및 비상 탈출 골든타임 완비)`;
     let safetyBullet3 = `계기 접근: <strong>${site.runways[0]?.ilsCat || 'VISUAL'}</strong> 지원, 기상 조건: <strong>${site.weather.conditions}</strong>`;
@@ -812,6 +819,7 @@ function renderAIRationale(recs, emergencyKey, capabilities) {
       </div>
 
       <div class="r-key-reasons">
+        ${reachabilityBullet}
         <div class="reason-bullet">
           <i class="fa-solid fa-shield-check text-green"></i>
           <span><strong>[안전성 근거 (75%)]</strong> ${safetyBullet1} / ${safetyBullet2} / ${safetyBullet3}</span>
@@ -825,7 +833,7 @@ function renderAIRationale(recs, emergencyKey, capabilities) {
       <div class="r-score-breakdown-bar">
         <div class="bar-chunk">
           <span>안전성 평가 점수 (가중치 75%)</span>
-          <strong class="text-green">${rData.safetyScore} / 100 점</strong>
+          <strong class="${rData.safetyScore < 0 ? 'text-red' : 'text-green'}">${rData.safetyScore} / 100 점</strong>
         </div>
         <div class="bar-chunk">
           <span>스케줄/비용 절감 점수 (가중치 25%)</span>

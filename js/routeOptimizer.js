@@ -154,8 +154,26 @@ export function evaluateLandingSites(currentAircraftState, emergencyKey, surroun
       }
     }
 
-    safetyScore = Math.max(5, Math.min(100, Math.round(safetyScore)));
-    if (!isReachable) safetyScore = 0;
+    if (isReachable) {
+      safetyScore = Math.max(10, Math.min(100, Math.round(safetyScore)));
+    } else {
+      // Apply negative (-) scores reflecting aerodynamic deficit & glide margin deficit
+      let penalty = -25;
+      if (cap.isDualFlameout) {
+        const deficitNM = Math.max(0, distanceNM - cap.maxGlideRangeNM);
+        penalty = -25 - Math.round(deficitNM * 3.5);
+      } else if (emergencyKey === "cargo_fire") {
+        const overdueMin = Math.max(0, estimatedMinutes - 18);
+        penalty = -30 - Math.round(overdueMin * 8);
+      } else if (emergencyKey === "rapid_depressurization") {
+        const overdueMin = Math.max(0, estimatedMinutes - 25);
+        penalty = -25 - Math.round(overdueMin * 6);
+      } else {
+        const deficitNM = Math.max(0, distanceNM - (cap.maxGlideRangeNM || 50));
+        penalty = -25 - Math.round(deficitNM * 3.0);
+      }
+      safetyScore = Math.min(-5, Math.round((safetyScore * 0.35) + penalty));
+    }
 
     // 3. EFFICIENCY & SCHEDULE IMPACT SCORE (0 - 100)
     // Priority 2: Minimizing commercial network delay and airline financial cost
@@ -203,6 +221,9 @@ export function evaluateLandingSites(currentAircraftState, emergencyKey, surroun
     let compositeScore = 0;
     if (isReachable) {
       compositeScore = Math.round(safetyScore * 0.75 + efficiencyScore * 0.25);
+    } else {
+      // Apply negative composite score reflecting distance & safety deficit
+      compositeScore = Math.min(-1, Math.round(safetyScore * 0.8 + (efficiencyScore * 0.1) - 10));
     }
 
     return {
@@ -224,14 +245,10 @@ export function evaluateLandingSites(currentAircraftState, emergencyKey, surroun
 
   // Separate reachable vs unreachable
   const reachableList = results.filter(r => r.isReachable);
-  const unreachableList = results.filter(r => !r.isReachable).sort((a, b) => a.distanceNM - b.distanceNM);
+  const unreachableList = results.filter(r => !r.isReachable).sort((a, b) => b.compositeScore - a.compositeScore);
 
-  // Fallback if very low altitude makes all normal airports unreachable
-  let candidatePool = reachableList.length > 0 ? reachableList : results;
-
-  // -------------------------------------------------------------
-  // TACTICAL RECOMMENDATION SELECTION (100% DISTINCT 3 SITES)
-  // -------------------------------------------------------------
+  // Candidate pool: prioritize reachable, but backfill with least-negative unreachable sites if needed
+  let candidatePool = reachableList.length >= 3 ? reachableList : [...reachableList, ...unreachableList];
 
   // -------------------------------------------------------------
   // TACTICAL RECOMMENDATION SELECTION (100% STRICT RANKING)
@@ -240,14 +257,19 @@ export function evaluateLandingSites(currentAircraftState, emergencyKey, surroun
 
   // Sort candidate pool strictly based on selected criteria
   let rankedCandidates = [...candidatePool].sort((a, b) => {
+    // 1. Always prioritize reachable over unreachable
+    if (a.isReachable !== b.isReachable) {
+      return a.isReachable ? -1 : 1;
+    }
+
+    // 2. Both reachable or both unreachable: sort by criteria
     if (sortCriteria === "safety") {
-      // 1st Priority: Safety Score (Strictly descending, no inversion!)
+      // 1st Priority: Safety Score (Strictly descending, e.g. -6 > -51 > -186)
       if (b.safetyScore !== a.safetyScore) return b.safetyScore - a.safetyScore;
-      // 2nd Priority (Tie-break): Efficiency & Schedule Score
-      if (b.efficiencyScore !== a.efficiencyScore) return b.efficiencyScore - a.efficiencyScore;
+      if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
       return a.distanceNM - b.distanceNM;
     } else if (sortCriteria === "balanced") {
-      // Balanced Composite Score (Safety 75% + Schedule 25%)
+      // Balanced Composite Score
       if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
       if (b.safetyScore !== a.safetyScore) return b.safetyScore - a.safetyScore;
       return a.distanceNM - b.distanceNM;
@@ -256,7 +278,7 @@ export function evaluateLandingSites(currentAircraftState, emergencyKey, surroun
       if (a.estimatedMinutes !== b.estimatedMinutes) return a.estimatedMinutes - b.estimatedMinutes;
       return b.safetyScore - a.safetyScore;
     }
-    return b.safetyScore - a.safetyScore;
+    return b.compositeScore - a.compositeScore;
   });
 
   // Pick top 3 completely distinct sites
@@ -265,9 +287,17 @@ export function evaluateLandingSites(currentAircraftState, emergencyKey, surroun
   const optionCharlie = rankedCandidates[2] || results[2];
 
   // Strategy dynamic descriptions
-  const alphaDesc = `1순위 추천: ${optionAlpha.site.name} (활주로 ${optionAlpha.site.maxRunwayLength}m, ARFF Cat ${optionAlpha.site.arffCategory}). 안전 점수 ${optionAlpha.safetyScore}점 최우선 보장.`;
-  const bravoDesc = `2순위 추천: ${optionBravo.site.name}. 안전 점수 ${optionBravo.safetyScore}점 유지 및 공항 대기편(${optionBravo.site.activeQueuedFlights}대) 스케줄 지연 최소화.`;
-  const charlieDesc = `3순위 추천: ${optionCharlie.site.name}. 안전 점수 ${optionCharlie.safetyScore}점, 비행거리 ${optionCharlie.distanceNM}NM (예상 ${optionCharlie.estimatedMinutes}분) 차순위 항로.`;
+  const alphaDesc = optionAlpha.isReachable
+    ? `1순위 추천: ${optionAlpha.site.name} (활주로 ${optionAlpha.site.maxRunwayLength}m, ARFF Cat ${optionAlpha.site.arffCategory}). 안전 점수 ${optionAlpha.safetyScore}점 최우선 보장.`
+    : `1순위 추천: ${optionAlpha.site.name} (활주로 ${optionAlpha.site.maxRunwayLength}m). 글라이드 반경 초과 (${optionAlpha.glideMarginNM}NM). 종합 평가 ${optionAlpha.compositeScore}점 (최소 결손 차선책).`;
+
+  const bravoDesc = optionBravo.isReachable
+    ? `2순위 추천: ${optionBravo.site.name}. 안전 점수 ${optionBravo.safetyScore}점 유지 및 공항 대기편(${optionBravo.site.activeQueuedFlights}대) 스케줄 지연 최소화.`
+    : `2순위 추천: ${optionBravo.site.name}. 도달 마진 부족 (${optionBravo.glideMarginNM}NM). 종합 평가 ${optionBravo.compositeScore}점 차순위 대안.`;
+
+  const charlieDesc = optionCharlie.isReachable
+    ? `3순위 추천: ${optionCharlie.site.name}. 안전 점수 ${optionCharlie.safetyScore}점, 비행거리 ${optionCharlie.distanceNM}NM (예상 ${optionCharlie.estimatedMinutes}분) 차순위 항로.`
+    : `3순위 추천: ${optionCharlie.site.name}. 도달 마진 부족 (${optionCharlie.glideMarginNM}NM). 종합 평가 ${optionCharlie.compositeScore}점 비상 대안.`;
 
   return {
     capabilities: cap,
