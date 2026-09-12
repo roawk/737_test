@@ -609,29 +609,35 @@
   gap: 12px;
 }
 
+.routes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .route-card {
   background: #ffffff;
   border: 1.5px solid #dce8f5;
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 8px 10px;
   cursor: pointer;
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 20, 60, 0.04);
+  box-shadow: 0 1.5px 6px rgba(0, 20, 60, 0.04);
 }
 
 .route-card:hover {
   border-color: #9ac4fb;
   background: #fbfdff;
-  box-shadow: 0 4px 16px rgba(0, 100, 210, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 100, 210, 0.1);
+  transform: translateY(-1px);
 }
 
 .route-card.selected {
   border-color: #0064d2;
   background: #f7faff;
-  box-shadow: 0 6px 20px rgba(0, 100, 210, 0.14);
+  box-shadow: 0 4px 16px rgba(0, 100, 210, 0.12);
 }
 
 .route-card.selected::before {
@@ -640,7 +646,7 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 4.5px;
+  width: 4px;
   background: #0064d2;
 }
 
@@ -648,24 +654,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  gap: 8px;
+  margin-bottom: 3px;
+  gap: 6px;
 }
 
 .route-tag-group {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   flex: 1;
   min-width: 0;
 }
 
 .route-letter-badge {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 5px;
+  padding: 1.5px 6px;
+  border-radius: 4px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -691,7 +697,7 @@
 .route-card.rank3.selected::before { background: #e67e22; }
 
 .route-title {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--boeing-navy);
   white-space: nowrap;
@@ -705,7 +711,7 @@
   flex-direction: column;
   align-items: flex-end;
   flex-shrink: 0;
-  line-height: 1.1;
+  line-height: 1;
 }
 
 .score-badge .score-val-wrap {
@@ -716,29 +722,29 @@
 
 .score-badge .score-val {
   font-family: var(--font-mono);
-  font-size: 18.5px;
+  font-size: 17px;
   font-weight: 900;
   letter-spacing: -0.5px;
 }
 
 .score-badge .score-unit {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   font-family: var(--font-sans);
 }
 
 .score-badge .score-lbl {
-  font-size: 9px;
+  font-size: 8.5px;
   color: #64748b;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .route-strategy-desc {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #475569;
-  line-height: 1.5;
-  margin-bottom: 8px;
+  line-height: 1.35;
+  margin-bottom: 5px;
   word-break: keep-all;
   letter-spacing: -0.2px;
 }
@@ -749,9 +755,9 @@
   grid-template-columns: repeat(4, 1fr);
   background: #f1f6fc;
   border: 1px solid #e1ecf8;
-  border-radius: 8px;
-  padding: 8px 4px;
-  gap: 2px;
+  border-radius: 6px;
+  padding: 4px 2px;
+  gap: 1px;
   align-items: stretch;
 }
 
@@ -761,7 +767,7 @@
   align-items: center;
   justify-content: space-between;
   text-align: center;
-  padding: 0 3px;
+  padding: 0 2px;
   position: relative;
 }
 
@@ -776,12 +782,12 @@
 }
 
 .metric-lbl {
-  font-size: 10px;
+  font-size: 9px;
   color: #5a6e85;
   font-weight: 700;
   white-space: nowrap;
   letter-spacing: -0.2px;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .metric-val-wrap {
@@ -789,13 +795,13 @@
   align-items: baseline;
   justify-content: center;
   gap: 1.5px;
-  margin: 3px 0 1px 0;
+  margin: 2px 0 1px 0;
   line-height: 1;
 }
 
 .metric-num {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--boeing-navy);
   letter-spacing: -0.3px;
@@ -803,13 +809,13 @@
 
 .metric-unit {
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 700;
   color: #788fa8;
 }
 
 .metric-sub {
-  font-size: 9px;
+  font-size: 8px;
   color: #8295aa;
   font-weight: 600;
   white-space: nowrap;
@@ -819,31 +825,31 @@
 
 /* Bottom Impact Strip */
 .route-impact-summary {
-  margin-top: 8px;
-  font-size: 11px;
+  margin-top: 5px;
+  font-size: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: var(--text-muted);
   border-top: 1px dashed #dce7f3;
-  padding-top: 6px;
+  padding-top: 4px;
 }
 
 .impact-item {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   white-space: nowrap;
 }
 
 .impact-txt {
   color: #64748b;
-  font-size: 10.5px;
+  font-size: 9.5px;
 }
 
 .impact-divider {
   width: 1px;
-  height: 12px;
+  height: 11px;
   background: #dce7f3;
 }
 
@@ -851,6 +857,7 @@
   color: var(--boeing-navy);
   font-weight: 800;
   font-family: var(--font-mono);
+  font-size: 10.5px;
 }
 
 /* 4. TACTICAL TABS (Korean Air Blue Underline Style) */

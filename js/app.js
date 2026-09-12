@@ -662,6 +662,9 @@ function initRightPanelResizer() {
 
     let newTopHeight = Math.max(minTop, Math.min(maxTop, startTopHeight + dy));
     topCard.style.flex = `0 0 ${newTopHeight}px`;
+    topCard.style.overflow = "hidden";
+    const cardContent = topCard.querySelector('.card-content');
+    if (cardContent) cardContent.style.overflowY = 'auto';
     bottomCard.style.flex = "1 1 auto";
   };
 
@@ -1184,13 +1187,18 @@ function renderQRHChecklist() {
 }
 
 function renderMaintenanceMatrix(landingSite) {
+  const container = document.getElementById("maintStagesList");
+  if (!container) return;
+
   const matrix = generateMaintenanceMatrix(state.emergencyKey, landingSite, state.aircraft);
 
-  document.getElementById("maintOverviewTitle").textContent = matrix.overview;
-  document.getElementById("maintDowntime").textContent = `예상 AOG 다운타임: ${matrix.estimatedDowntimeDays}`;
-  document.getElementById("maintHubNote").textContent = matrix.hubAdvantageNote;
+  const titleEl = document.getElementById("maintOverviewTitle");
+  if (titleEl) titleEl.textContent = matrix.overview;
+  const downtimeEl = document.getElementById("maintDowntime");
+  if (downtimeEl) downtimeEl.textContent = `예상 AOG 다운타임: ${matrix.estimatedDowntimeDays}`;
+  const noteEl = document.getElementById("maintHubNote");
+  if (noteEl) noteEl.textContent = matrix.hubAdvantageNote;
 
-  const container = document.getElementById("maintStagesList");
   container.innerHTML = "";
 
   matrix.stages.forEach(stg => {
