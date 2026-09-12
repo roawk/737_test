@@ -1546,4 +1546,393 @@
   color: #00d4ff;
 }
 
+/* ===================================================
+   Aircraft Damage & Parts Diagnosis Modal & Header Button
+   =================================================== */
+.aircraft-diag-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 51, 102, 0.12);
+  border: 1.5px solid rgba(255, 51, 102, 0.45);
+  color: #d60045;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.aircraft-diag-btn:hover {
+  background: #ff0055;
+  color: #ffffff;
+  border-color: #ff0055;
+  box-shadow: 0 4px 14px rgba(255, 0, 85, 0.35);
+  transform: translateY(-1px);
+}
+
+.damage-pill-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1.5px 6px;
+  border-radius: 10px;
+  border: 1px solid currentColor;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 25, 45, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.damage-modal-window {
+  background: #ffffff;
+  width: 1000px;
+  max-width: 95vw;
+  max-height: 90vh;
+  border-radius: 16px;
+  border: 1.5px solid #d5e5f8;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #0d2238, #16365c);
+  color: #ffffff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #00d4ff;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-title-group i {
+  font-size: 22px;
+}
+
+.modal-title-group h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.3px;
+}
+
+.modal-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #00d4ff;
+  letter-spacing: 0.8px;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.modal-close-btn:hover {
+  background: #ff3366;
+  border-color: #ff3366;
+}
+
+.damage-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Overall Damage Score Card */
+.damage-overall-card {
+  background: #f8fbff;
+  border: 1.5px solid #d5e5f8;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.overall-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.overall-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.overall-val-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.overall-percent {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 900;
+  color: #d50000;
+}
+
+.overall-status-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid;
+}
+
+.overall-summary-text {
+  font-size: 12px;
+  color: #334d6e;
+  line-height: 1.45;
+  max-width: 580px;
+}
+
+.overall-gauge-track {
+  height: 10px;
+  background: #e1ebf7;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.overall-gauge-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.4s ease;
+}
+
+/* Two Column Layout */
+.damage-grid-columns {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+}
+
+.col-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #e1ebf7;
+}
+
+.col-title h4 {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  margin: 0;
+}
+
+.subsystems-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subsystem-damage-item {
+  background: #fbfdff;
+  border: 1px solid #dce8f5;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.subsystem-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.sub-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--boeing-navy);
+}
+
+.sub-title i {
+  color: #0088cc;
+  font-size: 13px;
+}
+
+.damage-tag {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.badge-failed { background: #ffebee; color: #d50000; border: 1px solid #ffcdd2; }
+.badge-crit { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+.badge-caut { background: #fffde7; color: #f57f17; border: 1px solid #fff9c4; }
+.badge-norm { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+.damage-bar-track {
+  height: 6px;
+  background: #edf3fa;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.damage-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.subsystem-desc {
+  font-size: 10px;
+  color: #5a7392;
+  line-height: 1.35;
+}
+
+/* Parts Table */
+.parts-table-wrap {
+  border: 1px solid #dce8f5;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.parts-table th {
+  font-size: 10.5px;
+  padding: 8px;
+}
+
+.parts-table td {
+  font-size: 11px;
+  padding: 7px 8px;
+}
+
+.part-pn {
+  font-family: var(--font-mono);
+  color: #0066cc;
+  font-size: 10.5px;
+}
+
+.urgency-pill {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.urgency-pill.mandatory { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+.urgency-pill.urgent { background: #fff3e0; color: #ef6c00; border: 1px solid #ffcc80; }
+
+.action-tag {
+  font-size: 10px;
+  font-weight: 700;
+  color: #2e3a59;
+}
+
+.mro-cost-strip {
+  display: flex;
+  gap: 12px;
+}
+
+.mro-stat-box {
+  flex: 1;
+  background: #f4f8fe;
+  border: 1px solid #d5e5f8;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.mro-lbl {
+  display: block;
+  font-size: 10px;
+  color: #557295;
+  margin-bottom: 2px;
+}
+
+.mro-val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  background: #f8fbff;
+  border-top: 1px solid #dce8f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mro-disclaimer {
+  font-size: 11px;
+  color: #647f9f;
+}
+
+.cockpit-action-btn {
+  background: #0066cc;
+  color: #ffffff;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cockpit-action-btn:hover {
+  background: #0052a3;
+  box-shadow: 0 3px 10px rgba(0, 102, 204, 0.3);
+}
+
+
 

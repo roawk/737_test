@@ -14,6 +14,7 @@ import {
   computeFlightPositionAlongRoute 
 } from "./flightRouteManager.js";
 import { updateWeatherHudUI } from "./enRouteWeather.js";
+import { updateDamageModalUI } from "./aircraftDamageMro.js";
 
 // Global App State
 const state = {
@@ -522,6 +523,32 @@ function bindEventListeners() {
     });
   }
 
+  // Aircraft Damage & Parts Diagnosis Modal Controls
+  const openDmgBtn = document.getElementById("openDamageModalBtn");
+  const closeDmgBtn = document.getElementById("closeDamageModalBtn");
+  const closeDmgBtn2 = document.getElementById("closeDamageModalBtn2");
+  const dmgModal = document.getElementById("aircraftDamageModal");
+
+  function openDamageModal() {
+    if (!dmgModal) return;
+    updateDamageModalUI(state.emergencyKey);
+    dmgModal.style.display = "flex";
+  }
+
+  function closeDamageModal() {
+    if (!dmgModal) return;
+    dmgModal.style.display = "none";
+  }
+
+  if (openDmgBtn) openDmgBtn.addEventListener("click", openDamageModal);
+  if (closeDmgBtn) closeDmgBtn.addEventListener("click", closeDamageModal);
+  if (closeDmgBtn2) closeDmgBtn2.addEventListener("click", closeDamageModal);
+  if (dmgModal) {
+    dmgModal.addEventListener("click", (e) => {
+      if (e.target === dmgModal) closeDamageModal();
+    });
+  }
+
   // Enable smooth mouse drag-to-scroll on side panels
   enableDragToScroll(document.querySelector(".left-panel"));
   enableDragToScroll(document.querySelector(".right-panel"));
@@ -656,6 +683,9 @@ function recomputeAndRender() {
 
   // 7. Update Real-Time En-Route Weather & METAR HUD
   updateWeatherHudUI(state);
+
+  // 8. Update Real-Time Aircraft Damage & Parts Manifest
+  updateDamageModalUI(state.emergencyKey);
 }
 
 function renderRecommendationCards(recs) {
