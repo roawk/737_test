@@ -19,7 +19,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/components.css?v=5">
+  <link rel="stylesheet" href="css/components.css?v=6">
 </head>
 <body class="cockpit-theme">
 
@@ -683,6 +683,13 @@
               <i class="fa-solid fa-microchip text-cyan"></i>
               <h4>주요 서브시스템별 실시간 손상도</h4>
             </div>
+            <!-- Subsystem Category Filter Pills -->
+            <div class="dmg-category-filter">
+              <button class="dmg-filter-pill active" data-cat="all">전체 (All)</button>
+              <button class="dmg-filter-pill" data-cat="wing_controls"><i class="fa-solid fa-plane"></i> 날개 & 조종면</button>
+              <button class="dmg-filter-pill" data-cat="powerplant"><i class="fa-solid fa-fan"></i> 엔진 & 유압</button>
+              <button class="dmg-filter-pill" data-cat="airframe"><i class="fa-solid fa-shield-halved"></i> 기체구조 & 착륙계</button>
+            </div>
             <div class="subsystems-list-wrap" id="dmgSubsystemsList">
               <!-- Dynamically populated via JS -->
             </div>
@@ -739,6 +746,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=5"></script>
+  <script type="module" src="js/app.js?v=6"></script>
 </body>
 </html>

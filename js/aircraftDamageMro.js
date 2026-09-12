@@ -1,60 +1,120 @@
-// Boeing 737 Real-Time Subsystem Damage Assessment & Parts MRO Engine
-// Diagnoses component damage severity percentages and lists mandatory replacement parts
+// Boeing 737 Detailed Subsystem Damage Assessment & Component MRO Engine
+// Detailed breakdown: Left/Right Wings, Ailerons, Rudder, Elevators, Flaps, Spoilers, Engines, Hydraulics
 
 export const B737_DAMAGE_PROFILES = {
   dual_engine_flameout: {
     overallDamagePercent: 82,
     statusText: "심각 (CRITICAL DAMAGE)",
     statusColor: "#ff0055",
-    summary: "양쪽 CFM56-7B 엔진 코어 소화 및 터빈 스톨. 고압 터빈 블레이드 열변형 및 록킹(Seizure) 발생. 유압 EDP 펌프 회전 정지.",
+    summary: "양쪽 CFM56-7B 엔진 코어 소화(Flameout). 주 유압 EDP 상실로 에일러론·엘리베이터 조종 반응 둔화. 무동력 활공으로 날개 및 공력 조종면 구조 보존 집중.",
     subsystems: [
       {
-        id: "eng1",
-        name: "1번 좌측 엔진 (CFM56-7B Engine #1)",
-        icon: "fa-solid fa-fan",
-        damagePercent: 94,
-        status: "FAILED",
-        details: "연소실 화염 상실(Flameout), 고압 터빈(HPT) 팁 마모, 연료 펌프 압력 상실"
-      },
-      {
-        id: "eng2",
-        name: "2번 우측 엔진 (CFM56-7B Engine #2)",
-        icon: "fa-solid fa-fan",
-        damagePercent: 91,
-        status: "FAILED",
-        details: "압축기 서지(Surge), 코어 회전 정지(N2 0%), 시동 밸브 차단 상태"
-      },
-      {
-        id: "hyd",
-        name: "엔진 구동 유압 계통 (Engine EDP Hydraulics)",
-        icon: "fa-solid fa-oil-can",
-        damagePercent: 70,
-        status: "CRITICAL",
-        details: "양 엔진 EDP 회전 동력 상실로 주 유압 A/B 압력 0 PSI 도달 (전동 펌프 EMDP만 비상 가동)"
-      },
-      {
-        id: "apu",
-        name: "보조동력장치 (APU Auxiliary Power)",
-        icon: "fa-solid fa-bolt",
-        damagePercent: 38,
-        status: "CAUTION",
-        details: "비상 공중 기동으로 고고도 스타터 부하 120% 가동 중"
-      },
-      {
-        id: "airframe",
-        name: "동체 및 날개 구조 (Fuselage & Wings)",
+        id: "left_wing",
+        category: "wing_controls",
+        name: "좌측 주익 (Left Main Wing & Spar)",
         icon: "fa-solid fa-plane",
         damagePercent: 12,
         status: "NORMAL",
-        details: "무동력 활공 비행 중 공기역학적 구조 건전성 유지"
+        details: "주익 전/후방 스파(Spar) 및 No.1 연료탱크 구조 건전성 양호. 공력 하중 1.2G 이내 유지."
+      },
+      {
+        id: "right_wing",
+        category: "wing_controls",
+        name: "우측 주익 (Right Main Wing & Spar)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 12,
+        status: "NORMAL",
+        details: "No.2 연료탱크 및 블렌디드 윙렛 구조 안정. 균형 양력 분배 정상."
+      },
+      {
+        id: "ailerons",
+        category: "wing_controls",
+        name: "좌/우 에일러론 (Left & Right Ailerons)",
+        icon: "fa-solid fa-arrows-split-up-and-left",
+        damagePercent: 48,
+        status: "CAUTION",
+        details: "주 유압 EDP 상실로 파워 컨트롤 유닛(PCU) 압력 1,200 PSI 저하. 롤(Roll) 조타력 무거움."
+      },
+      {
+        id: "rudder",
+        category: "wing_controls",
+        name: "수직 꼬리날개 방향타 (Rudder & Standby PCU)",
+        icon: "fa-solid fa-arrows-left-right",
+        damagePercent: 35,
+        status: "CAUTION",
+        details: "스탠바이 유압 펌프 가동으로 방향타 조타 유효. 요 댐퍼(Yaw Damper) 비정상 표시."
+      },
+      {
+        id: "elevators",
+        category: "wing_controls",
+        name: "수평 꼬리날개 승강타 (Elevators & Feel Unit)",
+        icon: "fa-solid fa-arrows-up-down",
+        damagePercent: 52,
+        status: "CAUTION",
+        details: "피치(Pitch) 제어 엘리베이터 필 앤 센터링 유닛(Feel Unit) 압력 저하. 활공 피치 수동 유지."
+      },
+      {
+        id: "stabilizer_trim",
+        category: "wing_controls",
+        name: "수평안정판 트림 (Horizontal Stabilizer Trim)",
+        icon: "fa-solid fa-sliders",
+        damagePercent: 28,
+        status: "NORMAL",
+        details: "전동 트림 모터 정상. 조종간 수동 트림 휠(Manual Trim Wheel) 즉시 조작 가능."
+      },
+      {
+        id: "flaps_slats",
+        category: "wing_controls",
+        name: "플랩 및 전연 슬랫 (Flaps & LE Slats)",
+        icon: "fa-solid fa-angle-down",
+        damagePercent: 62,
+        status: "CRITICAL",
+        details: "주 유압 B 부재로 일반 플랩 전개 불가. 비상 전기 플랩(Alternate Flaps)으로 15° 한계 전개 요망."
+      },
+      {
+        id: "spoilers",
+        category: "wing_controls",
+        name: "비행 스포일러 (Flight & Ground Spoilers)",
+        icon: "fa-solid fa-chart-area",
+        damagePercent: 58,
+        status: "CAUTION",
+        details: "유압 시스템 A/B 교차 감압으로 12개 스포일러 중 6개 패널만 제한적 전개 가능."
+      },
+      {
+        id: "eng1",
+        category: "powerplant",
+        name: "1번 좌측 엔진 (CFM56-7B #1)",
+        icon: "fa-solid fa-fan",
+        damagePercent: 96,
+        status: "FAILED",
+        details: "연소실 화염 상실(Flameout), 고압 터빈(HPT) 팁 마모 및 열변형, N2 0% 셧다운."
+      },
+      {
+        id: "eng2",
+        category: "powerplant",
+        name: "2번 우측 엔진 (CFM56-7B #2)",
+        icon: "fa-solid fa-fan",
+        damagePercent: 92,
+        status: "FAILED",
+        details: "압축기 스톨, 터빈 블레이드 록킹(Seizure), 윈드밀 회전 불능."
+      },
+      {
+        id: "hydraulics",
+        category: "powerplant",
+        name: "A/B/Standby 유압 계통 (Hydraulic Systems)",
+        icon: "fa-solid fa-oil-can",
+        damagePercent: 72,
+        status: "CRITICAL",
+        details: "엔진 EDP 회전 중단으로 주 유압 0 PSI. 전동 EMDP 및 스탠바이 펌프로 최소 압력 유지."
       },
       {
         id: "landing_gear",
+        category: "airframe",
         name: "착륙 장치 및 제동계 (Landing Gear & Brakes)",
         icon: "fa-solid fa-circle-notch",
         damagePercent: 45,
         status: "CAUTION",
-        details: "수동 중력 하강(Manual Gravity Extension) 필수, 브레이크 어큐뮬레이터 잔여 압력 2회분"
+        details: "수동 중력 하강(Manual Gear Extension) 필수. 카본 브레이크 어큐뮬레이터 잔여 2회 정지."
       }
     ],
     replacementParts: [
@@ -70,26 +130,26 @@ export const B737_DAMAGE_PROFILES = {
         ammChapter: "ATA 72-51"
       },
       {
-        partNumber: "P/N 301-785-301-0",
-        name: "엔진 연료 조절 제어기 (HMU / FADEC ECU)",
-        category: "Powerplant (연료제어)",
+        partNumber: "P/N 65-44605-14",
+        name: "에일러론 파워 컨트롤 유닛 (Aileron PCU Dual Tandem)",
+        category: "Flight Controls (에일러론)",
         qty: "2 EA",
         urgency: "MANDATORY",
-        action: "오버홀 및 벤치 교정 (Overhaul)",
-        estCostUSD: 68000,
-        leadTimeHours: 16,
-        ammChapter: "ATA 73-21"
+        action: "오버홀 벤치 테스트 및 씰 교체",
+        estCostUSD: 42000,
+        leadTimeHours: 12,
+        ammChapter: "ATA 27-11"
       },
       {
-        partNumber: "P/N 757538-2",
-        name: "엔진 공압 스타터 모터 (Pneumatic Starter)",
-        category: "Pneumatics (공압)",
+        partNumber: "P/N 65-44810-8",
+        name: "엘리베이터 필 앤 센터링 유닛 (Elevator Feel Unit)",
+        category: "Flight Controls (엘리베이터)",
         qty: "1 EA",
         urgency: "URGENT",
-        action: "신품 교체 (Replace)",
-        estCostUSD: 19500,
-        leadTimeHours: 6,
-        ammChapter: "ATA 80-11"
+        action: "정밀 압력 센서 및 스프링 교정",
+        estCostUSD: 28500,
+        leadTimeHours: 8,
+        ammChapter: "ATA 27-31"
       },
       {
         partNumber: "P/N 260-1412-00",
@@ -101,6 +161,17 @@ export const B737_DAMAGE_PROFILES = {
         estCostUSD: 48000,
         leadTimeHours: 8,
         ammChapter: "ATA 32-41"
+      },
+      {
+        partNumber: "P/N 301-785-301-0",
+        name: "엔진 연료 조절 제어기 (HMU / FADEC ECU)",
+        category: "Powerplant (연료제어)",
+        qty: "2 EA",
+        urgency: "MANDATORY",
+        action: "공장 리퍼브 및 펌웨어 분석",
+        estCostUSD: 68000,
+        leadTimeHours: 16,
+        ammChapter: "ATA 73-21"
       }
     ]
   },
@@ -109,68 +180,121 @@ export const B737_DAMAGE_PROFILES = {
     overallDamagePercent: 54,
     statusText: "경고 (MAJOR FAILURE)",
     statusColor: "#ff9100",
-    summary: "1번 좌측 엔진 내부 기계적 고장 및 화재 발생. 소화 보틀 1차 방출 완료. 2번 엔진으로 비대칭 단발 비행(Drift-down) 진행 중.",
+    summary: "1번 좌측 엔진 화재 소손 및 베어링 소착. 좌우 비대칭 추력으로 인한 러더 트림 5.5유닛 편향 및 좌측 날개 카울링 열손상.",
     subsystems: [
       {
+        id: "left_wing",
+        category: "wing_controls",
+        name: "좌측 주익 (Left Main Wing & Pylon)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 42,
+        status: "CAUTION",
+        details: "1번 엔진 파일론(Pylon) 마운트 및 인근 주익 전연 써멀 블랭킷 고온 노출 (열화 검사 요망)."
+      },
+      {
+        id: "right_wing",
+        category: "wing_controls",
+        name: "우측 주익 (Right Main Wing & Pylon)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 8,
+        status: "NORMAL",
+        details: "2번 엔진 단발 추력 100% 전달 중. 구조적 응력 정상 범위 내."
+      },
+      {
+        id: "rudder",
+        category: "wing_controls",
+        name: "수직 꼬리날개 러더 (Rudder & Trim Tab)",
+        icon: "fa-solid fa-arrows-left-right",
+        damagePercent: 68,
+        status: "CRITICAL",
+        details: "비대칭 요(Yaw) 상쇄를 위해 우측 5.5도 트림 고착 지속. 메인 러더 PCU 연속 고부하 상태."
+      },
+      {
+        id: "ailerons",
+        category: "wing_controls",
+        name: "좌/우 에일러론 (Ailerons & Roll Trim)",
+        icon: "fa-solid fa-arrows-split-up-and-left",
+        damagePercent: 24,
+        status: "NORMAL",
+        details: "좌측 날개 파일론 항력 증가 보상을 위한 에일러론 1.5도 반대 트림 유지 중."
+      },
+      {
+        id: "elevators",
+        category: "wing_controls",
+        name: "수평 꼬리날개 엘리베이터 (Elevators)",
+        icon: "fa-solid fa-arrows-up-down",
+        damagePercent: 15,
+        status: "NORMAL",
+        details: "단발 강하(Drift-down) 고도 21,000ft 유지를 위한 피치 제어 정상 작동."
+      },
+      {
+        id: "flaps_slats",
+        category: "wing_controls",
+        name: "플랩 및 슬랫 (Flaps & Slats)",
+        icon: "fa-solid fa-angle-down",
+        damagePercent: 20,
+        status: "NORMAL",
+        details: "단발 접근 플랩 15° 착륙 규격 (Single Engine Approach Flap 15) 적용 대기."
+      },
+      {
+        id: "spoilers",
+        category: "wing_controls",
+        name: "비행 스포일러 (Spoilers System)",
+        icon: "fa-solid fa-chart-area",
+        damagePercent: 18,
+        status: "NORMAL",
+        details: "지상 접지 시 스피드브레이크 자동 전개(Auto-Speedbrake) 작동 가능."
+      },
+      {
         id: "eng1",
-        name: "1번 좌측 엔진 (CFM56-7B Engine #1)",
+        category: "powerplant",
+        name: "1번 좌측 엔진 (CFM56-7B #1 - FIRE)",
         icon: "fa-solid fa-fire",
         damagePercent: 98,
         status: "FAILED",
-        details: "엔진 코어 화재 소손, 주 베어링(No.3 Bearing) 소착, 연료 차단 밸브 잠김"
+        details: "엔진 코어 화재 전소, No.3 베어링 소착, 연료 컷오프 스위치 잠김, 소화제 방출 완료."
       },
       {
         id: "eng2",
-        name: "2번 우측 엔진 (CFM56-7B Engine #2)",
+        category: "powerplant",
+        name: "2번 우측 엔진 (CFM56-7B #2)",
         icon: "fa-solid fa-fan",
-        damagePercent: 12,
-        status: "NORMAL",
-        details: "단발 추력 유지 중 (N1 92%, EGT 840°C 정상 범위 내 한계 운용)"
-      },
-      {
-        id: "hyd",
-        name: "A 유압 계통 (Hydraulic System A)",
-        icon: "fa-solid fa-oil-can",
-        damagePercent: 40,
-        status: "CAUTION",
-        details: "1번 엔진 EDP 정지로 EMDP 전기 펌프로 압력 유지 (2,800 PSI)"
-      },
-      {
-        id: "fire_sys",
-        name: "엔진 화재 진압 계통 (Fire Protection)",
-        icon: "fa-solid fa-fire-extinguisher",
-        damagePercent: 85,
-        status: "CRITICAL",
-        details: "1번 엔진 소화 보틀 1차 방출 완료 (잔여 소화제 0%), 2차 보틀 대기"
-      },
-      {
-        id: "airframe",
-        name: "러더 및 비대칭 트림 (Flight Control Trim)",
-        icon: "fa-solid fa-up-right-and-down-left-from-center",
-        damagePercent: 22,
-        status: "CAUTION",
-        details: "단발 요잉(Yaw) 상쇄를 위한 러더 트림 5.5유닛 우측 편향 유지 중"
-      },
-      {
-        id: "landing_gear",
-        name: "착륙 장치 (Landing Gear System)",
-        icon: "fa-solid fa-circle-notch",
         damagePercent: 15,
         status: "NORMAL",
-        details: "정상 유압 다운락 가능"
+        details: "단발 지속 비행 중 (N1 93%, EGT 845°C 한계 마진 15°C 여유)."
+      },
+      {
+        id: "hydraulics",
+        category: "powerplant",
+        name: "유압 시스템 A/B (Hydraulic System A/B)",
+        icon: "fa-solid fa-oil-can",
+        damagePercent: 35,
+        status: "CAUTION",
+        details: "1번 엔진 EDP 중단으로 A 시스템 전동 EMDP 단독 구동 중 (2,800 PSI 유지)."
       }
     ],
     replacementParts: [
       {
         partNumber: "P/N CFM56-7B26E",
-        name: "CFM56-7B26/3 터보팬 엔진 코어 통교체 (Engine QEC)",
+        name: "CFM56-7B26/3 터보팬 엔진 코어 통교체 (Engine QEC Assembly)",
         category: "Powerplant (엔진)",
         qty: "1 EA",
         urgency: "MANDATORY",
-        action: "엔진 탈착 및 교체 (Engine Drop & Swap)",
+        action: "엔진 탈착 및 신품/오버홀 엔진 스왑",
         estCostUSD: 3400000,
         leadTimeHours: 36,
         ammChapter: "ATA 71-00"
+      },
+      {
+        partNumber: "P/N 65-44750-12",
+        name: "메인 러더 파워 컨트롤 유닛 (Main Rudder PCU)",
+        category: "Flight Controls (러더)",
+        qty: "1 EA",
+        urgency: "MANDATORY",
+        action: "비대칭 고부하 운용 후 정밀 분해 검사 및 오버홀",
+        estCostUSD: 38000,
+        leadTimeHours: 14,
+        ammChapter: "ATA 27-21"
       },
       {
         partNumber: "P/N 898052-1",
@@ -185,98 +309,14 @@ export const B737_DAMAGE_PROFILES = {
       },
       {
         partNumber: "P/N 338-072-005-0",
-        name: "엔진 카울링 나셀 써멀 블랭킷 (Nacelle Heat Shield)",
+        name: "1번 엔진 파일론 써멀 히트 쉴드 (Nacelle Heat Shield)",
         category: "Structures (카울링)",
         qty: "1 Set",
         urgency: "MANDATORY",
-        action: "화재 열변형 부품 교체",
+        action: "화재 열변형 카울링 패널 신품 교체",
         estCostUSD: 42000,
         leadTimeHours: 12,
         ammChapter: "ATA 78-31"
-      }
-    ]
-  },
-
-  rapid_depressurization: {
-    overallDamagePercent: 68,
-    statusText: "심각 (PRESSURE HULL BREACH)",
-    statusColor: "#ff0055",
-    summary: "객실 급감압 발생. 승객용 화학 산소 발생기 전량 마스크 드롭 작동(14분 잔여). 후방 아웃플로우 밸브 제어 파손 및 압력 격벽 씰링 손상.",
-    subsystems: [
-      {
-        id: "cabin_press",
-        name: "여압 아웃플로우 밸브 (Outflow Valve Assembly)",
-        icon: "fa-solid fa-wind",
-        damagePercent: 96,
-        status: "FAILED",
-        details: "밸브 모터 액추에이터 고착으로 열림 상태 고정, 차압 0.2 PSI 급락"
-      },
-      {
-        id: "bulkhead",
-        name: "후방 압력 격벽 (Aft Pressure Bulkhead)",
-        icon: "fa-solid fa-shield-halved",
-        damagePercent: 82,
-        status: "CRITICAL",
-        details: "격벽 고무 씰링 파열 및 국소 리벳 전단 응력 집중 (정밀 NDT 초음파 검사 요망)"
-      },
-      {
-        id: "oxygen_sys",
-        name: "승객 비상 산소 시스템 (Passenger Oxygen System)",
-        icon: "fa-solid fa-head-side-mask",
-        damagePercent: 100,
-        status: "FAILED",
-        details: "189석 산소 마스크 전량 강하 및 화학 제너레이터 1회성 연소 소진"
-      },
-      {
-        id: "crew_oxygen",
-        name: "조종사 산소 실린더 (Crew Oxygen 1800 PSI)",
-        icon: "fa-solid fa-mask-ventilator",
-        damagePercent: 42,
-        status: "CAUTION",
-        details: "조종사용 100% Demand 산소 마스크 사용 중 (잔여 1,150 PSI)"
-      },
-      {
-        id: "airframe",
-        name: "주 날개 및 엔진 (Engines & Controls)",
-        icon: "fa-solid fa-plane",
-        damagePercent: 10,
-        status: "NORMAL",
-        details: "기체 조종면 및 양 엔진 정상 추력 작동"
-      }
-    ],
-    replacementParts: [
-      {
-        partNumber: "P/N 40-7004-3",
-        name: "캐빈 메인 여압 아웃플로우 밸브 (Main Outflow Valve)",
-        category: "Air Conditioning / Press (공조여압)",
-        qty: "1 EA",
-        urgency: "MANDATORY",
-        action: "밸브 구동 모터 어셈블리 교체",
-        estCostUSD: 36000,
-        leadTimeHours: 8,
-        ammChapter: "ATA 21-31"
-      },
-      {
-        partNumber: "P/N 801307-00",
-        name: "승객 좌석용 화학 산소 발생기 (Chemical Oxygen Generators)",
-        category: "Emergency Oxygen (산소)",
-        qty: "64 EA",
-        urgency: "MANDATORY",
-        action: "전 좌석 PSU 1회성 제너레이터 신품 교체",
-        estCostUSD: 52000,
-        leadTimeHours: 14,
-        ammChapter: "ATA 35-22"
-      },
-      {
-        partNumber: "P/N 65-52805-12",
-        name: "후방 압력 격벽 주변 씰 스트립 (Aft Bulkhead Pressure Seal)",
-        category: "Structures (기체구조)",
-        qty: "1 Set",
-        urgency: "MANDATORY",
-        action: "기체 기밀 실란트 재도포 및 씰 교체",
-        estCostUSD: 24000,
-        leadTimeHours: 18,
-        ammChapter: "ATA 53-81"
       }
     ]
   },
@@ -285,47 +325,97 @@ export const B737_DAMAGE_PROFILES = {
     overallDamagePercent: 88,
     statusText: "극도 심각 (TOTAL HYDRAULIC LOSS)",
     statusColor: "#d50000",
-    summary: "A/B 주 유압 시스템 고압 라인 파열로 오일(Skydrol) 전량 누유. 비행 조종면(Manual Reversion) 수동 와이어 제어 중. 플랩/노즈스티어링/노멀 브레이크 전손.",
+    summary: "A/B 주 유압 라인 파열로 오일(Skydrol) 전량 누유. 에일러론·엘리베이터가 수동 케이블(Manual Reversion)로 전환되어 조타 하중 극심. 플랩 0° 및 러더 스탠바이 의존.",
     subsystems: [
       {
-        id: "hyd_a",
-        name: "유압 시스템 A (Hydraulic System A)",
-        icon: "fa-solid fa-droplet-slash",
-        damagePercent: 100,
-        status: "FAILED",
-        details: "메인 리턴 라인 크랙으로 압력 0 PSI, 스카이드롤 오일 레벨 0%"
-      },
-      {
-        id: "hyd_b",
-        name: "유압 시스템 B (Hydraulic System B)",
-        icon: "fa-solid fa-droplet-slash",
-        damagePercent: 96,
-        status: "FAILED",
-        details: "플랩 모터 라인 파열, 전기 모터 펌프(EMDP) 과열 셧다운"
-      },
-      {
-        id: "flight_controls",
-        name: "주 조종면 수동 전환 (Manual Reversion Mode)",
-        icon: "fa-solid fa-gamepad",
-        damagePercent: 78,
-        status: "CRITICAL",
-        details: "에일러론/엘리베이터 케이블 탭 직접 기계식 조작 (조작 하중 극심)"
-      },
-      {
-        id: "flaps_slats",
-        name: "고양력 장치 (Flaps & Slats Actuators)",
+        id: "ailerons",
+        category: "wing_controls",
+        name: "에일러론 조종면 (Manual Reversion Ailerons)",
         icon: "fa-solid fa-arrows-split-up-and-left",
         damagePercent: 85,
         status: "FAILED",
-        details: "플랩 0° 고착 (Flaps UP 착륙 강제 -> 착륙속도 165KT 초고속 접근)"
+        details: "유압 파워 어시스트 100% 상실. 파일럿 완력으로 조작 케이블 직접 견인 (고속 선회 불가)."
+      },
+      {
+        id: "elevators",
+        category: "wing_controls",
+        name: "엘리베이터 승강타 (Manual Reversion Elevators)",
+        icon: "fa-solid fa-arrows-up-down",
+        damagePercent: 82,
+        status: "FAILED",
+        details: "유압 PCU 작동 중단. 수동 밸런스 탭(Balance Tab)에만 의존하여 피치 반응 둔감."
+      },
+      {
+        id: "rudder",
+        category: "wing_controls",
+        name: "러더 방향타 (Standby Rudder PCU)",
+        icon: "fa-solid fa-arrows-left-right",
+        damagePercent: 40,
+        status: "CAUTION",
+        details: "스탠바이 유압 계통으로만 동작 중 (스탠바이 펌프 과열 주의, 편향각 제한)."
+      },
+      {
+        id: "stabilizer_trim",
+        category: "wing_controls",
+        name: "수평안정판 트림 휠 (Manual Trim Jackscrew)",
+        icon: "fa-solid fa-sliders",
+        damagePercent: 45,
+        status: "CAUTION",
+        details: "메인 전동 트림 상실. 조종석 중앙 수동 트림 휠 손잡이로 기계식 케이블 수동 회전 중."
+      },
+      {
+        id: "flaps_slats",
+        category: "wing_controls",
+        name: "플랩 & 전연 슬랫 (Flaps & Slats)",
+        icon: "fa-solid fa-angle-down",
+        damagePercent: 100,
+        status: "FAILED",
+        details: "유압 모터 구동 불능으로 0° 전개 고착 (Flaps UP 접근 강제 -> 접지 속도 165KT 초고속)."
+      },
+      {
+        id: "spoilers",
+        category: "wing_controls",
+        name: "스포일러 / 스피드브레이크 (Flight Spoilers)",
+        icon: "fa-solid fa-chart-area",
+        damagePercent: 95,
+        status: "FAILED",
+        details: "유압 압력 전손으로 12개 스포일러 패널 일체 전개 불가 (공력 감속 수단 상실)."
+      },
+      {
+        id: "left_wing",
+        category: "wing_controls",
+        name: "좌측 날개 구조 (Left Wing Structural Tube)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 48,
+        status: "CRITICAL",
+        details: "좌측 주익 휠웰 통과 메인 A 유압 고압 배관 파열 (스카이드롤 분사 오염)."
+      },
+      {
+        id: "right_wing",
+        category: "wing_controls",
+        name: "우측 날개 구조 (Right Wing Structural Tube)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 40,
+        status: "CAUTION",
+        details: "우측 플랩 구동 샤프트 토크 튜브 오일 고갈 드라이 회전."
       },
       {
         id: "landing_gear",
+        category: "airframe",
         name: "노즈휠 조향 및 일반 제동 (Nose Steering & Normal Brake)",
         icon: "fa-solid fa-ban",
-        damagePercent: 90,
+        damagePercent: 92,
         status: "FAILED",
-        details: "지상 방향 조향 불가, 비상 어큐뮬레이터 브레이크로만 정지 가능"
+        details: "지상 노즈 조향 불가 (러더 패달 스티어링 불능), 비상 브레이크 어큐뮬레이터만 가능."
+      },
+      {
+        id: "hydraulics",
+        category: "powerplant",
+        name: "A/B 주 유압 펌프 및 리저버 (Hydraulic System A/B)",
+        icon: "fa-solid fa-oil-can",
+        damagePercent: 100,
+        status: "FAILED",
+        details: "고압 EDP 2기 소손 파손, 오일 리저버 레벨 0%, 오일 탱크 찌꺼기 여과기 막힘."
       }
     ],
     replacementParts: [
@@ -335,10 +425,21 @@ export const B737_DAMAGE_PROFILES = {
         category: "Hydraulics (유압펌프)",
         qty: "2 EA",
         urgency: "MANDATORY",
-        action: "오일 고갈 드라이런 파손 전량 교체",
+        action: "오일 고갈 드라이런 파손 신품 전량 교체",
         estCostUSD: 74000,
         leadTimeHours: 12,
         ammChapter: "ATA 29-11"
+      },
+      {
+        partNumber: "P/N 65-44605-14",
+        name: "에일러론 수동 밸런스 탭 케이블 어셈블리 (Aileron Balance Cable)",
+        category: "Flight Controls (에일러론)",
+        qty: "1 Set",
+        urgency: "MANDATORY",
+        action: "수동 조작 과부하 인장 와이어 전량 교체",
+        estCostUSD: 18500,
+        leadTimeHours: 16,
+        ammChapter: "ATA 27-11"
       },
       {
         partNumber: "P/N 65-49230-10",
@@ -346,21 +447,21 @@ export const B737_DAMAGE_PROFILES = {
         category: "Hydraulics (배관라인)",
         qty: "3 Sections",
         urgency: "MANDATORY",
-        action: "파열 배관 신품 재배관 및 플러싱",
+        action: "파열 배관 신품 재배관 및 계통 플러싱",
         estCostUSD: 31000,
         leadTimeHours: 20,
         ammChapter: "ATA 29-21"
       },
       {
-        partNumber: "P/N 300-019-1",
-        name: "브레이크 비상 압력 어큐뮬레이터 (Brake Accumulator)",
-        category: "Hydraulics (어큐뮬레이터)",
-        qty: "1 EA",
-        urgency: "URGENT",
-        action: "질소 재충전 및 내부 다이어프램 점검",
-        estCostUSD: 18000,
-        leadTimeHours: 6,
-        ammChapter: "ATA 32-43"
+        partNumber: "P/N 260-1412-00",
+        name: "메인 휠 고성능 카본 브레이크 디스크 (High-Energy Carbon Brake)",
+        category: "Landing Gear (제동계)",
+        qty: "4 Sets",
+        urgency: "MANDATORY",
+        action: "노플랩 초고속 접지 열변형 전량 교체",
+        estCostUSD: 56000,
+        leadTimeHours: 8,
+        ammChapter: "ATA 32-41"
       },
       {
         partNumber: "P/N SKYDROL-LD4",
@@ -376,51 +477,199 @@ export const B737_DAMAGE_PROFILES = {
     ]
   },
 
+  rapid_depressurization: {
+    overallDamagePercent: 68,
+    statusText: "심각 (PRESSURE HULL BREACH)",
+    statusColor: "#ff0055",
+    summary: "후방 압력 격벽 씰링 파열 및 메인 아웃플로우 밸브 고착으로 인한 객실 급감압. 189석 승객 산소 마스크 전량 강하 및 화학 발생기 소진.",
+    subsystems: [
+      {
+        id: "bulkhead",
+        category: "airframe",
+        name: "후방 압력 격벽 (Aft Pressure Bulkhead)",
+        icon: "fa-solid fa-shield-halved",
+        damagePercent: 88,
+        status: "CRITICAL",
+        details: "격벽 돔 구조 리벳 전단 응력 및 기밀 실란트 파열. NDT 초음파 피로 검사 필수."
+      },
+      {
+        id: "cabin_press",
+        category: "airframe",
+        name: "여압 아웃플로우 밸브 (Outflow Valve Assembly)",
+        icon: "fa-solid fa-wind",
+        damagePercent: 96,
+        status: "FAILED",
+        details: "구동 모터 기어비 고착으로 최대 개방 상태 고정. 객실 압력 고도 FL310 급상승."
+      },
+      {
+        id: "oxygen_sys",
+        category: "airframe",
+        name: "승객 비상 산소 시스템 (Passenger Oxygen System)",
+        icon: "fa-solid fa-head-side-mask",
+        damagePercent: 100,
+        status: "FAILED",
+        details: "189석 산소 마스크 전량 드롭 및 화학 캔들 1회성 연소 소진 (재사용 불가)."
+      },
+      {
+        id: "elevators",
+        category: "wing_controls",
+        name: "엘리베이터 & 수평안정판 (Elevators & Stabilizer)",
+        icon: "fa-solid fa-arrows-up-down",
+        damagePercent: 18,
+        status: "NORMAL",
+        details: "급강하(Emergency Descent) FL100 하강 시 정상 기동 응답 유지."
+      },
+      {
+        id: "rudder",
+        category: "wing_controls",
+        name: "러더 방향타 (Rudder Assembly)",
+        icon: "fa-solid fa-arrows-left-right",
+        damagePercent: 14,
+        status: "NORMAL",
+        details: "정상 방향 제어 유지."
+      },
+      {
+        id: "ailerons",
+        category: "wing_controls",
+        name: "에일러론 조종면 (Ailerons)",
+        icon: "fa-solid fa-arrows-split-up-and-left",
+        damagePercent: 12,
+        status: "NORMAL",
+        details: "롤 제어 및 스피드브레이크 전개 양호."
+      },
+      {
+        id: "left_wing",
+        category: "wing_controls",
+        name: "좌측 주익 (Left Main Wing)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 10,
+        status: "NORMAL",
+        details: "급강하 320KT 고속 비행 공력 한계 준수."
+      },
+      {
+        id: "right_wing",
+        category: "wing_controls",
+        name: "우측 주익 (Right Main Wing)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 10,
+        status: "NORMAL",
+        details: "구조적 건전성 양호."
+      }
+    ],
+    replacementParts: [
+      {
+        partNumber: "P/N 40-7004-3",
+        name: "캐빈 메인 여압 아웃플로우 밸브 (Main Outflow Valve)",
+        category: "Air Conditioning (공조여압)",
+        qty: "1 EA",
+        urgency: "MANDATORY",
+        action: "밸브 구동 모터 및 힌지 플랩 신품 교체",
+        estCostUSD: 36000,
+        leadTimeHours: 8,
+        ammChapter: "ATA 21-31"
+      },
+      {
+        partNumber: "P/N 801307-00",
+        name: "승객 좌석용 화학 산소 발생기 (Chemical Oxygen Generators)",
+        category: "Emergency Oxygen (산소)",
+        qty: "64 EA",
+        urgency: "MANDATORY",
+        action: "전 좌석 PSU 1회성 제너레이터 신품 전량 교체",
+        estCostUSD: 52000,
+        leadTimeHours: 14,
+        ammChapter: "ATA 35-22"
+      },
+      {
+        partNumber: "P/N 65-52805-12",
+        name: "후방 압력 격벽 주변 씰 스트립 (Aft Bulkhead Pressure Seal)",
+        category: "Structures (기체구조)",
+        qty: "1 Set",
+        urgency: "MANDATORY",
+        action: "기체 기밀 실란트 재도포 및 고무 씰 교체",
+        estCostUSD: 24000,
+        leadTimeHours: 18,
+        ammChapter: "ATA 53-81"
+      }
+    ]
+  },
+
   cargo_fire: {
     overallDamagePercent: 74,
     statusText: "심각 (CARGO COMPARTMENT FIRE)",
     statusColor: "#ff0055",
-    summary: "후방 C-Class 화물칸 리튬배터리 열폭주 추정 화재. 소화 가스(Halon 1301) 1차 고속 방출 및 2차 완만 방출 진행 중. 구조 차열벽 열화.",
+    summary: "후방 화물칸 리튬배터리 열폭주 화재. C-Class 복합재 라이너 탄화 및 하부 객실 바닥 빔 고온 열화. 15분 골든타임 이내 긴급 접지 필수.",
     subsystems: [
       {
         id: "cargo_bay",
-        name: "후방 화물칸 C-Class 라이너 (Aft Cargo Liner)",
+        category: "airframe",
+        name: "후방 화물칸 C-Class 라이너 (Aft Cargo Compartment)",
         icon: "fa-solid fa-boxes-stacked",
-        damagePercent: 92,
+        damagePercent: 94,
         status: "CRITICAL",
-        details: "화재 구역 라이너 패널 국소 탄화 및 단열 글래스울 소손"
+        details: "화물칸 복합재 방화벽 국소 관통 열화, 단열재 소손 및 그을음 확산."
       },
       {
         id: "fire_bottles",
+        category: "airframe",
         name: "화물칸 소화 시스템 (Cargo Fire Suppression)",
         icon: "fa-solid fa-fire-extinguisher",
         damagePercent: 100,
         status: "FAILED",
-        details: "1/2차 소화 보틀 완전 방출 완료 (소화 압력 0 PSI 도달)"
+        details: "1차 고속 방출 및 2차 지연 방출 할론 1301 보틀 완전 소진."
       },
       {
-        id: "smoke_detect",
-        name: "광학식 연기 감지기 (Optical Smoke Detectors)",
-        icon: "fa-solid fa-smog",
-        damagePercent: 80,
-        status: "FAILED",
-        details: "센서 챔버 그을음 및 검댕 오염으로 센싱 기능 영구 불능"
+        id: "elevators",
+        category: "wing_controls",
+        name: "엘리베이터 제어 케이블 (Elevator Lower Cables)",
+        icon: "fa-solid fa-arrows-up-down",
+        damagePercent: 62,
+        status: "CRITICAL",
+        details: "화물칸 상단을 통과하는 승강타 기계식 케이블 하네스 고온 노출 (열화 인장 점검 필수)."
       },
       {
-        id: "cabin_floor",
-        name: "객실 바닥 구조재 (Cabin Floor Crossbeams)",
-        icon: "fa-solid fa-layer-group",
-        damagePercent: 35,
+        id: "rudder",
+        category: "wing_controls",
+        name: "러더 제어 배선 (Rudder Control Harness)",
+        icon: "fa-solid fa-arrows-left-right",
+        damagePercent: 48,
         status: "CAUTION",
-        details: "화물칸 상단 바닥 빔 고온 노출 (NDT 강도 비파괴 검사 필수)"
+        details: "수직 꼬리날개로 연결되는 하부 배선 피복 열화 위험."
       },
       {
-        id: "electrical",
-        name: "하부 기체 배선 하네스 (Lower Fuselage Wire Harness)",
-        icon: "fa-solid fa-network-wired",
-        damagePercent: 55,
-        status: "CAUTION",
-        details: "인접 항법/센서 케이블 피복 열화 융해 위험"
+        id: "ailerons",
+        category: "wing_controls",
+        name: "에일러론 조종면 (Ailerons)",
+        icon: "fa-solid fa-arrows-split-up-and-left",
+        damagePercent: 15,
+        status: "NORMAL",
+        details: "주익 상단 배선 분리로 롤 제어면 정상 가동."
+      },
+      {
+        id: "left_wing",
+        category: "wing_controls",
+        name: "좌측 주익 (Left Main Wing)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 12,
+        status: "NORMAL",
+        details: "주익 연료탱크 써멀 밸브 차단 완료."
+      },
+      {
+        id: "right_wing",
+        category: "wing_controls",
+        name: "우측 주익 (Right Main Wing)",
+        icon: "fa-solid fa-plane",
+        damagePercent: 12,
+        status: "NORMAL",
+        details: "구조적 이상 없음."
+      },
+      {
+        id: "flaps_slats",
+        category: "wing_controls",
+        name: "플랩 & 슬랫 (Flaps & Slats)",
+        icon: "fa-solid fa-angle-down",
+        damagePercent: 20,
+        status: "NORMAL",
+        details: "화재 비상 착륙 전량 전개 가능."
       }
     ],
     replacementParts: [
@@ -447,6 +696,17 @@ export const B737_DAMAGE_PROFILES = {
         ammChapter: "ATA 26-23"
       },
       {
+        partNumber: "P/N 65-44812-3",
+        name: "후방 동체 통과 조종면 케이블 셋 (Flight Control Cable Harness)",
+        category: "Flight Controls (조종케이블)",
+        qty: "1 Set",
+        urgency: "MANDATORY",
+        action: "고온 열화 케이블 전량 인출 및 교체",
+        estCostUSD: 22000,
+        leadTimeHours: 18,
+        ammChapter: "ATA 27-00"
+      },
+      {
         partNumber: "P/N 473599-1",
         name: "화물칸 연기 감지기 센서 (Smoke Detector Optical Head)",
         category: "Avionics (센서)",
@@ -468,8 +728,10 @@ export function getAircraftDamageReport(emergencyKey) {
   return B737_DAMAGE_PROFILES[emergencyKey] || B737_DAMAGE_PROFILES.dual_engine_flameout;
 }
 
+let activeDamageFilter = "all";
+
 /**
- * Updates the Damage & Parts Modal UI
+ * Updates the Damage & Parts Modal UI with detailed categorized components
  */
 export function updateDamageModalUI(emergencyKey) {
   const profile = getAircraftDamageReport(emergencyKey);
@@ -506,10 +768,19 @@ export function updateDamageModalUI(emergencyKey) {
     statusPill.style.backgroundColor = profile.statusColor + "18";
   }
 
+  // Filter Subsystems if tab selected
+  const filteredSubsystems = profile.subsystems.filter(sub => {
+    if (activeDamageFilter === "all") return true;
+    if (activeDamageFilter === "wing_controls") return sub.category === "wing_controls";
+    if (activeDamageFilter === "powerplant") return sub.category === "powerplant";
+    if (activeDamageFilter === "airframe") return sub.category === "airframe";
+    return true;
+  });
+
   // Render Subsystems List
   const subsystemsList = document.getElementById("dmgSubsystemsList");
   if (subsystemsList) {
-    subsystemsList.innerHTML = profile.subsystems.map(sub => {
+    subsystemsList.innerHTML = filteredSubsystems.map(sub => {
       let badgeClass = "badge-failed";
       let badgeText = "FAILED (전손)";
       if (sub.status === "CRITICAL") { badgeClass = "badge-crit"; badgeText = "CRITICAL (위험)"; }
@@ -574,4 +845,8 @@ export function updateDamageModalUI(emergencyKey) {
     const timeEl = document.getElementById("dmgTotalTimeVal");
     if (timeEl) timeEl.textContent = `약 ${maxDowntime} 시간 (정비창 대기)`;
   }
+}
+
+export function setDamageCategoryFilter(category) {
+  activeDamageFilter = category;
 }

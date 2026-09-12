@@ -14,7 +14,7 @@ import {
   computeFlightPositionAlongRoute 
 } from "./flightRouteManager.js";
 import { updateWeatherHudUI } from "./enRouteWeather.js";
-import { updateDamageModalUI } from "./aircraftDamageMro.js";
+import { updateDamageModalUI, setDamageCategoryFilter } from "./aircraftDamageMro.js";
 
 // Global App State
 const state = {
@@ -548,6 +548,17 @@ function bindEventListeners() {
       if (e.target === dmgModal) closeDamageModal();
     });
   }
+
+  // Damage & Subsystems Category Filter Tabs
+  const dmgFilterBtns = document.querySelectorAll(".dmg-filter-pill");
+  dmgFilterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      dmgFilterBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      setDamageCategoryFilter(btn.dataset.cat);
+      updateDamageModalUI(state.emergencyKey);
+    });
+  });
 
   // Enable smooth mouse drag-to-scroll on side panels
   enableDragToScroll(document.querySelector(".left-panel"));
