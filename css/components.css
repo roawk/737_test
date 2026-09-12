@@ -870,8 +870,73 @@
 
 .card-tabs {
   display: flex;
+  justify-content: space-between;
+  align-items: stretch;
   background: #f8fbff;
   border-bottom: 1px solid #dce8f5;
+  padding: 0;
+}
+
+.tabs-nav-group {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+}
+
+.tabs-extra-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+}
+
+.inspecting-route-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+.inspecting-route-pill.alpha {
+  background: #e6f9f3;
+  color: #00a884;
+  border: 1px solid #a3ebd9;
+}
+
+.inspecting-route-pill.bravo {
+  background: #eaf3fd;
+  color: #0064d2;
+  border: 1px solid #b6d7fa;
+}
+
+.inspecting-route-pill.charlie {
+  background: #fff4e5;
+  color: #e67e22;
+  border: 1px solid #fed79e;
+}
+
+.close-tabs-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 5px;
+  padding: 3px 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.2s;
+}
+
+.close-tabs-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
 .tab-btn {
@@ -879,10 +944,10 @@
   background: transparent;
   border: none;
   border-bottom: 2.5px solid transparent;
-  padding: 10px 4px;
+  padding: 9px 5px;
   color: var(--text-muted);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -902,6 +967,38 @@
   color: #0064d2;
   border-bottom-color: #0064d2;
   background: #ffffff;
+}
+
+/* Route click prompt inside each route card */
+.route-details-trigger {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed #dce7f3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: #0064d2;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.route-details-trigger i {
+  font-size: 9px;
+}
+
+.route-card:hover .route-details-trigger {
+  color: #004b9e;
+}
+
+.route-card.selected .route-details-trigger {
+  color: #00875a;
+}
+
+.rationale-item-card.highlighted-rank {
+  border: 2px solid #0064d2 !important;
+  box-shadow: 0 4px 16px rgba(0, 100, 210, 0.2) !important;
 }
 
 .tab-content-area {

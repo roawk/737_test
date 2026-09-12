@@ -40,6 +40,7 @@ const state = {
   },
   emergencyKey: "dual_engine_flameout",
   activeRouteTag: "alpha", // Default 1st rank
+  detailsVisible: false, // Tactical tabs card opens on clicking 1, 2, or 3 순위
   audioEnabled: false,
   evaluationResult: null,
   mapRenderer: null,
@@ -624,6 +625,25 @@ function bindEventListeners() {
 
   if (toggleTrafficQuickBtn) toggleTrafficQuickBtn.addEventListener("click", handleTrafficToggle);
 
+  // Close Tactical Tabs Detail Card Button
+  const closeTabsBtn = document.getElementById("closeTacticalTabsBtn");
+  if (closeTabsBtn) {
+    closeTabsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.detailsVisible = false;
+      const tabsCard = document.getElementById("tacticalTabsCard");
+      if (tabsCard) {
+        tabsCard.style.display = "none";
+        tabsCard.classList.remove("visible");
+      }
+      document.querySelectorAll(".route-card").forEach(c => {
+        c.classList.remove("selected");
+        const triggerIcon = c.querySelector(".route-details-trigger i.fa-solid:last-child");
+        if (triggerIcon) triggerIcon.className = 'fa-solid fa-chevron-right';
+      });
+    });
+  }
+
   // Initial flight controls sync
   syncFlightControlsUI();
 }
@@ -740,12 +760,25 @@ function enableHorizontalDragToScroll(element) {
 
 function selectRoute(tag) {
   state.activeRouteTag = tag;
+  state.detailsVisible = true;
   playEmergencyChime();
 
-  // Highlight card
+  // Highlight card and chevron
   document.querySelectorAll(".route-card").forEach(c => {
-    c.classList.toggle("selected", c.dataset.tag === tag);
+    const isThis = c.dataset.tag === tag;
+    c.classList.toggle("selected", isThis);
+    const triggerIcon = c.querySelector(".route-details-trigger i.fa-solid:last-child");
+    if (triggerIcon) {
+      triggerIcon.className = `fa-solid ${isThis ? 'fa-chevron-down' : 'fa-chevron-right'}`;
+    }
   });
+
+  // Make bottom tabs card visible immediately on clicking 1, 2, or 3 순위!
+  const tabsCard = document.getElementById("tacticalTabsCard");
+  if (tabsCard) {
+    tabsCard.style.display = "flex";
+    tabsCard.classList.add("visible");
+  }
 
   // Redraw map route polylines
   state.mapRenderer.drawRoutes(state.aircraft, state.evaluationResult.topRecommendations, state.activeRouteTag);
@@ -756,6 +789,25 @@ function selectRoute(tag) {
     document.getElementById("recommendedSiteName").textContent = `${currentRec.site.name} (${currentRec.site.icao})`;
     renderMaintenanceMatrix(currentRec.site);
     renderAirspaceAnalysis(currentRec);
+
+    // Update inspecting route pill badge
+    const rankNum = tag === "alpha" ? "1순위" : tag === "bravo" ? "2순위" : "3순위";
+    const pill = document.getElementById("inspectingRoutePill");
+    if (pill) {
+      pill.textContent = `${rankNum} ${currentRec.site.name} 상세`;
+      pill.className = `inspecting-route-pill ${tag}`;
+    }
+
+    // Highlight the selected rank in AI rationale cards list
+    document.querySelectorAll(".rationale-item-card").forEach(rc => {
+      const isTarget = (tag === 'alpha' && rc.classList.contains('rank1')) ||
+                       (tag === 'bravo' && rc.classList.contains('rank2')) ||
+                       (tag === 'charlie' && rc.classList.contains('rank3'));
+      rc.classList.toggle("highlighted-rank", isTarget);
+      if (isTarget) {
+        rc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
   }
 }
 
@@ -844,6 +896,11 @@ function recomputeAndRender() {
   renderMaintenanceMatrix(selectedSiteData.site);
   renderAirspaceAnalysis(selectedSiteData);
 
+  const tabsCard = document.getElementById("tacticalTabsCard");
+  if (tabsCard) {
+    tabsCard.style.display = state.detailsVisible ? "flex" : "none";
+  }
+
   // 7. Update Real-Time En-Route Weather & METAR HUD
   updateWeatherHudUI(state);
 
@@ -865,7 +922,7 @@ function renderRecommendationCards(recs) {
   ];
 
   routeList.forEach(item => {
-    const isSelected = item.tag === state.activeRouteTag;
+    const isSelected = state.detailsVisible && (item.tag === state.activeRouteTag);
     const rData = item.data;
     const site = rData.site;
 
@@ -934,6 +991,10 @@ function renderRecommendationCards(recs) {
           <span class="impact-txt">스케줄 지연손실:</span>
           <strong>$${(rData.estimatedDisruptionCostUSD).toLocaleString()}</strong>
         </div>
+      </div>
+      <div class="route-details-trigger">
+        <span><i class="fa-solid fa-circle-info text-cyan"></i> 클릭하여 AI 판단 근거 & 비상수칙 보기</span>
+        <i class="fa-solid ${isSelected ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
       </div>
     `;
 

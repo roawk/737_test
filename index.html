@@ -18,8 +18,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/main.css?v=24">
-  <link rel="stylesheet" href="css/components.css?v=19">
+  <link rel="stylesheet" href="css/main.css?v=25">
+  <link rel="stylesheet" href="css/components.css?v=20">
 </head>
 <body class="cockpit-theme">
 
@@ -481,21 +481,29 @@
         </div>
       </section>
 
-      <!-- Bottom Tab Container: Decision Rationale / QRH Checklist / Post-Landing Maintenance / Airspace Delay -->
-      <section class="panel-card tactical-tabs-card">
+      <!-- Bottom Tab Container: Decision Rationale / QRH Checklist / Airspace Delay (Opens when 1순위, 2순위, 3순위 is clicked) -->
+      <section class="panel-card tactical-tabs-card" id="tacticalTabsCard" style="display: none;">
         <div class="card-tabs">
-          <button class="tab-btn active" data-tab="rationaleTab">
-            <i class="fa-solid fa-brain-circuit"></i>
-            <span>AI 판단 근거</span>
-          </button>
-          <button class="tab-btn" data-tab="qrhTab">
-            <i class="fa-solid fa-clipboard-list-check"></i>
-            <span>비상수칙 (QRH)</span>
-          </button>
-          <button class="tab-btn" data-tab="trafficTab">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span>스케줄 / 비용</span>
-          </button>
+          <div class="tabs-nav-group">
+            <button class="tab-btn active" data-tab="rationaleTab">
+              <i class="fa-solid fa-brain-circuit"></i>
+              <span>AI 판단 근거</span>
+            </button>
+            <button class="tab-btn" data-tab="qrhTab">
+              <i class="fa-solid fa-clipboard-list-check"></i>
+              <span>비상수칙 (QRH)</span>
+            </button>
+            <button class="tab-btn" data-tab="trafficTab">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>스케줄 / 비용</span>
+            </button>
+          </div>
+          <div class="tabs-extra-controls">
+            <span class="inspecting-route-pill" id="inspectingRoutePill">1순위 상세</span>
+            <button class="close-tabs-btn" id="closeTacticalTabsBtn" title="상세 정보 창 닫기">
+              <i class="fa-solid fa-xmark"></i> 닫기
+            </button>
+          </div>
         </div>
 
         <div class="card-content tab-content-area">
@@ -728,6 +736,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=30"></script>
+  <script type="module" src="js/app.js?v=31"></script>
 </body>
 </html>
