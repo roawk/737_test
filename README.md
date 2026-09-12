@@ -36,6 +36,12 @@
 - **Mapping**: Leaflet.js, OpenStreetMap
 - **Deployment**: Vercel
 
+## 🌐 배포 및 라이브 데모 (Vercel)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Froawk%2F737_test)
+
+- **1-Click Vercel 배포 링크**: [Vercel에서 바로 배포하기](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Froawk%2F737_test)
+
 ---
 
 ## 💻 로컬 실행 방법
@@ -45,3 +51,4 @@
 python -m http.server 8080
 ```
 브라우저에서 `http://localhost:8080/index.html`로 접속합니다.
+
