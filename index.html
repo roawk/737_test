@@ -18,8 +18,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/main.css?v=21">
-  <link rel="stylesheet" href="css/components.css?v=16">
+  <link rel="stylesheet" href="css/main.css?v=22">
+  <link rel="stylesheet" href="css/components.css?v=17">
 </head>
 <body class="cockpit-theme">
 
@@ -481,6 +481,14 @@
         </div>
       </section>
 
+      <!-- Draggable Vertical Resizer between Top Recommendations and Bottom Analysis Tabs -->
+      <div class="panel-v-resizer" id="rightPanelResizer" title="위아래로 드래그하여 상세 분석 창 크기 조절">
+        <div class="resizer-handle-bar">
+          <i class="fa-solid fa-grip-lines"></i>
+          <span>위아래로 드래그하여 상세 정보 조절</span>
+        </div>
+      </div>
+
       <!-- Bottom Tab Container: Decision Rationale / QRH Checklist / Post-Landing Maintenance / Airspace Delay -->
       <section class="panel-card tactical-tabs-card">
         <div class="card-tabs">
@@ -748,6 +756,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=27"></script>
+  <script type="module" src="js/app.js?v=28"></script>
 </body>
 </html>
