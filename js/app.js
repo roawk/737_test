@@ -570,19 +570,12 @@ function bindEventListeners() {
   enableDragToScroll(document.querySelector(".left-panel"));
   enableDragToScroll(document.querySelector(".right-panel"));
 
-  // Surrounding Traffic Toggle Controls
-  const toggleTrafficBtn = document.getElementById("toggleTrafficBtn");
+  // Surrounding Traffic Quick Toggle Control (Bottom Bar)
   const toggleTrafficQuickBtn = document.getElementById("toggleTrafficQuickBtn");
 
   function updateTrafficToggleUI() {
     const isVisible = state.showTraffic;
     const textStr = isVisible ? "ON" : "OFF";
-
-    if (toggleTrafficBtn) {
-      toggleTrafficBtn.className = `map-traffic-toggle-btn ${isVisible ? 'active' : 'inactive'}`;
-      const statusText = document.getElementById("trafficToggleStatusText");
-      if (statusText) statusText.textContent = textStr;
-    }
 
     if (toggleTrafficQuickBtn) {
       toggleTrafficQuickBtn.className = `traffic-quick-toggle-pill ${isVisible ? 'active' : 'inactive'}`;
@@ -598,7 +591,6 @@ function bindEventListeners() {
     }
   }
 
-  if (toggleTrafficBtn) toggleTrafficBtn.addEventListener("click", handleTrafficToggle);
   if (toggleTrafficQuickBtn) toggleTrafficQuickBtn.addEventListener("click", handleTrafficToggle);
 
   // Initial flight controls sync

@@ -312,16 +312,9 @@
     <!-- CENTER PANEL: Interactive Radar Map Display -->
     <section class="center-panel">
       <div class="map-overlay-header">
-        <div class="map-header-left">
-          <div class="map-status-pill">
-            <span class="live-dot"></span>
-            <span id="mapRadarAirspaceText">관제 레이더: 대한민국 공역 (Incheon FIR)</span>
-          </div>
-          <button id="toggleTrafficBtn" class="map-traffic-toggle-btn active" title="주변 항공기 표시 켜기/끄기">
-            <i class="fa-solid fa-plane"></i>
-            <span>주변기:</span>
-            <strong id="trafficToggleStatusText">ON</strong>
-          </button>
+        <div class="map-status-pill">
+          <span class="live-dot"></span>
+          <span id="mapRadarAirspaceText">관제 레이더: 대한민국 공역 (Incheon FIR)</span>
         </div>
         <div class="map-legend">
           <span class="legend-item"><span class="dot dot-glide"></span> 무동력 비행반경</span>
@@ -756,6 +749,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=16"></script>
+  <script type="module" src="js/app.js?v=17"></script>
 </body>
 </html>
