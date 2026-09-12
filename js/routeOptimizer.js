@@ -288,16 +288,16 @@ export function evaluateLandingSites(currentAircraftState, emergencyKey, surroun
 
   // Strategy dynamic descriptions
   const alphaDesc = optionAlpha.isReachable
-    ? `1순위 추천: ${optionAlpha.site.name} (활주로 ${optionAlpha.site.maxRunwayLength}m, ARFF Cat ${optionAlpha.site.arffCategory}). 안전 점수 ${optionAlpha.safetyScore}점 최우선 보장.`
-    : `1순위 추천: ${optionAlpha.site.name} (활주로 ${optionAlpha.site.maxRunwayLength}m). 글라이드 반경 초과 (${optionAlpha.glideMarginNM}NM). 종합 평가 ${optionAlpha.compositeScore}점 (최소 결손 차선책).`;
+    ? `활주로 ${optionAlpha.site.maxRunwayLength.toLocaleString()}m 및 ARFF Cat ${optionAlpha.site.arffCategory} 확보. 안전 점수 ${optionAlpha.safetyScore}점 최우선 보장.`
+    : `활주로 ${optionAlpha.site.maxRunwayLength.toLocaleString()}m 확보. 글라이드 한계 초과 (${optionAlpha.glideMarginNM}NM 부족). 비상 차선책.`;
 
   const bravoDesc = optionBravo.isReachable
-    ? `2순위 추천: ${optionBravo.site.name}. 안전 점수 ${optionBravo.safetyScore}점 유지 및 공항 대기편(${optionBravo.site.activeQueuedFlights}대) 스케줄 지연 최소화.`
-    : `2순위 추천: ${optionBravo.site.name}. 도달 마진 부족 (${optionBravo.glideMarginNM}NM). 종합 평가 ${optionBravo.compositeScore}점 차순위 대안.`;
+    ? `안전 점수 ${optionBravo.safetyScore}점 유지. 공항 대기편(${optionBravo.site.activeQueuedFlights}대) 스케줄 지연 및 항공망 손실 최소화.`
+    : `도달 마진 부족 (${optionBravo.glideMarginNM}NM). 종합 평가 ${optionBravo.compositeScore}점 차순위 대안.`;
 
   const charlieDesc = optionCharlie.isReachable
-    ? `3순위 추천: ${optionCharlie.site.name}. 안전 점수 ${optionCharlie.safetyScore}점, 비행거리 ${optionCharlie.distanceNM}NM (예상 ${optionCharlie.estimatedMinutes}분) 차순위 항로.`
-    : `3순위 추천: ${optionCharlie.site.name}. 도달 마진 부족 (${optionCharlie.glideMarginNM}NM). 종합 평가 ${optionCharlie.compositeScore}점 비상 대안.`;
+    ? `최단 비행거리 (${optionCharlie.distanceNM}NM, ETE 약 ${optionCharlie.estimatedMinutes}분 도달). 긴급 강하 접지 우선 항로.`
+    : `도달 마진 부족 (${optionCharlie.glideMarginNM}NM). 종합 평가 ${optionCharlie.compositeScore}점 비상 대안.`;
 
   return {
     capabilities: cap,

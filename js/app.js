@@ -773,37 +773,63 @@ function renderRecommendationCards(recs) {
       <div class="route-header">
         <div class="route-tag-group">
           <span class="route-letter-badge">${item.rank} (${item.colorLabel})</span>
-          <span class="route-title">${site.name}</span>
+          <span class="route-title" title="${site.name}">${site.name}</span>
         </div>
-        <div class="route-scores">
-          <div class="score-badge">
-            <span class="score-val" style="color: ${item.colorCode};">${rData.compositeScore}점</span>
-            <span class="score-lbl">${rData.compositeScore < 0 ? '도달불능 감점' : '종합 최적도'}</span>
+        <div class="score-badge">
+          <div class="score-val-wrap">
+            <span class="score-val" style="color: ${item.colorCode};">${rData.compositeScore}</span>
+            <span class="score-unit" style="color: ${item.colorCode};">점</span>
           </div>
+          <span class="score-lbl">${rData.compositeScore < 0 ? '도달불능 감점' : '종합 최적도'}</span>
         </div>
       </div>
       <p class="route-strategy-desc">${item.strategy}</p>
       <div class="route-metrics-row">
         <div class="metric-cell">
-          <span>거리 / 방위</span>
-          <strong>${rData.distanceNM}NM / ${rData.bearingDeg}°</strong>
+          <span class="metric-lbl">비행거리</span>
+          <div class="metric-val-wrap">
+            <strong class="metric-num">${rData.distanceNM}</strong>
+            <span class="metric-unit">NM</span>
+          </div>
+          <span class="metric-sub">방위 ${rData.bearingDeg}°</span>
         </div>
         <div class="metric-cell">
-          <span>예상 시간(ETE)</span>
-          <strong style="color: ${item.colorCode};">${rData.estimatedMinutes}분</strong>
+          <span class="metric-lbl">예상 비행시간</span>
+          <div class="metric-val-wrap">
+            <strong class="metric-num" style="color: ${item.colorCode};">${rData.estimatedMinutes}</strong>
+            <span class="metric-unit" style="color: ${item.colorCode};">분</span>
+          </div>
+          <span class="metric-sub">무동력 ETE</span>
         </div>
         <div class="metric-cell">
-          <span>안전 점수 (1순위)</span>
-          <strong class="${rData.safetyScore < 0 ? 'text-red' : 'text-green'}">${rData.safetyScore} / 100</strong>
+          <span class="metric-lbl">안전 점수</span>
+          <div class="metric-val-wrap">
+            <strong class="metric-num ${rData.safetyScore < 0 ? 'text-red' : 'text-green'}">${rData.safetyScore}</strong>
+            <span class="metric-unit">/100</span>
+          </div>
+          <span class="metric-sub">1순위 (75%)</span>
         </div>
         <div class="metric-cell">
-          <span>운영 점수 (2순위)</span>
-          <strong class="text-amber">${rData.efficiencyScore} / 100</strong>
+          <span class="metric-lbl">운영 점수</span>
+          <div class="metric-val-wrap">
+            <strong class="metric-num text-amber">${rData.efficiencyScore}</strong>
+            <span class="metric-unit">/100</span>
+          </div>
+          <span class="metric-sub">2순위 (25%)</span>
         </div>
       </div>
       <div class="route-impact-summary">
-        <span><i class="fa-solid fa-plane-circle-exclamation"></i> 공항 대기편: <strong>${site.activeQueuedFlights}대</strong></span>
-        <span><i class="fa-solid fa-coins"></i> 예상 스케줄 손실: <strong>$${(rData.estimatedDisruptionCostUSD).toLocaleString()}</strong></span>
+        <div class="impact-item">
+          <i class="fa-solid fa-plane-arrival text-cyan"></i>
+          <span class="impact-txt">공항 대기편:</span>
+          <strong>${site.activeQueuedFlights}대</strong>
+        </div>
+        <div class="impact-divider"></div>
+        <div class="impact-item">
+          <i class="fa-solid fa-coins text-amber"></i>
+          <span class="impact-txt">스케줄 지연손실:</span>
+          <strong>$${(rData.estimatedDisruptionCostUSD).toLocaleString()}</strong>
+        </div>
       </div>
     `;
 
