@@ -951,7 +951,21 @@ export function updateDamageModalUI(emergencyKey) {
   const profile = getAircraftDamageReport(emergencyKey);
   if (!profile) return;
 
-  // Modal Overall Gauge
+  // 1. Update Top Header Quick Button & Badge
+  const headerDmgBadge = document.getElementById("headerDamageBadge");
+  if (headerDmgBadge) {
+    headerDmgBadge.textContent = `${profile.overallDamagePercent}% 손상`;
+    headerDmgBadge.style.color = profile.statusColor;
+    headerDmgBadge.style.borderColor = profile.statusColor;
+  }
+  const openDmgBtn = document.getElementById("openDamageModalBtn");
+  if (openDmgBtn) {
+    openDmgBtn.style.color = profile.statusColor;
+    openDmgBtn.style.borderColor = profile.statusColor + "70";
+    openDmgBtn.style.backgroundColor = profile.statusColor + "15";
+  }
+
+  // 2. Modal Overall Gauge
   const overallVal = document.getElementById("dmgOverallVal");
   if (overallVal) overallVal.textContent = `${profile.overallDamagePercent}%`;
 
