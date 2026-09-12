@@ -743,7 +743,7 @@ function recomputeAndRender() {
   const currentScenario = EMERGENCY_SCENARIOS[state.emergencyKey];
 
   // 1. Run Route Optimizer
-  state.trafficList = generateSurroundingAirTraffic(state.aircraft, state.emergencyKey);
+  state.trafficList = generateSurroundingAirTraffic(state.aircraft);
   state.evaluationResult = evaluateLandingSites(state.aircraft, state.emergencyKey, state.trafficList);
   const cap = state.evaluationResult.capabilities;
   const recs = state.evaluationResult.topRecommendations;
@@ -802,8 +802,6 @@ function recomputeAndRender() {
   const cautionTrafficCount = state.trafficList.filter(t => t.riskTier === 'caution').length;
   const safeTrafficCount = state.trafficList.filter(t => t.riskTier === 'safe' || (!t.isConflictRisk && t.riskTier !== 'caution')).length;
 
-  const totalTrafficEl = document.getElementById("trafficCount");
-  if (totalTrafficEl) totalTrafficEl.textContent = `${state.trafficList.length}대`;
   const dangerEl = document.getElementById("conflictDangerCount");
   if (dangerEl) dangerEl.textContent = `${dangerTrafficCount}대`;
   const cautionEl = document.getElementById("conflictCautionCount");
