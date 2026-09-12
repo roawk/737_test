@@ -855,7 +855,7 @@ function renderRecommendationCards(recs) {
     card.innerHTML = `
       <div class="route-header">
         <div class="route-tag-group">
-          <span class="route-letter-badge">${item.rank} (${item.colorLabel})</span>
+          <span class="route-letter-badge">${item.rank}</span>
           <span class="route-title" title="${site.name}">${site.name}</span>
         </div>
         <div class="score-badge">
