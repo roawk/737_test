@@ -1079,3 +1079,241 @@
 .cockpit-table tr:hover td {
   background: #f5f9ff;
 }
+
+/* ===================================================
+   Flight Route & Position Selector Styles
+   =================================================== */
+.flight-route-card {
+  border-top: 3px solid #00d4ff;
+}
+
+.fms-tag {
+  background: rgba(0, 212, 255, 0.12);
+  color: #0088cc;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  font-weight: 700;
+}
+
+.route-presets-wrap {
+  margin-bottom: 12px;
+}
+
+.preset-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--boeing-navy);
+  margin-bottom: 6px;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.route-preset-pill {
+  background: #f0f6ff;
+  border: 1px solid #c8def8;
+  color: #1a4f8b;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.route-preset-pill:hover {
+  background: #0066cc;
+  color: #ffffff;
+  border-color: #0066cc;
+  transform: translateY(-1px);
+}
+
+.route-preset-pill.active {
+  background: #0066cc;
+  color: #ffffff;
+  border-color: #0052a3;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+}
+
+.route-selectors-grid {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.selector-field {
+  flex: 1;
+}
+
+.selector-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.selector-field select {
+  width: 100%;
+  padding: 7px 8px;
+  font-size: 12px;
+  border: 1.5px solid #cde0f5;
+  border-radius: 6px;
+  background: #f8fbff;
+  color: var(--boeing-navy);
+  font-weight: 600;
+}
+
+.route-swap-btn-wrap {
+  padding-bottom: 4px;
+}
+
+.swap-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #bed6f2;
+  background: #eaf2fc;
+  color: #0066cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.swap-btn:hover {
+  background: #0066cc;
+  color: #ffffff;
+  transform: rotate(180deg);
+}
+
+.flight-progress-section {
+  background: #f4f8fe;
+  border: 1px solid #dbe8f7;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--boeing-navy);
+}
+
+.progress-pct-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #0066cc;
+  background: #ffffff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #c2dbf8;
+}
+
+.progress-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.progress-endpoint-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  min-width: 34px;
+  text-align: center;
+}
+
+.progress-slider {
+  flex: 1;
+}
+
+.route-telemetry-strip {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #4a6282;
+  border-top: 1px solid #e1ecf8;
+  padding-top: 8px;
+  margin-bottom: 6px;
+}
+
+.route-telemetry-strip strong {
+  color: var(--boeing-navy);
+  font-family: var(--font-mono);
+}
+
+.map-click-hint {
+  font-size: 10px;
+  color: #6e84a3;
+  line-height: 1.35;
+  background: #eaf2fb;
+  padding: 5px 8px;
+  border-radius: 5px;
+}
+
+/* FMS Waypoint Pin on Leaflet Map */
+.custom-fms-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fms-airport-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 10px;
+}
+
+.origin-pin {
+  background: #00c853;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+}
+
+.dest-pin {
+  background: #e040fb;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+}
+
+.origin-pin .pin-tag, .dest-pin .pin-tag {
+  font-size: 8px;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.route-badge {
+  background: rgba(224, 64, 251, 0.15) !important;
+  border-color: rgba(224, 64, 251, 0.4) !important;
+}
+
+.route-badge .badge-val {
+  color: #ab00d6 !important;
+  font-weight: 800 !important;
+}
+

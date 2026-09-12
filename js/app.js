@@ -2,10 +2,17 @@
 
 import { calculateFlightCapabilities, EMERGENCY_SCENARIOS } from "./b737Engine.js";
 import { generateSurroundingAirTraffic, LANDING_SITES } from "./airTrafficSim.js";
-import { evaluateLandingSites } from "./routeOptimizer.js";
+import { evaluateLandingSites, calculateDistanceNM, calculateBearing } from "./routeOptimizer.js";
 import { QRH_PROCEDURES } from "./actionChecklist.js";
 import { generateMaintenanceMatrix } from "./postLandingMaint.js";
 import { AirspaceMapRenderer } from "./mapRenderer.js";
+import { 
+  AIRPORTS_DIRECTORY, 
+  POPULAR_ROUTES, 
+  getAirportByIcao, 
+  generatePlannedRouteWaypoints, 
+  computeFlightPositionAlongRoute 
+} from "./flightRouteManager.js";
 
 // Global App State
 const state = {
@@ -13,13 +20,20 @@ const state = {
     callsign: "HL-737EM",
     model: "Boeing 737-800",
     lat: 36.88,
-    lng: 126.32, // Flying over West Coast of Korea
+    lng: 126.32,
     altitudeFt: 31000,
     groundSpeedKts: 240,
     fuelKg: 4800,
     windKts: -15, // 15kt headwind
     headingDeg: 185,
     sortCriteria: "safety" // Default: Safety score strictly descending
+  },
+  flightPlan: {
+    originIcao: "RKSS", // Gimpo
+    destIcao: "RKPC",   // Jeju
+    progress: 0.45,     // 45% (En-route West Coast)
+    activePresetId: "GMP_CJU",
+    waypoints: []
   },
   emergencyKey: "dual_engine_flameout",
   activeRouteTag: "alpha", // Default 1st rank
@@ -71,10 +85,10 @@ function playEmergencyChime() {
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Initialize Map
   state.mapRenderer = new AirspaceMapRenderer("airspaceMap");
-  state.mapRenderer.init(36.85, 126.55, 8);
+  state.mapRenderer.init(36.00, 127.30, 7);
 
-  // 2. Generate Surrounding Air Traffic
-  state.trafficList = generateSurroundingAirTraffic(state.aircraft);
+  // 2. Initialize Flight Route & Origin/Destination Controls
+  initFlightRouteControls();
 
   // 3. Bind UI Events
   bindEventListeners();
@@ -82,9 +96,204 @@ document.addEventListener("DOMContentLoaded", () => {
   // 4. Start UTC Clock
   startUtcClock();
 
-  // 5. Initial Compute & Render
-  recomputeAndRender();
+  // 5. Initial Route & Aircraft Position Setup & Render
+  updateFlightRouteAndAircraft(true);
 });
+
+function initFlightRouteControls() {
+  const originSelect = document.getElementById("originAirportSelect");
+  const destSelect = document.getElementById("destAirportSelect");
+  const presetsContainer = document.getElementById("popularRoutesContainer");
+  const progressSlider = document.getElementById("flightProgressSlider");
+  const swapBtn = document.getElementById("swapAirportsBtn");
+
+  if (!originSelect || !destSelect) return;
+
+  // Populate airport select dropdowns
+  originSelect.innerHTML = "";
+  destSelect.innerHTML = "";
+
+  AIRPORTS_DIRECTORY.forEach(apt => {
+    const optOrig = document.createElement("option");
+    optOrig.value = apt.icao;
+    optOrig.textContent = `${apt.iata || apt.icao} - ${apt.name}`;
+    if (apt.icao === state.flightPlan.originIcao) optOrig.selected = true;
+    originSelect.appendChild(optOrig);
+
+    const optDest = document.createElement("option");
+    optDest.value = apt.icao;
+    optDest.textContent = `${apt.iata || apt.icao} - ${apt.name}`;
+    if (apt.icao === state.flightPlan.destIcao) optDest.selected = true;
+    destSelect.appendChild(optDest);
+  });
+
+  // Render Popular Route Presets
+  if (presetsContainer) {
+    presetsContainer.innerHTML = "";
+    POPULAR_ROUTES.forEach(preset => {
+      const btn = document.createElement("button");
+      btn.className = `route-preset-pill ${preset.id === state.flightPlan.activePresetId ? 'active' : ''}`;
+      btn.dataset.id = preset.id;
+      btn.textContent = preset.label;
+      btn.title = preset.description;
+      btn.addEventListener("click", () => {
+        applyRoutePreset(preset.id);
+      });
+      presetsContainer.appendChild(btn);
+    });
+  }
+
+  // Origin change listener
+  originSelect.addEventListener("change", (e) => {
+    state.flightPlan.originIcao = e.target.value;
+    state.flightPlan.activePresetId = null;
+    updatePresetButtonsUI();
+    updateFlightRouteAndAircraft(true);
+  });
+
+  // Dest change listener
+  destSelect.addEventListener("change", (e) => {
+    state.flightPlan.destIcao = e.target.value;
+    state.flightPlan.activePresetId = null;
+    updatePresetButtonsUI();
+    updateFlightRouteAndAircraft(true);
+  });
+
+  // Swap button
+  if (swapBtn) {
+    swapBtn.addEventListener("click", () => {
+      const temp = state.flightPlan.originIcao;
+      state.flightPlan.originIcao = state.flightPlan.destIcao;
+      state.flightPlan.destIcao = temp;
+      originSelect.value = state.flightPlan.originIcao;
+      destSelect.value = state.flightPlan.destIcao;
+      state.flightPlan.activePresetId = null;
+      updatePresetButtonsUI();
+      updateFlightRouteAndAircraft(true);
+    });
+  }
+
+  // Progress slider
+  if (progressSlider) {
+    progressSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value);
+      state.flightPlan.progress = val / 100;
+      updateFlightRouteAndAircraft(false);
+    });
+  }
+
+  // Map direct click repositioning listener
+  state.mapRenderer.setOnMapClickListener((latlng) => {
+    const orig = getAirportByIcao(state.flightPlan.originIcao);
+    const dest = getAirportByIcao(state.flightPlan.destIcao);
+    state.aircraft.lat = Number(latlng.lat.toFixed(4));
+    state.aircraft.lng = Number(latlng.lng.toFixed(4));
+    
+    // Heading towards destination
+    state.aircraft.headingDeg = Math.round(calculateBearing(state.aircraft.lat, state.aircraft.lng, dest.lat, dest.lng));
+    
+    // Recalculate progress approximately based on distance to dest
+    const totalDist = calculateDistanceNM(orig.lat, orig.lng, dest.lat, dest.lng);
+    const toDest = calculateDistanceNM(state.aircraft.lat, state.aircraft.lng, dest.lat, dest.lng);
+    if (totalDist > 0) {
+      state.flightPlan.progress = Math.max(0, Math.min(1, 1 - (toDest / totalDist)));
+      if (progressSlider) progressSlider.value = Math.round(state.flightPlan.progress * 100);
+    }
+
+    updateRouteUIElements(orig, dest);
+    recomputeAndRender();
+  });
+}
+
+function applyRoutePreset(presetId) {
+  const preset = POPULAR_ROUTES.find(p => p.id === presetId);
+  if (!preset) return;
+
+  state.flightPlan.originIcao = preset.originIcao;
+  state.flightPlan.destIcao = preset.destIcao;
+  state.flightPlan.activePresetId = preset.id;
+  state.flightPlan.progress = preset.typicalProgress;
+  state.aircraft.altitudeFt = preset.plannedCruiseAltFt;
+
+  const originSelect = document.getElementById("originAirportSelect");
+  const destSelect = document.getElementById("destAirportSelect");
+  const progressSlider = document.getElementById("flightProgressSlider");
+  const altSlider = document.getElementById("altSlider");
+  const inputAlt = document.getElementById("inputAlt");
+
+  if (originSelect) originSelect.value = preset.originIcao;
+  if (destSelect) destSelect.value = preset.destIcao;
+  if (progressSlider) progressSlider.value = Math.round(preset.typicalProgress * 100);
+  if (altSlider) altSlider.value = preset.plannedCruiseAltFt;
+  if (inputAlt) inputAlt.value = preset.plannedCruiseAltFt;
+
+  updatePresetButtonsUI();
+  updateFlightRouteAndAircraft(true);
+}
+
+function updatePresetButtonsUI() {
+  document.querySelectorAll(".route-preset-pill").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.id === state.flightPlan.activePresetId);
+  });
+}
+
+function updateFlightRouteAndAircraft(shouldFitBounds = false) {
+  const orig = getAirportByIcao(state.flightPlan.originIcao);
+  const dest = getAirportByIcao(state.flightPlan.destIcao);
+
+  // Generate waypoints along planned route
+  state.flightPlan.waypoints = generatePlannedRouteWaypoints(orig, dest, 24);
+
+  // Compute position along route
+  const posData = computeFlightPositionAlongRoute(orig, dest, state.flightPlan.progress, state.aircraft.altitudeFt);
+  state.aircraft.lat = posData.lat;
+  state.aircraft.lng = posData.lng;
+  state.aircraft.headingDeg = posData.headingDeg;
+
+  // Update planned route line and airport markers on map
+  state.mapRenderer.updatePlannedRoute(orig, dest, state.flightPlan.waypoints);
+  if (shouldFitBounds) {
+    state.mapRenderer.fitRouteBounds(orig, dest);
+  }
+
+  // Update Route UI Indicators
+  updateRouteUIElements(orig, dest, posData);
+
+  // Re-evaluate and re-render everything
+  recomputeAndRender();
+}
+
+function updateRouteUIElements(orig, dest, posData = null) {
+  if (!posData) {
+    posData = computeFlightPositionAlongRoute(orig, dest, state.flightPlan.progress, state.aircraft.altitudeFt);
+  }
+
+  const headerRouteVal = document.getElementById("headerRouteVal");
+  if (headerRouteVal) headerRouteVal.textContent = `${orig.iata || orig.icao} ➔ ${dest.iata || dest.icao}`;
+
+  const originCodeLabel = document.getElementById("originCodeLabel");
+  if (originCodeLabel) originCodeLabel.textContent = orig.iata || orig.icao;
+
+  const destCodeLabel = document.getElementById("destCodeLabel");
+  if (destCodeLabel) destCodeLabel.textContent = dest.iata || dest.icao;
+
+  const flightPhaseBadge = document.getElementById("flightPhaseBadge");
+  if (flightPhaseBadge) flightPhaseBadge.textContent = posData.flightPhase;
+
+  const progressPercentBadge = document.getElementById("progressPercentBadge");
+  if (progressPercentBadge) {
+    progressPercentBadge.textContent = `${posData.progressPercent}% (${posData.flightPhase} ${posData.distFromOriginNM} NM)`;
+  }
+
+  const totalRouteDistVal = document.getElementById("totalRouteDistVal");
+  if (totalRouteDistVal) totalRouteDistVal.textContent = `${posData.totalDistanceNM} NM`;
+
+  const routeHeadingVal = document.getElementById("routeHeadingVal");
+  if (routeHeadingVal) routeHeadingVal.textContent = `${posData.headingDeg}°`;
+
+  const remainDistVal = document.getElementById("remainDistVal");
+  if (remainDistVal) remainDistVal.textContent = `${posData.distToDestNM} NM`;
+}
 
 function bindEventListeners() {
   // Emergency scenario select
@@ -349,6 +558,7 @@ function recomputeAndRender() {
   const currentScenario = EMERGENCY_SCENARIOS[state.emergencyKey];
 
   // 1. Run Route Optimizer
+  state.trafficList = generateSurroundingAirTraffic(state.aircraft);
   state.evaluationResult = evaluateLandingSites(state.aircraft, state.emergencyKey, state.trafficList);
   const cap = state.evaluationResult.capabilities;
   const recs = state.evaluationResult.topRecommendations;

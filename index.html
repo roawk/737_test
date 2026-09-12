@@ -44,6 +44,9 @@
       <div class="airframe-badge">
         <span class="badge-label">TAIL</span>
         <span class="badge-val">HL-737EM</span>
+      <div class="airframe-badge route-badge" id="headerRouteBadge">
+        <span class="badge-label">ROUTE</span>
+        <span class="badge-val" id="headerRouteVal">GMP ➔ CJU</span>
       </div>
     </div>
 
@@ -72,6 +75,68 @@
     <!-- LEFT PANEL: Emergency Telemetry & Parameter Controller -->
     <aside class="side-panel left-panel">
       
+      <!-- Flight Plan & Route Selector Card -->
+      <section class="panel-card flight-route-card">
+        <div class="card-header">
+          <div class="header-title">
+            <i class="fa-solid fa-route text-cyan"></i>
+            <h3>비행 계획 & 출발/도착지 설정</h3>
+          </div>
+          <span class="card-tag fms-tag" id="flightPhaseBadge">CRUISE (순항)</span>
+        </div>
+        <div class="card-content">
+          <!-- Popular Route Quick Buttons -->
+          <div class="route-presets-wrap">
+            <span class="preset-title"><i class="fa-solid fa-bolt"></i> 인기 노선 퀵 프리셋:</span>
+            <div class="preset-buttons" id="popularRoutesContainer">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Origin & Destination Selectors -->
+          <div class="route-selectors-grid">
+            <div class="selector-field">
+              <label for="originAirportSelect"><i class="fa-solid fa-plane-departure text-green"></i> 출발 공항 (DEP)</label>
+              <select id="originAirportSelect" class="cockpit-select">
+                <!-- Airport options injected by JS -->
+              </select>
+            </div>
+            <div class="route-swap-btn-wrap">
+              <button id="swapAirportsBtn" class="swap-btn" title="출발지와 도착지 맞바꾸기">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+              </button>
+            </div>
+            <div class="selector-field">
+              <label for="destAirportSelect"><i class="fa-solid fa-plane-arrival text-cyan"></i> 도착 공항 (ARR)</label>
+              <select id="destAirportSelect" class="cockpit-select">
+                <!-- Airport options injected by JS -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Flight Progress Slider & Position along route -->
+          <div class="flight-progress-section">
+            <div class="progress-labels">
+              <span class="progress-title">비행 진행도 (현재 기체 위치)</span>
+              <span class="progress-pct-badge" id="progressPercentBadge">45% (순항 109 NM)</span>
+            </div>
+            <div class="progress-slider-wrap">
+              <span class="progress-endpoint-label" id="originCodeLabel">GMP</span>
+              <input type="range" id="flightProgressSlider" min="0" max="100" value="45" class="cockpit-slider progress-slider">
+              <span class="progress-endpoint-label" id="destCodeLabel">CJU</span>
+            </div>
+            <div class="route-telemetry-strip">
+              <span class="telem-item"><i class="fa-solid fa-ruler"></i> 총 항로: <strong id="totalRouteDistVal">242 NM</strong></span>
+              <span class="telem-item"><i class="fa-solid fa-compass"></i> 비행 방위: <strong id="routeHeadingVal">185°</strong></span>
+              <span class="telem-item"><i class="fa-solid fa-hourglass-half"></i> 남은 거리: <strong id="remainDistVal">133 NM</strong></span>
+            </div>
+            <div class="map-click-hint">
+              <i class="fa-solid fa-hand-pointer"></i> 레이더 지도를 직접 클릭하여 원하는 위치로 기체를 즉시 이동할 수도 있습니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Emergency Scenario Selector Card -->
       <section class="panel-card emergency-selector-card">
         <div class="card-header">

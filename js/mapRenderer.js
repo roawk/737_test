@@ -11,6 +11,9 @@ export class AirspaceMapRenderer {
     this.airportMarkers = [];
     this.routePolylines = [];
     this.activeRoutePolyline = null;
+    this.plannedRoutePolyline = null;
+    this.originDestMarkers = [];
+    this.onMapClickCallback = null;
   }
 
   init(centerLat = 36.85, centerLng = 126.60, zoom = 8) {
@@ -29,8 +32,19 @@ export class AirspaceMapRenderer {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
+    // Map click event listener for aircraft repositioning
+    this.map.on('click', (e) => {
+      if (this.onMapClickCallback) {
+        this.onMapClickCallback(e.latlng);
+      }
+    });
+
     // Grid Radar Overlay SVG layer
     this.renderRadarGridOverlay();
+  }
+
+  setOnMapClickListener(callback) {
+    this.onMapClickCallback = callback;
   }
 
   renderRadarGridOverlay() {
@@ -265,4 +279,81 @@ export class AirspaceMapRenderer {
       this.routePolylines.push(polyline);
     });
   }
+
+  updatePlannedRoute(originAirport, destAirport, waypoints = []) {
+    if (!this.map) return;
+
+    // Remove previous planned route
+    if (this.plannedRoutePolyline) {
+      this.map.removeLayer(this.plannedRoutePolyline);
+      this.plannedRoutePolyline = null;
+    }
+
+    // Remove previous origin/dest markers
+    this.originDestMarkers.forEach(m => this.map.removeLayer(m));
+    this.originDestMarkers = [];
+
+    if (!originAirport || !destAirport) return;
+
+    const latlngs = waypoints.length > 0 
+      ? waypoints 
+      : [[originAirport.lat, originAirport.lng], [destAirport.lat, destAirport.lng]];
+
+    // FMS magenta dashed polyline
+    this.plannedRoutePolyline = L.polyline(latlngs, {
+      color: "#e040fb",
+      weight: 3,
+      opacity: 0.85,
+      dashArray: "8, 6",
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(this.map);
+
+    this.plannedRoutePolyline.bindTooltip(
+      `<strong>계획 항로 (FMS PLANNED ROUTE):</strong><br/>출발: ${originAirport.name} (${originAirport.iata}) ➔ 도착: ${destAirport.name} (${destAirport.iata})`,
+      { sticky: true, className: 'radar-tooltip' }
+    );
+
+    // Marker for Origin
+    const originIcon = L.divIcon({
+      html: `
+        <div class="fms-airport-pin origin-pin">
+          <span class="pin-tag">DEP</span>
+          <span class="pin-code">${originAirport.iata || originAirport.icao}</span>
+        </div>
+      `,
+      className: 'custom-fms-pin',
+      iconSize: [44, 24],
+      iconAnchor: [22, 12]
+    });
+    const originMarker = L.marker([originAirport.lat, originAirport.lng], { icon: originIcon }).addTo(this.map);
+    originMarker.bindTooltip(`출발 공항 (DEP): ${originAirport.name}`, { className: 'radar-tooltip' });
+    this.originDestMarkers.push(originMarker);
+
+    // Marker for Destination
+    const destIcon = L.divIcon({
+      html: `
+        <div class="fms-airport-pin dest-pin">
+          <span class="pin-tag">ARR</span>
+          <span class="pin-code">${destAirport.iata || destAirport.icao}</span>
+        </div>
+      `,
+      className: 'custom-fms-pin',
+      iconSize: [44, 24],
+      iconAnchor: [22, 12]
+    });
+    const destMarker = L.marker([destAirport.lat, destAirport.lng], { icon: destIcon }).addTo(this.map);
+    destMarker.bindTooltip(`도착 공항 (ARR): ${destAirport.name}`, { className: 'radar-tooltip' });
+    this.originDestMarkers.push(destMarker);
+  }
+
+  fitRouteBounds(originAirport, destAirport) {
+    if (!this.map || !originAirport || !destAirport) return;
+    const bounds = L.latLngBounds([
+      [originAirport.lat, originAirport.lng],
+      [destAirport.lat, destAirport.lng]
+    ]);
+    this.map.fitBounds(bounds, { padding: [60, 60], maxZoom: 9 });
+  }
 }
+
