@@ -120,8 +120,18 @@ export function computeFlightPositionAlongRoute(originAirport, destAirport, prog
     suggestedAltFt = cruiseAltFt;
   }
 
-  // Round altitude to nearest 500ft
-  suggestedAltFt = Math.round(suggestedAltFt / 500) * 500;
+  // Speed & Fuel simulation along flight progress
+  let suggestedSpeedKts = 280;
+  if (t < 0.20) {
+    suggestedSpeedKts = Math.round(200 + (280 - 200) * (t / 0.20));
+  } else if (t > 0.75) {
+    suggestedSpeedKts = Math.round(280 - (280 - 190) * ((t - 0.75) / 0.25));
+  }
+
+  // Realistic fuel burn along route: departure with approx 6,800kg, burning down with distance
+  const baseFuel = Math.round(Math.min(14000, 3200 + totalDistanceNM * 14.0));
+  const burnedKg = Math.round((baseFuel - 2200) * t);
+  const suggestedFuelKg = Math.max(1200, baseFuel - burnedKg);
 
   return {
     lat: Number(lat.toFixed(4)),
@@ -129,6 +139,8 @@ export function computeFlightPositionAlongRoute(originAirport, destAirport, prog
     headingDeg,
     flightPhase,
     suggestedAltFt,
+    suggestedSpeedKts,
+    suggestedFuelKg,
     totalDistanceNM,
     distFromOriginNM,
     distToDestNM,

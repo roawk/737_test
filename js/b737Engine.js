@@ -110,57 +110,127 @@ export function calculateFlightCapabilities(altitudeFt, groundSpeedKts, fuelKg, 
   const emergency = EMERGENCY_SCENARIOS[emergencyKey] || EMERGENCY_SCENARIOS.dual_engine_flameout;
   const isDualFlameout = emergencyKey === "dual_engine_flameout";
 
+  // 1. Gross Weight calculation
+  const grossWeightKg = Math.round(B737_SPECS.operatingEmptyWeight + fuelKg);
+  const isOverweightLanding = grossWeightKg > B737_SPECS.maxLandingWeight;
+  const weightRatio = Math.sqrt(grossWeightKg / 50000); // Aerodynamic scaling factor relative to 50t mid-weight
+
+  // 2. Dynamic Optimal Airspeed (scales with weight and wind penetration)
+  let optimalAirspeed = emergency.speedKnots;
+  if (isDualFlameout) {
+    // Best glide speed V_md increases with weight: approx 200 KIAS at empty to 230 KIAS at heavy weight
+    const baseBestGlide = 215 * weightRatio;
+    // Headwind penetration adjustment (+1/3 of headwind, -1/4 of tailwind)
+    const windSpeedAdj = windKts < 0 ? Math.round(-windKts * 0.35) : Math.round(-windKts * 0.2);
+    optimalAirspeed = Math.max(185, Math.min(245, Math.round(baseBestGlide + windSpeedAdj)));
+  } else if (emergencyKey === "single_engine_failure") {
+    optimalAirspeed = Math.round(270 * weightRatio);
+  } else if (emergencyKey === "hydraulic_total_loss") {
+    // Flapless approach speed
+    optimalAirspeed = Math.round(205 * weightRatio);
+  } else if (emergencyKey === "rapid_depressurization") {
+    optimalAirspeed = Math.round(305 + (groundSpeedKts - 305) * 0.1);
+  } else if (emergencyKey === "cargo_fire") {
+    optimalAirspeed = Math.round(315 + (groundSpeedKts - 315) * 0.1);
+  }
+
+  // 3. Dynamic Vertical Descent Rate (scales with speed deviation, weight, and aerodynamics)
+  let descentRate = emergency.descentRateFpm;
+  if (isDualFlameout) {
+    // Nominal sink rate at best glide is approx -1,350 FPM
+    const nominalSink = -1350 * weightRatio;
+    // Speed deviation penalty: flying faster or slower than optimal increases drag and sink rate
+    const speedDelta = groundSpeedKts - optimalAirspeed;
+    const dragSinkPenalty = speedDelta > 0 
+      ? -(speedDelta * 4.2) // Parasitic drag penalty at high speeds
+      : -(Math.abs(speedDelta) * 3.0); // Induced drag penalty at low speeds
+    descentRate = Math.round((nominalSink + dragSinkPenalty) / 10) * 10;
+    descentRate = Math.min(-950, Math.max(-3200, descentRate));
+  } else if (emergencyKey === "single_engine_failure") {
+    // Drift down sink rate
+    const driftSink = altitudeFt > emergency.driftDownCeiling ? -550 * weightRatio : -180;
+    descentRate = Math.round(driftSink / 10) * 10;
+  } else if (emergencyKey === "rapid_depressurization") {
+    // High speed emergency dive
+    const diveFactor = Math.max(0.8, Math.min(1.3, groundSpeedKts / 300));
+    descentRate = Math.round((-4600 * diveFactor) / 50) * 50;
+  } else if (emergencyKey === "cargo_fire") {
+    const fastDiveFactor = Math.max(0.85, Math.min(1.25, groundSpeedKts / 310));
+    descentRate = Math.round((-2900 * fastDiveFactor) / 50) * 50;
+  } else if (emergencyKey === "hydraulic_total_loss") {
+    descentRate = Math.round((-1150 * weightRatio) / 10) * 10;
+  }
+
+  // 4. Dynamic Effective Glide Ratio (L/D with 50% safety factor, speed penalty, and wind vector)
+  let effectiveGlideRatio = 0;
+  let glideDistancePer1000ft = 0;
   let maxGlideRangeNM = 0;
   let remainingTimeMinutes = 0;
-  let optimalAirspeed = emergency.speedKnots;
-  let descentRate = emergency.descentRateFpm;
   let limitingFactor = "";
-  let effectiveGlideRatio = emergency.glideRatio || 0;
 
   if (isDualFlameout) {
-    // True glide calculation (50% reduction applied for safety factor / user specification)
-    // Glide ratio = 16.0 : 1 scaled by 0.5 (effective 8.0 : 1). In nautical miles: altitude in ft / 6076.12 * 16.0 * 0.5
-    // With wind adjustment (headwind reduces glide, tailwind extends)
-    const stillAirRangeNM = ((altitudeFt / 6076.12) * emergency.glideRatio) * 0.5;
-    const glideTimeHours = Math.abs(altitudeFt / (emergency.descentRateFpm * 60));
-    const windEffectNM = (windKts * glideTimeHours) * 0.5; // ground vector effect scaled by 50%
-    maxGlideRangeNM = Math.max(5, stillAirRangeNM + (windEffectNM * 0.5));
-    remainingTimeMinutes = Math.round((altitudeFt / Math.abs(emergency.descentRateFpm)));
-    effectiveGlideRatio = Math.round((maxGlideRangeNM / (altitudeFt / 6076.12)) * 10) / 10;
-    limitingFactor = "전체 엔진 추력 상실에 따른 무동력 공기역학 활공비 한계 (안전 계수 50% 축소 반경)";
+    // Still air aerodynamic glide ratio: nominal 8.0:1 (50% safety margin of 16:1)
+    const speedPolarFactor = Math.max(0.65, 1.0 - 0.45 * Math.pow((groundSpeedKts - optimalAirspeed) / optimalAirspeed, 2));
+    const stillAirGlide = 8.0 * speedPolarFactor * (1.0 / weightRatio);
+
+    // Ground vector effect from wind: headwind reduces ground distance, tailwind extends it
+    const effectiveGroundSpeed = Math.max(100, groundSpeedKts + windKts);
+    const windVectorRatio = effectiveGroundSpeed / Math.max(120, groundSpeedKts);
+    
+    effectiveGlideRatio = Math.round(stillAirGlide * windVectorRatio * 10) / 10;
+    effectiveGlideRatio = Math.max(4.0, Math.min(13.5, effectiveGlideRatio));
+
+    // Range in NM = (Altitude in feet / 6076.12) * effective glide ratio
+    maxGlideRangeNM = Math.max(5, Math.round((altitudeFt / 6076.12) * effectiveGlideRatio));
+    remainingTimeMinutes = Math.max(1, Math.round(altitudeFt / Math.abs(descentRate)));
+    glideDistancePer1000ft = Math.round(((1000 / 6076.12) * effectiveGlideRatio) * 100) / 100;
+    limitingFactor = `전체 엔진 추력 상실에 따른 무동력 공기역학 활공비 한계 (안전 계수 50% 축소 반경)`;
   } else if (emergencyKey === "single_engine_failure") {
-    // Engine 1 out: can sustain level flight at singleEngineCeiling
-    const fuelConsumptionPerHour = 1800; // kg/hr on single engine CFM56-7B
+    const fuelConsumptionPerHour = 1750;
     const fuelHours = fuelKg / fuelConsumptionPerHour;
-    remainingTimeMinutes = Math.min(240, Math.round(fuelHours * 60));
-    maxGlideRangeNM = Math.round(fuelHours * emergency.speedKnots * 0.85);
-    effectiveGlideRatio = 0; // Powered cruise
-    limitingFactor = "단발 엔진 지속 순항 및 잔여 연료 소모율(1,800 kg/h) 한계";
+    remainingTimeMinutes = Math.min(260, Math.round(fuelHours * 60));
+    const effectiveCruiseSpeed = Math.max(160, groundSpeedKts + windKts);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveCruiseSpeed * 0.88);
+    effectiveGlideRatio = 0;
+    limitingFactor = "단발 엔진 지속 순항 및 잔여 연료 소모율(1,750 kg/h) 한계";
   } else if (emergencyKey === "cargo_fire") {
     remainingTimeMinutes = 15;
-    maxGlideRangeNM = Math.round((15 / 60) * emergency.speedKnots);
+    const effectiveSpeed = Math.max(180, groundSpeedKts + windKts);
+    maxGlideRangeNM = Math.round((15 / 60) * effectiveSpeed);
     effectiveGlideRatio = 0;
     limitingFactor = "화물칸 방화벽 열관통 방지 및 유독가스 확산 전 15분 골든타임 한계";
   } else if (emergencyKey === "rapid_depressurization") {
-    const fuelHours = fuelKg / 2600;
-    remainingTimeMinutes = Math.min(120, Math.round(fuelHours * 60));
-    maxGlideRangeNM = Math.round(fuelHours * 280);
+    const fuelHours = fuelKg / 2500;
+    remainingTimeMinutes = Math.min(130, Math.round(fuelHours * 60));
+    const effectiveSpeed = Math.max(170, groundSpeedKts + windKts);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.82);
     effectiveGlideRatio = 0;
     limitingFactor = "승객 화학 산소 발생기(Chemical O2) 유효 공급시간(약 14분) 한계";
   } else if (emergencyKey === "hydraulic_total_loss") {
-    const fuelHours = fuelKg / 2400;
-    remainingTimeMinutes = Math.min(90, Math.round(fuelHours * 60));
-    maxGlideRangeNM = Math.round(fuelHours * emergency.speedKnots * 0.7);
+    const fuelHours = fuelKg / 2350;
+    remainingTimeMinutes = Math.min(95, Math.round(fuelHours * 60));
+    const effectiveSpeed = Math.max(150, groundSpeedKts + windKts);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.72);
     effectiveGlideRatio = 0;
     limitingFactor = "매뉴얼 리버전 수동 비행 조종 부하 및 브레이크 어큐뮬레이터 잔압 한계";
   }
 
-  // Weight & Runway physics
-  const grossWeightKg = Math.round(B737_SPECS.operatingEmptyWeight + fuelKg);
-  const isOverweightLanding = grossWeightKg > B737_SPECS.maxLandingWeight;
-  const weightPenaltyRatio = isOverweightLanding ? 1.15 : 1.0;
-  const requiredRunwayMeters = Math.round(B737_SPECS.minRunwayRequiredNormal * (emergency.runwayMultiplier || 1.0) * weightPenaltyRatio);
-  const glideDistancePer1000ft = isDualFlameout ? Math.round(((1000 / 6076.12) * effectiveGlideRatio) * 100) / 100 : 0;
+  // 5. Dynamic Required Landing Runway Length (FAR/JAR 25 landing field length physics)
+  // Base normal runway: 1,800m
+  // Weight factor: +1.2% per 1,000kg over 45,000kg
+  const weightFactor = 1.0 + ((grossWeightKg - 45000) / 45000) * 0.32;
+  // Overweight landing penalty
+  const overweightPenalty = isOverweightLanding ? 1.15 : 1.0;
+  // Touchdown speed factor: higher ground speed extends landing rollout
+  const speedFactor = 1.0 + Math.max(-0.1, (groundSpeedKts - 210) / 250 * 0.22);
+  // Wind factor: Headwind provides aerodynamic braking (-10m/kt); Tailwind extends rollout (+25m/kt)
+  const windRunwayAdj = windKts < 0 ? (windKts * 9.5) : (windKts * 24.0);
+
+  let requiredRunwayMeters = Math.round(
+    (B737_SPECS.minRunwayRequiredNormal * (emergency.runwayMultiplier || 1.0) * weightFactor * overweightPenalty * speedFactor) + windRunwayAdj
+  );
+  // Round to nearest 10m
+  requiredRunwayMeters = Math.max(1550, Math.min(3900, Math.round(requiredRunwayMeters / 10) * 10));
 
   return {
     altitudeFt,

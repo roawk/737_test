@@ -182,7 +182,7 @@ function initFlightRouteControls() {
     progressSlider.addEventListener("input", (e) => {
       const val = parseInt(e.target.value);
       state.flightPlan.progress = val / 100;
-      updateFlightRouteAndAircraft(false);
+      updateFlightRouteAndAircraft(false, true);
     });
   }
 
@@ -241,7 +241,40 @@ function updatePresetButtonsUI() {
   });
 }
 
-function updateFlightRouteAndAircraft(shouldFitBounds = false) {
+function updateWindLabel(val) {
+  const windTag = document.getElementById("windUnitTag");
+  if (!windTag) return;
+  if (val < 0) {
+    windTag.textContent = `KT (${Math.abs(val)}KT 맞바람)`;
+  } else if (val > 0) {
+    windTag.textContent = `KT (${val}KT 뒷바람)`;
+  } else {
+    windTag.textContent = `KT (무풍 Calm)`;
+  }
+}
+
+function syncFlightControlsUI() {
+  const altSlider = document.getElementById("altSlider");
+  const inputAlt = document.getElementById("inputAlt");
+  const speedSlider = document.getElementById("speedSlider");
+  const inputSpeed = document.getElementById("inputSpeed");
+  const fuelSlider = document.getElementById("fuelSlider");
+  const inputFuel = document.getElementById("inputFuel");
+  const windSlider = document.getElementById("windSlider");
+  const inputWind = document.getElementById("inputWind");
+
+  if (altSlider) altSlider.value = state.aircraft.altitudeFt;
+  if (inputAlt) inputAlt.value = state.aircraft.altitudeFt;
+  if (speedSlider) speedSlider.value = state.aircraft.groundSpeedKts;
+  if (inputSpeed) inputSpeed.value = state.aircraft.groundSpeedKts;
+  if (fuelSlider) fuelSlider.value = state.aircraft.fuelKg;
+  if (inputFuel) inputFuel.value = state.aircraft.fuelKg;
+  if (windSlider) windSlider.value = state.aircraft.windKts;
+  if (inputWind) inputWind.value = state.aircraft.windKts;
+  updateWindLabel(state.aircraft.windKts);
+}
+
+function updateFlightRouteAndAircraft(shouldFitBounds = false, updateTelemetryFromProfile = false) {
   const orig = getAirportByIcao(state.flightPlan.originIcao);
   const dest = getAirportByIcao(state.flightPlan.destIcao);
 
@@ -253,6 +286,13 @@ function updateFlightRouteAndAircraft(shouldFitBounds = false) {
   state.aircraft.lat = posData.lat;
   state.aircraft.lng = posData.lng;
   state.aircraft.headingDeg = posData.headingDeg;
+
+  if (updateTelemetryFromProfile) {
+    if (posData.suggestedAltFt) state.aircraft.altitudeFt = posData.suggestedAltFt;
+    if (posData.suggestedFuelKg) state.aircraft.fuelKg = posData.suggestedFuelKg;
+    if (posData.suggestedSpeedKts) state.aircraft.groundSpeedKts = posData.suggestedSpeedKts;
+    syncFlightControlsUI();
+  }
 
   // Update planned route line and airport markers on map
   state.mapRenderer.updatePlannedRoute(orig, dest, state.flightPlan.waypoints);
@@ -419,18 +459,6 @@ function bindEventListeners() {
     updateWindLabel(val);
     recomputeAndRender();
   });
-
-  function syncFlightControlsUI() {
-    altSlider.value = state.aircraft.altitudeFt;
-    inputAlt.value = state.aircraft.altitudeFt;
-    speedSlider.value = state.aircraft.groundSpeedKts;
-    inputSpeed.value = state.aircraft.groundSpeedKts;
-    fuelSlider.value = state.aircraft.fuelKg;
-    inputFuel.value = state.aircraft.fuelKg;
-    windSlider.value = state.aircraft.windKts;
-    inputWind.value = state.aircraft.windKts;
-    updateWindLabel(state.aircraft.windKts);
-  }
 
   // Sound toggle button (if present)
   const soundBtn = document.getElementById("soundToggleBtn");
