@@ -125,7 +125,13 @@ body.cockpit-theme {
   margin-bottom: 2px;
 }
 
-.brand-title strong {
+.brand-title .brand-safter {
+  color: #38bdf8;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+}
+
+.brand-title .brand-ai {
   color: #ffffff;
   font-weight: 900;
   letter-spacing: 0.8px;
