@@ -601,9 +601,6 @@ function bindEventListeners() {
   enableDragToScroll(document.querySelector(".right-panel .tactical-tabs-card .tab-content-area"));
   enableHorizontalDragToScroll(document.querySelector(".map-bottom-bar"));
 
-  // Initialize Right Panel Vertical Resizer (Top Recommendations vs Bottom Tabs)
-  initRightPanelResizer();
-
   // Surrounding Traffic Quick Toggle Control (Bottom Bar)
   const toggleTrafficQuickBtn = document.getElementById("toggleTrafficQuickBtn");
 
@@ -631,78 +628,6 @@ function bindEventListeners() {
   syncFlightControlsUI();
 }
 
-function initRightPanelResizer() {
-  const resizer = document.getElementById("rightPanelResizer");
-  const topCard = document.querySelector(".right-panel .recommendation-card");
-  const bottomCard = document.querySelector(".right-panel .tactical-tabs-card");
-  const rightPanel = document.querySelector(".right-panel");
-
-  if (!resizer || !topCard || !bottomCard || !rightPanel) return;
-
-  let isDragging = false;
-  let startY = 0;
-  let startTopHeight = 0;
-
-  const onDragStart = (pageY) => {
-    isDragging = true;
-    startY = pageY;
-    startTopHeight = topCard.getBoundingClientRect().height;
-    resizer.classList.add("dragging");
-    document.body.style.cursor = "ns-resize";
-    document.body.style.userSelect = "none";
-  };
-
-  const onDragMove = (pageY) => {
-    if (!isDragging) return;
-    const dy = pageY - startY;
-    const panelHeight = rightPanel.getBoundingClientRect().height;
-    const minTop = 150;
-    const minBottom = 160;
-    const maxTop = panelHeight - minBottom - 30;
-
-    let newTopHeight = Math.max(minTop, Math.min(maxTop, startTopHeight + dy));
-    topCard.style.flex = `0 0 ${newTopHeight}px`;
-    topCard.style.overflow = "hidden";
-    const cardContent = topCard.querySelector('.card-content');
-    if (cardContent) cardContent.style.overflowY = 'auto';
-    bottomCard.style.flex = "1 1 auto";
-  };
-
-  const onDragEnd = () => {
-    if (isDragging) {
-      isDragging = false;
-      resizer.classList.remove("dragging");
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    }
-  };
-
-  resizer.addEventListener("mousedown", (e) => {
-    onDragStart(e.pageY);
-  });
-
-  window.addEventListener("mousemove", (e) => {
-    onDragMove(e.pageY);
-  });
-
-  window.addEventListener("mouseup", onDragEnd);
-
-  // Touch support
-  resizer.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 1) {
-      onDragStart(e.touches[0].pageY);
-    }
-  }, { passive: true });
-
-  window.addEventListener("touchmove", (e) => {
-    if (isDragging && e.touches.length === 1) {
-      onDragMove(e.touches[0].pageY);
-    }
-  }, { passive: true });
-
-  window.addEventListener("touchend", onDragEnd);
-}
-
 function enableDragToScroll(element) {
   if (!element) return;
   let isDown = false;
@@ -711,7 +636,7 @@ function enableDragToScroll(element) {
 
   element.addEventListener('mousedown', (e) => {
     const tag = e.target.tagName;
-    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || e.target.closest('.cockpit-slider') || e.target.closest('.num-input-group') || e.target.closest('.tab-btn') || e.target.closest('.panel-v-resizer')) {
+    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || e.target.closest('.cockpit-slider') || e.target.closest('.num-input-group') || e.target.closest('.tab-btn')) {
       return;
     }
     isDown = true;
