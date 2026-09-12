@@ -596,10 +596,17 @@ function bindEventListeners() {
   });
 
   // Enable smooth mouse drag-to-scroll on side panels, card contents, & bottom bar
-  enableDragToScroll(document.querySelector(".left-panel"));
-  enableDragToScroll(document.querySelector(".right-panel"));
-  enableDragToScroll(document.querySelector(".right-panel .recommendation-card .card-content"));
-  enableDragToScroll(document.querySelector(".right-panel .tactical-tabs-card .tab-content-area"));
+  const leftPanel = document.querySelector(".left-panel");
+  const rightPanel = document.querySelector(".right-panel");
+  const tabsCard = document.getElementById("tacticalTabsCard");
+  const tabContent = tabsCard?.querySelector(".tab-content-area");
+
+  enableDragToScroll(leftPanel);
+  enableDragToScroll(rightPanel);
+  if (tabContent) {
+    enableDragToScroll(tabContent);
+    enableDragToScroll(tabsCard, tabContent);
+  }
   enableHorizontalDragToScroll(document.querySelector(".map-bottom-bar"));
 
   // Surrounding Traffic Quick Toggle Control (Bottom Bar)
@@ -648,52 +655,73 @@ function bindEventListeners() {
   syncFlightControlsUI();
 }
 
-function enableDragToScroll(element) {
-  if (!element) return;
+function enableDragToScroll(element, scrollTarget = element) {
+  if (!element || !scrollTarget) return;
   let isDown = false;
-  let startY;
-  let scrollTop;
+  let startY = 0;
+  let scrollTop = 0;
 
   element.addEventListener('mousedown', (e) => {
     const tag = e.target.tagName;
-    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || e.target.closest('.cockpit-slider') || e.target.closest('.num-input-group') || e.target.closest('.tab-btn')) {
+    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || 
+        e.target.closest('button') || 
+        e.target.closest('select') || 
+        e.target.closest('.cockpit-slider') || 
+        e.target.closest('.num-input-group') || 
+        e.target.closest('.tab-btn')) {
       return;
     }
+
+    // Stop bubbling so inner scrollable areas don't conflict with outer side-panel
+    e.stopPropagation();
+
     isDown = true;
     startY = e.pageY;
-    scrollTop = element.scrollTop;
+    scrollTop = scrollTarget.scrollTop;
   });
 
   window.addEventListener('mouseup', () => {
     if (isDown) {
       isDown = false;
+      element.classList.remove('is-dragging');
       document.body.style.userSelect = '';
+      document.body.style.cursor = '';
     }
   });
 
   window.addEventListener('mousemove', (e) => {
     if (!isDown) return;
     const dy = e.pageY - startY;
-    if (Math.abs(dy) > 3) {
+    if (Math.abs(dy) > 2) {
+      e.preventDefault();
       document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'grabbing';
+      element.classList.add('is-dragging');
+      scrollTarget.scrollTop = scrollTop - (dy * 1.5);
     }
-    element.scrollTop = scrollTop - (dy * 1.4);
   });
 
   // Touch Support
   element.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      startY = e.touches[0].pageY;
-      scrollTop = element.scrollTop;
-    }
+    if (e.touches.length !== 1) return;
+    const tag = e.target.tagName;
+    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || e.target.closest('button')) return;
+    isDown = true;
+    startY = e.touches[0].pageY;
+    scrollTop = scrollTarget.scrollTop;
+    e.stopPropagation();
   }, { passive: true });
 
   element.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 1) {
-      const dy = e.touches[0].pageY - startY;
-      element.scrollTop = scrollTop - dy;
-    }
+    if (!isDown || e.touches.length !== 1) return;
+    const dy = e.touches[0].pageY - startY;
+    scrollTarget.scrollTop = scrollTop - dy;
+    e.stopPropagation();
   }, { passive: true });
+
+  element.addEventListener('touchend', () => {
+    isDown = false;
+  });
 }
 
 function enableHorizontalDragToScroll(element) {

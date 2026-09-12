@@ -405,6 +405,12 @@ body.cockpit-theme {
   animation: accordionSlideDown 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   z-index: 5;
+  user-select: none;
+  cursor: grab;
+}
+
+.tactical-tabs-card.is-dragging {
+  cursor: grabbing;
 }
 
 @keyframes accordionSlideDown {
@@ -423,6 +429,12 @@ body.cockpit-theme {
   overflow-y: auto;
   padding: 10px 12px;
   scrollbar-width: thin;
+  user-select: none;
+  cursor: grab;
+}
+
+.tactical-tabs-card .tab-content-area.is-dragging {
+  cursor: grabbing;
 }
 
 /* Clean White Aviation Cards (Korean Air & Incheon Airport Style) */
