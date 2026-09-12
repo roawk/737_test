@@ -1141,6 +1141,11 @@ function startUtcClock() {
       if (clockDate) clockDate.textContent = dtfDate.format(now);
       if (clockTime) clockTime.textContent = dtfTime.format(now);
 
+      const radarAirspaceEl = document.getElementById("mapRadarAirspaceText");
+      if (radarAirspaceEl) {
+        radarAirspaceEl.textContent = `관제 레이더: ${airspace.country} 공역 (${airspace.fir.split(' ')[0]} FIR)`;
+      }
+
       if (clockEl) {
         clockEl.title = `기체 위치 (${lat.toFixed(2)}°, ${lng.toFixed(2)}°) • ${airspace.country} (${airspace.fir}) 현지 일시`;
       }
