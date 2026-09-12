@@ -73,9 +73,9 @@ body.cockpit-theme {
 /* 1. TOP BOEING / KOREAN AIR STYLE HEADER */
 .avionics-header {
   height: 68px;
-  background: #ffffff;
-  border-bottom: 1px solid #dbe6f3;
-  box-shadow: 0 2px 14px rgba(10, 28, 51, 0.06);
+  background: #002244;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 18px rgba(0, 18, 38, 0.35);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -92,14 +92,14 @@ body.cockpit-theme {
 
 /* Boeing Brand Badge in place of former team badge */
 .boeing-brand-badge {
-  background: #002244;
-  border: 1px solid #001830;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 8px;
   padding: 4px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 34, 68, 0.25);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08), 0 2px 8px rgba(0, 0, 0, 0.2);
   height: 38px;
 }
 
@@ -119,14 +119,14 @@ body.cockpit-theme {
   font-family: var(--font-sans);
   font-size: 17px;
   font-weight: 800;
-  color: var(--boeing-navy);
+  color: #ffffff;
   letter-spacing: 0.6px;
   line-height: 1.2;
   margin-bottom: 2px;
 }
 
 .brand-title strong {
-  color: #0064d2;
+  color: #38bdf8;
   font-weight: 900;
   letter-spacing: 0.8px;
 }
@@ -140,15 +140,15 @@ body.cockpit-theme {
 .brand-sub-lines .sub-line {
   font-size: 9.5px;
   font-family: var(--font-mono);
-  color: #556982;
+  color: #94a3b8;
   letter-spacing: 0.4px;
   text-align: left;
   line-height: 1.3;
 }
 
 .airframe-badge {
-  background: var(--korean-air-light);
-  border: 1px solid #c2defc;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 6px;
   padding: 3px 9px;
   display: flex;
@@ -159,14 +159,23 @@ body.cockpit-theme {
 
 .airframe-badge .badge-label {
   font-size: 9.5px;
-  color: #0050a8;
+  color: #38bdf8;
   font-weight: 700;
 }
 
 .airframe-badge .badge-val {
   font-size: 11.5px;
   font-weight: 800;
-  color: #003673;
+  color: #ffffff;
+}
+
+.airframe-badge.route-badge {
+  background: rgba(0, 100, 210, 0.3);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.airframe-badge.route-badge .badge-val {
+  color: #38bdf8;
 }
 
 /* Header Right Utilities */
@@ -246,11 +255,11 @@ body.cockpit-theme {
 
 .airspace-clock {
   font-family: var(--font-mono);
-  background: #edf4fc;
+  background: rgba(255, 255, 255, 0.08);
   padding: 5px 12px;
   border-radius: 8px;
-  border: 1.5px solid #d2e3f5;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 100, 210, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 2px 8px rgba(0, 15, 35, 0.2);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -262,8 +271,8 @@ body.cockpit-theme {
 }
 
 .airspace-clock:hover {
-  background: #e6f1fd;
-  border-color: #b9d8fa;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
 }
 
 .clock-airspace-tag {
@@ -272,7 +281,7 @@ body.cockpit-theme {
   gap: 5px;
   font-size: 10.5px;
   font-weight: 700;
-  color: var(--boeing-navy);
+  color: #e2e8f0;
   font-family: var(--font-sans);
   line-height: 1.2;
 }
@@ -283,12 +292,12 @@ body.cockpit-theme {
 }
 
 .clock-country {
-  color: #334155;
+  color: #94a3b8;
   letter-spacing: -0.2px;
 }
 
 .clock-zone-badge {
-  background: #0064d2;
+  background: #0284c7;
   color: #ffffff;
   font-size: 9.5px;
   font-weight: 800;
@@ -307,7 +316,7 @@ body.cockpit-theme {
 
 .clock-date {
   font-size: 11px;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 600;
   letter-spacing: -0.2px;
 }
@@ -315,7 +324,7 @@ body.cockpit-theme {
 .clock-time {
   font-size: 13.5px;
   font-weight: 800;
-  color: var(--boeing-navy);
+  color: #38bdf8;
   letter-spacing: 0.5px;
 }
 
