@@ -19,7 +19,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/components.css?v=9">
+  <link rel="stylesheet" href="css/components.css?v=10">
 </head>
 <body class="cockpit-theme">
 
@@ -51,25 +51,12 @@
       </div>
     </div>
 
-    <!-- Master Warning & Audio Control -->
+    <!-- Header Right Controls -->
     <div class="header-right">
-      <div class="master-annunciator" id="masterWarningBtn">
-        <div class="annunciator-box red active-blink">
-          <span>MASTER</span>
-          <strong>WARNING</strong>
-        </div>
-        <div class="annunciator-box amber">
-          <span>MASTER</span>
-          <strong>CAUTION</strong>
-        </div>
-      </div>
       <button class="aircraft-diag-btn" id="openDamageModalBtn" title="737 기체 손상도 및 수리/교체 필요 부품 실시간 진단 열기">
         <i class="fa-solid fa-wrench"></i>
         <span>기체 손상 & 부품 진단</span>
         <span class="damage-pill-badge" id="headerDamageBadge">82% 손상</span>
-      </button>
-      <button class="sound-toggle-btn" id="soundToggleBtn" title="오디오 비상 차임음 토글">
-        <i class="fa-solid fa-volume-high"></i>
       </button>
       <div class="utc-clock" id="utcClock">12:35:42 KST</div>
     </div>
@@ -741,6 +728,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=9"></script>
+  <script type="module" src="js/app.js?v=10"></script>
 </body>
 </html>

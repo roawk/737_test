@@ -430,22 +430,26 @@ function bindEventListeners() {
     updateWindLabel(state.aircraft.windKts);
   }
 
-  // Sound toggle button
+  // Sound toggle button (if present)
   const soundBtn = document.getElementById("soundToggleBtn");
-  soundBtn.addEventListener("click", () => {
-    state.audioEnabled = !state.audioEnabled;
-    soundBtn.classList.toggle("muted", !state.audioEnabled);
-    soundBtn.innerHTML = state.audioEnabled 
-      ? '<i class="fa-solid fa-volume-high"></i>' 
-      : '<i class="fa-solid fa-volume-xmark"></i>';
-    if (state.audioEnabled) playEmergencyChime();
-  });
+  if (soundBtn) {
+    soundBtn.addEventListener("click", () => {
+      state.audioEnabled = !state.audioEnabled;
+      soundBtn.classList.toggle("muted", !state.audioEnabled);
+      soundBtn.innerHTML = state.audioEnabled 
+        ? '<i class="fa-solid fa-volume-high"></i>' 
+        : '<i class="fa-solid fa-volume-xmark"></i>';
+      if (state.audioEnabled) playEmergencyChime();
+    });
+  }
 
-  // Master Warning click
+  // Master Warning click (if present)
   const masterWarningBtn = document.getElementById("masterWarningBtn");
-  masterWarningBtn.addEventListener("click", () => {
-    playEmergencyChime();
-  });
+  if (masterWarningBtn) {
+    masterWarningBtn.addEventListener("click", () => {
+      playEmergencyChime();
+    });
+  }
 
   // Tab switching helper
   window.switchTab = (tabId) => {
