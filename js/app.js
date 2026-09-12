@@ -594,9 +594,10 @@ function bindEventListeners() {
     });
   });
 
-  // Enable smooth mouse drag-to-scroll on side panels
+  // Enable smooth mouse drag-to-scroll on side panels & bottom bar
   enableDragToScroll(document.querySelector(".left-panel"));
   enableDragToScroll(document.querySelector(".right-panel"));
+  enableHorizontalDragToScroll(document.querySelector(".map-bottom-bar"));
 
   // Surrounding Traffic Quick Toggle Control (Bottom Bar)
   const toggleTrafficQuickBtn = document.getElementById("toggleTrafficQuickBtn");
@@ -652,6 +653,68 @@ function enableDragToScroll(element) {
     const walk = (y - startY) * 1.5;
     element.scrollTop = scrollTop - walk;
   });
+}
+
+function enableHorizontalDragToScroll(element) {
+  if (!element) return;
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  element.addEventListener('mousedown', (e) => {
+    const tag = e.target.tagName;
+    if (['INPUT', 'SELECT', 'BUTTON', 'A', 'TEXTAREA'].includes(tag) || e.target.closest('button')) {
+      return;
+    }
+    isDown = true;
+    element.classList.add('dragging');
+    startX = e.pageX - element.offsetLeft;
+    scrollLeft = element.scrollLeft;
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDown) {
+      isDown = false;
+      element.classList.remove('dragging');
+    }
+  });
+
+  element.addEventListener('mouseleave', () => {
+    if (isDown) {
+      isDown = false;
+      element.classList.remove('dragging');
+    }
+  });
+
+  element.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - element.offsetLeft;
+    const walk = (x - startX) * 1.6;
+    element.scrollLeft = scrollLeft - walk;
+  });
+
+  // Touch support
+  element.addEventListener('touchstart', (e) => {
+    if (e.target.closest('button')) return;
+    startX = e.touches[0].pageX - element.offsetLeft;
+    scrollLeft = element.scrollLeft;
+  }, { passive: true });
+
+  element.addEventListener('touchmove', (e) => {
+    if (!startX) return;
+    const x = e.touches[0].pageX - element.offsetLeft;
+    const walk = (x - startX) * 1.6;
+    element.scrollLeft = scrollLeft - walk;
+  }, { passive: true });
+
+  // Mouse wheel horizontal scroll
+  element.addEventListener('wheel', (e) => {
+    if (e.deltaY !== 0 && !e.shiftKey) {
+      e.preventDefault();
+      element.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
 }
 
 function selectRoute(tag) {
