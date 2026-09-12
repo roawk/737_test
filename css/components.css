@@ -423,34 +423,44 @@
 /* 3. TACTICAL RECOMMENDED ROUTE CARDS (Korean Air & Incheon Airport Style) */
 .ranking-mode-group {
   display: flex;
-  gap: 3px;
-  background: #edf4fb;
-  border: 1px solid #d4e3f4;
-  border-radius: 20px;
-  padding: 3px;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .rank-mode-btn {
-  background: transparent;
-  border: none;
-  color: #4b6482;
-  font-family: var(--font-sans);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 16px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
+  white-space: nowrap;
+  background: #ffffff;
+  border: 1px solid #d4e3f4;
+  color: #64748b;
   transition: all var(--transition-fast);
+  line-height: 1.3;
+}
+
+.rank-mode-btn i {
+  font-size: 10px;
 }
 
 .rank-mode-btn:hover {
-  color: var(--boeing-navy);
+  background: #f0f6fc;
+  border-color: #0064d2;
+  color: #0064d2;
 }
 
 .rank-mode-btn.active {
-  background: #002244;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 34, 68, 0.25);
+  background: rgba(0, 100, 210, 0.08);
+  border: 1.2px solid #0064d2;
+  color: #0064d2;
+  box-shadow: 0 1px 3px rgba(0, 100, 210, 0.12);
 }
 
 .routes-container {
