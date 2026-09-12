@@ -340,104 +340,442 @@ export const LANDING_SITES = [
   }
 ];
 
-// Generate dynamic neighboring airborne commercial traffic relative to current aircraft position
-// Classified into 3 tiers: DANGER (Red), CAUTION (Yellow), SAFE (Green)
-export function generateSurroundingAirTraffic(emergencyPos = { lat: 36.88, lng: 126.32 }, currentAltFt = 31000) {
-  const eLat = emergencyPos.lat || 36.88;
-  const eLng = emergencyPos.lng || 126.32;
-  const alt = currentAltFt || 31000;
+// Distance helper in Nautical Miles (NM)
+function calcDistanceNM(lat1, lon1, lat2, lon2) {
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  return 3440.065 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
-  return [
+// Scenario-specific commercial flight corridors in Korean airspace (Incheon FIR)
+const SCENARIO_TRAFFIC_POOLS = {
+  dual_engine_flameout: [
     {
       callsign: "KAL721",
       aircraft: "B777-300ER",
-      lat: Number((eLat + 0.16).toFixed(4)),
-      lng: Number((eLng - 0.14).toFixed(4)),
-      altFt: Math.max(5000, Math.round(alt - 1500)),
+      baseOffsetLat: 0.16,
+      baseOffsetLng: -0.14,
+      baseAltFt: 29500,
       heading: 145,
       speedKts: 440,
       origin: "ICN",
       dest: "SIN",
       passengers: 290,
-      riskTier: "danger", // 빨간색: 비상기 경로 직접 간섭 / 위험
-      color: "#ff1744",
-      isConflictRisk: true,
-      riskText: "비상기 강하 항로 직접 간섭 (충돌 위험 / 긴급 우회 요망)",
-      estimatedDelayMinIfRerouted: 18,
-      fuelBurnPenaltyKg: 1400
+      flightVector: [0.08, -0.06]
     },
     {
       callsign: "AAR102",
       aircraft: "A321neo",
-      lat: Number((eLat + 0.32).toFixed(4)),
-      lng: Number((eLng + 0.28).toFixed(4)),
-      altFt: Math.max(5000, Math.round(alt - 4800)),
+      baseOffsetLat: 0.30,
+      baseOffsetLng: 0.26,
+      baseAltFt: 26000,
       heading: 325,
       speedKts: 360,
       origin: "CJU",
       dest: "GMP",
       passengers: 180,
-      riskTier: "caution", // 노란색: 아직은 아니지만 위험 가능성 있음
-      color: "#ffaa00",
-      isConflictRisk: false,
-      riskText: "인접 고도대 통과 중 (잠재적 간섭 위험 / 모니터링 필요)",
-      estimatedDelayMinIfRerouted: 14,
-      fuelBurnPenaltyKg: 650
+      flightVector: [-0.07, 0.05]
     },
     {
       callsign: "TWB204",
       aircraft: "B737-MAX8",
-      lat: Number((eLat - 0.25).toFixed(4)),
-      lng: Number((eLng + 0.24).toFixed(4)),
-      altFt: Math.max(5000, Math.round(alt - 6200)),
+      baseOffsetLat: -0.24,
+      baseOffsetLng: 0.22,
+      baseAltFt: 24800,
       heading: 210,
       speedKts: 290,
       origin: "GMP",
       dest: "CJU",
       passengers: 186,
-      riskTier: "caution", // 노란색: 아직은 아니지만 위험 가능성 있음
-      color: "#ffaa00",
-      isConflictRisk: false,
-      riskText: "하강 선회권 인접 (잠재적 간섭 위험)",
-      estimatedDelayMinIfRerouted: 12,
-      fuelBurnPenaltyKg: 490
+      flightVector: [0.06, 0.04]
     },
     {
       callsign: "JNA415",
       aircraft: "B737-800",
-      lat: Number((eLat - 0.48).toFixed(4)),
-      lng: Number((eLng + 0.38).toFixed(4)),
-      altFt: 12000,
+      baseOffsetLat: -0.45,
+      baseOffsetLng: 0.35,
+      baseAltFt: 12000,
       heading: 340,
       speedKts: 310,
       origin: "PUS",
       dest: "ICN",
       passengers: 189,
-      riskTier: "safe", // 초록색: 안전함
-      color: "#00e676",
-      isConflictRisk: false,
-      riskText: "충분한 수평 분리 간격 확보 (안전)",
-      estimatedDelayMinIfRerouted: 8,
-      fuelBurnPenaltyKg: 380
+      flightVector: [-0.05, 0.03]
     },
     {
       callsign: "CPA469",
       aircraft: "A350-900",
-      lat: Number((eLat + 0.52).toFixed(4)),
-      lng: Number((eLng - 0.45).toFixed(4)),
-      altFt: 38000,
+      baseOffsetLat: 0.50,
+      baseOffsetLng: -0.42,
+      baseAltFt: 38000,
       heading: 200,
       speedKts: 465,
       origin: "ICN",
       dest: "HKG",
       passengers: 310,
-      riskTier: "safe", // 초록색: 안전함
-      color: "#00e676",
-      isConflictRisk: false,
-      riskText: "상층 고도 분리 통과 (안전)",
-      estimatedDelayMinIfRerouted: 6,
-      fuelBurnPenaltyKg: 520
+      flightVector: [0.07, -0.04]
     }
-  ];
+  ],
+  single_engine_failure: [
+    {
+      callsign: "KAL1225",
+      aircraft: "A220-300",
+      baseOffsetLat: -0.12,
+      baseOffsetLng: -0.19,
+      baseAltFt: 23000,
+      heading: 175,
+      speedKts: 380,
+      origin: "GMP",
+      dest: "CJU",
+      passengers: 130,
+      flightVector: [0.07, -0.05]
+    },
+    {
+      callsign: "AAR8912",
+      aircraft: "A330-300",
+      baseOffsetLat: 0.22,
+      baseOffsetLng: 0.18,
+      baseAltFt: 29000,
+      heading: 130,
+      speedKts: 430,
+      origin: "ICN",
+      dest: "FUK",
+      passengers: 285,
+      flightVector: [-0.06, 0.08]
+    },
+    {
+      callsign: "JJA501",
+      aircraft: "B737-800",
+      baseOffsetLat: -0.34,
+      baseOffsetLng: 0.14,
+      baseAltFt: 21000,
+      heading: 155,
+      speedKts: 340,
+      origin: "GMP",
+      dest: "PUS",
+      passengers: 189,
+      flightVector: [0.05, 0.04]
+    },
+    {
+      callsign: "ESR302",
+      aircraft: "B737-800",
+      baseOffsetLat: 0.36,
+      baseOffsetLng: -0.26,
+      baseAltFt: 18000,
+      heading: 335,
+      speedKts: 310,
+      origin: "CJU",
+      dest: "GMP",
+      passengers: 175,
+      flightVector: [-0.08, 0.03]
+    },
+    {
+      callsign: "ABL801",
+      aircraft: "A321-200",
+      baseOffsetLat: 0.44,
+      baseOffsetLng: 0.36,
+      baseAltFt: 34000,
+      heading: 205,
+      speedKts: 450,
+      origin: "ICN",
+      dest: "TPE",
+      passengers: 195,
+      flightVector: [0.04, -0.07]
+    }
+  ],
+  rapid_depressurization: [
+    {
+      callsign: "KAL018",
+      aircraft: "B747-8I",
+      baseOffsetLat: 0.14,
+      baseOffsetLng: 0.18,
+      baseAltFt: 17000,
+      heading: 085,
+      speedKts: 390,
+      origin: "ICN",
+      dest: "LAX",
+      passengers: 368,
+      flightVector: [0.06, 0.07]
+    },
+    {
+      callsign: "AAR201",
+      aircraft: "A350-900",
+      baseOffsetLat: -0.17,
+      baseOffsetLng: -0.15,
+      baseAltFt: 11500,
+      heading: 310,
+      speedKts: 280,
+      origin: "SFO",
+      dest: "ICN",
+      passengers: 300,
+      flightVector: [-0.05, -0.05]
+    },
+    {
+      callsign: "TWB705",
+      aircraft: "A330-200",
+      baseOffsetLat: 0.28,
+      baseOffsetLng: -0.30,
+      baseAltFt: 25000,
+      heading: 215,
+      speedKts: 420,
+      origin: "ICN",
+      dest: "BKK",
+      passengers: 270,
+      flightVector: [0.08, -0.06]
+    },
+    {
+      callsign: "JNA602",
+      aircraft: "B777-200ER",
+      baseOffsetLat: -0.36,
+      baseOffsetLng: 0.24,
+      baseAltFt: 15500,
+      heading: 345,
+      speedKts: 320,
+      origin: "CJU",
+      dest: "ICN",
+      passengers: 355,
+      flightVector: [-0.07, 0.04]
+    },
+    {
+      callsign: "ASV311",
+      aircraft: "A320neo",
+      baseOffsetLat: 0.40,
+      baseOffsetLng: 0.26,
+      baseAltFt: 32000,
+      heading: 160,
+      speedKts: 440,
+      origin: "GMP",
+      dest: "RSU",
+      passengers: 180,
+      flightVector: [0.05, 0.06]
+    }
+  ],
+  hydraulic_all_fail: [
+    {
+      callsign: "KAL903",
+      aircraft: "B787-9",
+      baseOffsetLat: 0.17,
+      baseOffsetLng: -0.22,
+      baseAltFt: 28000,
+      heading: 295,
+      speedKts: 460,
+      origin: "ICN",
+      dest: "CDG",
+      passengers: 269,
+      flightVector: [-0.05, -0.08]
+    },
+    {
+      callsign: "AAR521",
+      aircraft: "B777-200ER",
+      baseOffsetLat: -0.13,
+      baseOffsetLng: 0.16,
+      baseAltFt: 30500,
+      heading: 320,
+      speedKts: 450,
+      origin: "ICN",
+      dest: "LHR",
+      passengers: 295,
+      flightVector: [-0.08, 0.06]
+    },
+    {
+      callsign: "JJA332",
+      aircraft: "B737-800",
+      baseOffsetLat: 0.31,
+      baseOffsetLng: 0.23,
+      baseAltFt: 16500,
+      heading: 190,
+      speedKts: 310,
+      origin: "CJU",
+      dest: "CJJ",
+      passengers: 189,
+      flightVector: [0.06, 0.03]
+    },
+    {
+      callsign: "TWB101",
+      aircraft: "B737-800",
+      baseOffsetLat: -0.40,
+      baseOffsetLng: -0.26,
+      baseAltFt: 22000,
+      heading: 170,
+      speedKts: 350,
+      origin: "GMP",
+      dest: "CJU",
+      passengers: 185,
+      flightVector: [0.07, -0.04]
+    },
+    {
+      callsign: "CSN314",
+      aircraft: "A321neo",
+      baseOffsetLat: 0.46,
+      baseOffsetLng: -0.36,
+      baseAltFt: 34000,
+      heading: 240,
+      speedKts: 440,
+      origin: "ICN",
+      dest: "CAN",
+      passengers: 190,
+      flightVector: [0.04, -0.08]
+    }
+  ],
+  rudder_hardover: [
+    {
+      callsign: "KAL551",
+      aircraft: "A330-300",
+      baseOffsetLat: 0.13,
+      baseOffsetLng: 0.14,
+      baseAltFt: 31500,
+      heading: 210,
+      speedKts: 445,
+      origin: "ICN",
+      dest: "DAD",
+      passengers: 275,
+      flightVector: [0.07, 0.05]
+    },
+    {
+      callsign: "AAR114",
+      aircraft: "A321neo",
+      baseOffsetLat: -0.18,
+      baseOffsetLng: -0.17,
+      baseAltFt: 27500,
+      heading: 115,
+      speedKts: 410,
+      origin: "GMP",
+      dest: "KIX",
+      passengers: 182,
+      flightVector: [-0.04, 0.07]
+    },
+    {
+      callsign: "JNA205",
+      aircraft: "B737-MAX8",
+      baseOffsetLat: 0.27,
+      baseOffsetLng: 0.30,
+      baseAltFt: 29000,
+      heading: 095,
+      speedKts: 420,
+      origin: "ICN",
+      dest: "NRT",
+      passengers: 189,
+      flightVector: [-0.02, 0.09]
+    },
+    {
+      callsign: "AFR267",
+      aircraft: "B777-300ER",
+      baseOffsetLat: -0.34,
+      baseOffsetLng: 0.21,
+      baseAltFt: 35000,
+      heading: 310,
+      speedKts: 480,
+      origin: "ICN",
+      dest: "CDG",
+      passengers: 312,
+      flightVector: [-0.08, 0.06]
+    },
+    {
+      callsign: "THY090",
+      aircraft: "A350-900",
+      baseOffsetLat: 0.43,
+      baseOffsetLng: -0.32,
+      baseAltFt: 14500,
+      heading: 120,
+      speedKts: 290,
+      origin: "IST",
+      dest: "ICN",
+      passengers: 320,
+      flightVector: [0.05, 0.07]
+    }
+  ]
+};
+
+// Generate dynamic neighboring airborne commercial traffic relative to current aircraft position and conditions
+// Classified dynamically into 3 tiers: DANGER (Red), CAUTION (Yellow), SAFE (Green)
+export function generateSurroundingAirTraffic(aircraftState = { lat: 36.88, lng: 126.32, altitudeFt: 31000 }, emergencyKey = "dual_engine_flameout") {
+  const eLat = aircraftState.lat || 36.88;
+  const eLng = aircraftState.lng || 126.32;
+  const currentAlt = aircraftState.altitudeFt || 31000;
+  const speed = aircraftState.groundSpeedKts || 240;
+  const wind = aircraftState.windKts !== undefined ? aircraftState.windKts : -15;
+  const key = emergencyKey || "dual_engine_flameout";
+
+  const pool = SCENARIO_TRAFFIC_POOLS[key] || SCENARIO_TRAFFIC_POOLS.dual_engine_flameout;
+
+  // Real-time condition influence factors
+  // 1. Altitude drift: aircraft positions progress along airway vectors as flight level changes
+  const altFactor = (currentAlt - 31000) / 10000; // range approx -2.6 to +0.8
+  // 2. Airspeed factor: expands / contracts relative spatial convergence
+  const speedFactor = (speed - 240) / 100; // range approx -0.9 to +1.8
+  // 3. Wind drift factor: downwind drift component
+  const windFactor = (wind - (-15)) / 20; // range approx -0.75 to +2.25
+
+  return pool.map(item => {
+    // Dynamic coordinate calculation
+    const latShift = item.flightVector[0] * altFactor * 0.9;
+    const lngShift = item.flightVector[1] * altFactor * 0.9;
+    const speedLat = item.baseOffsetLat * 0.12 * speedFactor;
+    const speedLng = item.baseOffsetLng * 0.12 * speedFactor;
+    const windLat = windFactor * 0.025;
+    const windLng = windFactor * -0.02;
+
+    const trfLat = Number((eLat + item.baseOffsetLat + latShift + speedLat + windLat).toFixed(4));
+    const trfLng = Number((eLng + item.baseOffsetLng + lngShift + speedLng + windLng).toFixed(4));
+
+    // Dynamic altitude based on sector profile
+    const trfAlt = Math.max(3000, Math.round(item.baseAltFt + (item.flightVector[0] > 0 ? altFactor * 1200 : -altFactor * 800)));
+
+    // Real-time distance and vertical separation
+    const distNM = calcDistanceNM(eLat, eLng, trfLat, trfLng);
+    const altDiff = Math.abs(currentAlt - trfAlt);
+
+    // Dynamic 3-Tier conflict & risk assessment
+    let riskTier = "safe";
+    let color = "#00e676";
+    let isConflictRisk = false;
+    let riskText = "충분한 수평/수직 분리 간격 확보 (안전)";
+    let estDelayMin = 6;
+    let fuelPenalty = 380;
+
+    if (distNM < 20 && altDiff < 2600) {
+      // 1. DANGER (Red): Direct conflict with emergency corridor
+      riskTier = "danger";
+      color = "#ff1744";
+      isConflictRisk = true;
+      riskText = `비상 강하 항로 직접 간섭 (거리 ${distNM.toFixed(1)}NM, 고도차 ${altDiff.toLocaleString()}FT - 충돌 위험 / 긴급 우회 요망)`;
+      estDelayMin = Math.round(16 + (20 - distNM) * 0.4);
+      fuelPenalty = Math.round(1200 + (20 - distNM) * 20);
+    } else if (distNM < 35 && altDiff < 5500) {
+      // 2. CAUTION (Yellow): Adjacent flight level or convergence zone
+      riskTier = "caution";
+      color = "#ffaa00";
+      isConflictRisk = false;
+      riskText = `인접 항로/고도대 통과 중 (거리 ${distNM.toFixed(1)}NM, 고도차 ${altDiff.toLocaleString()}FT - 잠재적 간섭 위험)`;
+      estDelayMin = Math.round(10 + (35 - distNM) * 0.3);
+      fuelPenalty = Math.round(550 + (35 - distNM) * 15);
+    }
+
+    return {
+      callsign: item.callsign,
+      aircraft: item.aircraft,
+      lat: trfLat,
+      lng: trfLng,
+      altFt: trfAlt,
+      heading: item.heading,
+      speedKts: item.speedKts,
+      origin: item.origin,
+      dest: item.dest,
+      passengers: item.passengers,
+      riskTier,
+      color,
+      isConflictRisk,
+      riskText,
+      estimatedDelayMinIfRerouted: estDelayMin,
+      fuelBurnPenaltyKg: fuelPenalty
+    };
+  });
 }
+
 
