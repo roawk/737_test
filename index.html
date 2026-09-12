@@ -19,7 +19,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/components.css?v=2">
+  <link rel="stylesheet" href="css/components.css?v=3">
 </head>
 <body class="cockpit-theme">
 
@@ -333,6 +333,110 @@
       <!-- Leaflet Map Container -->
       <div id="airspaceMap" class="radar-map-view"></div>
 
+      <!-- Floating Real-Time En-Route Weather HUD Popup (지도 우측 하단 팝업) -->
+      <div class="weather-hud-popup" id="weatherHudPopup">
+        <div class="weather-hud-header">
+          <div class="hud-title">
+            <i class="fa-solid fa-cloud-bolt text-cyan"></i>
+            <span>실시간 항로 기상 & METAR</span>
+          </div>
+          <div class="hud-controls">
+            <span class="hud-live-tag">LIVE WX</span>
+            <button class="hud-btn-toggle" id="toggleWeatherHudBtn" title="기상 창 접기/펼치기">
+              <i class="fa-solid fa-minus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="weather-hud-body" id="weatherHudBody">
+          <!-- Upper Air & Flight Level Telemetry -->
+          <div class="weather-upper-grid">
+            <div class="wx-stat-box">
+              <span class="wx-label">순항 고도 기온 (OAT)</span>
+              <span class="wx-val text-cyan" id="wxOatVal">-42°C</span>
+              <small id="wxIsaVal">ISA -1.4°C</small>
+            </div>
+            <div class="wx-stat-box">
+              <span class="wx-label">상층풍 (FL Wind)</span>
+              <span class="wx-val text-amber" id="wxWindVal">280° / 32 KT</span>
+              <small id="wxWindTypeVal">역풍 (Headwind 15KT)</small>
+            </div>
+            <div class="wx-stat-box">
+              <span class="wx-label">난기류 (Turbulence)</span>
+              <span class="wx-val text-yellow" id="wxTurbVal">MILD CAT</span>
+              <small>청천난류 경미 (EDR 0.18)</small>
+            </div>
+            <div class="wx-stat-box">
+              <span class="wx-label">기체 착빙 (Icing)</span>
+              <span class="wx-val text-green" id="wxIcingVal">TRACE / NONE</span>
+              <small>안티아이스 대기</small>
+            </div>
+          </div>
+
+          <!-- Airport-by-Airport Route Weather Status -->
+          <div class="route-wx-list">
+            <!-- Departure Airport WX -->
+            <div class="route-wx-row">
+              <div class="row-tag origin">DEP</div>
+              <div class="row-main">
+                <div class="row-title">
+                  <strong id="wxDepCode">RKSS (김포)</strong>
+                  <span class="wx-condition-pill good" id="wxDepCond">VFR / 양호</span>
+                </div>
+                <div class="row-metar" id="wxDepMetar">바람 310@10kt • 시정 10km+ • 운저 3,500ft BKN • 기온 21°C • QNH 1014hPa</div>
+              </div>
+            </div>
+
+            <!-- En-Route Airway Section WX -->
+            <div class="route-wx-row">
+              <div class="row-tag enroute">ENR</div>
+              <div class="row-main">
+                <div class="row-title">
+                  <strong id="wxEnrSector">서해안/남해안 항로 섹터</strong>
+                  <span class="wx-condition-pill caution" id="wxEnrCond">구름층 통과</span>
+                </div>
+                <div class="row-metar" id="wxEnrMetar">상층 시정 10km+ • 윈드시어 없음 • 안정적 제트기류</div>
+              </div>
+            </div>
+
+            <!-- Destination Airport WX -->
+            <div class="route-wx-row">
+              <div class="row-tag dest">ARR</div>
+              <div class="row-main">
+                <div class="row-title">
+                  <strong id="wxArrCode">RKPC (제주)</strong>
+                  <span class="wx-condition-pill good" id="wxArrCond">ILS 착륙 가능</span>
+                </div>
+                <div class="row-metar" id="wxArrMetar">바람 340@14kt • 시정 10km+ • 운저 4,000ft FEW • 기온 24°C • QNH 1012hPa</div>
+              </div>
+            </div>
+
+            <!-- Top Emergency Diversion Site WX -->
+            <div class="route-wx-row alert-alt">
+              <div class="row-tag alt">ALT 1순위</div>
+              <div class="row-main">
+                <div class="row-title">
+                  <strong id="wxAltCode">서산 (RKTP)</strong>
+                  <span class="wx-condition-pill good" id="wxAltCond">비상접지 최적</span>
+                </div>
+                <div class="row-metar" id="wxAltMetar">바람 300@11kt • 시정 10km+ • 운저 5,000ft FEW • 측풍 4kt 안정</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsed Mini Bar (when minimized) -->
+        <div class="weather-hud-mini" id="weatherHudMini" style="display: none;">
+          <div class="mini-content">
+            <i class="fa-solid fa-cloud-sun text-cyan"></i>
+            <span>실시간 항로 기상: <strong>OAT -42°C | 280° 32KT | 시정 양호</strong></span>
+          </div>
+          <button class="hud-btn-expand" id="expandWeatherHudBtn" title="기상 창 펼치기">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+        </div>
+      </div>
+
       <!-- Bottom Map Radar Bar -->
       <div class="map-bottom-bar">
         <div class="status-summary-item">
@@ -535,6 +639,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=2"></script>
+  <script type="module" src="js/app.js?v=3"></script>
 </body>
 </html>

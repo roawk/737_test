@@ -1317,3 +1317,233 @@
   font-weight: 800 !important;
 }
 
+/* ===================================================
+   Floating Real-Time En-Route Weather HUD Popup
+   =================================================== */
+.weather-hud-popup {
+  position: absolute;
+  bottom: 54px;
+  right: 14px;
+  width: 325px;
+  max-width: calc(100% - 28px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid #b8d7f8;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(12, 35, 64, 0.2), 0 2px 8px rgba(0, 150, 255, 0.12);
+  z-index: 500;
+  overflow: hidden;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-sans);
+}
+
+.weather-hud-popup.minimized {
+  width: auto;
+  min-width: 270px;
+}
+
+.weather-hud-header {
+  background: linear-gradient(135deg, #0f2b4c, #194373);
+  color: #ffffff;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.hud-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.hud-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-live-tag {
+  background: rgba(0, 230, 118, 0.2);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.hud-btn-toggle, .hud-btn-expand {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.15s ease;
+}
+
+.hud-btn-toggle:hover, .hud-btn-expand:hover {
+  background: #00d4ff;
+  color: #0a192f;
+}
+
+.weather-hud-body {
+  padding: 10px 12px;
+  max-height: 290px;
+  overflow-y: auto;
+}
+
+.weather-upper-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.wx-stat-box {
+  background: #f1f6fd;
+  border: 1px solid #d5e5f8;
+  border-radius: 7px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.wx-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #4a688a;
+  margin-bottom: 2px;
+}
+
+.wx-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wx-val.good { color: #00b050; }
+.wx-val.caution { color: #ff9100; }
+.wx-val.mild { color: #0088cc; }
+
+.wx-stat-box small {
+  font-size: 9px;
+  color: #6a82a0;
+  margin-top: 1px;
+}
+
+.route-wx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.route-wx-row {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  background: #f8fbff;
+  border: 1px solid #dce8f5;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.route-wx-row.alert-alt {
+  background: #fff8f0;
+  border-color: #ffd8a8;
+  border-left: 3px solid #ff9100;
+}
+
+.row-tag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  padding: 2px 4px;
+  border-radius: 4px;
+  min-width: 32px;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 1px;
+}
+
+.row-tag.origin { background: #00c853; }
+.row-tag.enroute { background: #0091ea; }
+.row-tag.dest { background: #aa00ff; }
+.row-tag.alt { background: #ff9100; min-width: 48px; }
+
+.row-main {
+  flex: 1;
+}
+
+.row-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.row-title strong {
+  font-size: 11px;
+  color: var(--boeing-navy);
+}
+
+.wx-condition-pill {
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.wx-condition-pill.good {
+  background: rgba(0, 200, 83, 0.15);
+  color: #009624;
+}
+
+.wx-condition-pill.caution {
+  background: rgba(255, 145, 0, 0.15);
+  color: #e65100;
+}
+
+.row-metar {
+  font-size: 9.5px;
+  color: #556c88;
+  line-height: 1.35;
+}
+
+/* Minimized HUD Bar */
+.weather-hud-mini {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 43, 76, 0.94);
+  color: #ffffff;
+  gap: 10px;
+}
+
+.mini-content {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+
+.mini-content strong {
+  font-family: var(--font-mono);
+  color: #00d4ff;
+}
+
+

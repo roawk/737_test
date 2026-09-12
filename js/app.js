@@ -13,6 +13,7 @@ import {
   generatePlannedRouteWaypoints, 
   computeFlightPositionAlongRoute 
 } from "./flightRouteManager.js";
+import { updateWeatherHudUI } from "./enRouteWeather.js";
 
 // Global App State
 const state = {
@@ -495,6 +496,32 @@ function bindEventListeners() {
     }
   };
 
+  // Weather HUD popup minimize / expand controls
+  const toggleWxBtn = document.getElementById("toggleWeatherHudBtn");
+  const expandWxBtn = document.getElementById("expandWeatherHudBtn");
+  const wxPopup = document.getElementById("weatherHudPopup");
+  const wxBody = document.getElementById("weatherHudBody");
+  const wxHeader = document.querySelector(".weather-hud-header");
+  const wxMini = document.getElementById("weatherHudMini");
+
+  if (toggleWxBtn && wxPopup) {
+    toggleWxBtn.addEventListener("click", () => {
+      wxBody.style.display = "none";
+      if (wxHeader) wxHeader.style.display = "none";
+      if (wxMini) wxMini.style.display = "flex";
+      wxPopup.classList.add("minimized");
+    });
+  }
+
+  if (expandWxBtn && wxPopup) {
+    expandWxBtn.addEventListener("click", () => {
+      wxBody.style.display = "block";
+      if (wxHeader) wxHeader.style.display = "flex";
+      if (wxMini) wxMini.style.display = "none";
+      wxPopup.classList.remove("minimized");
+    });
+  }
+
   // Enable smooth mouse drag-to-scroll on side panels
   enableDragToScroll(document.querySelector(".left-panel"));
   enableDragToScroll(document.querySelector(".right-panel"));
@@ -626,6 +653,9 @@ function recomputeAndRender() {
   document.getElementById("recommendedSiteName").textContent = `${selectedSiteData.site.name} (${selectedSiteData.site.icao})`;
   renderMaintenanceMatrix(selectedSiteData.site);
   renderAirspaceAnalysis(selectedSiteData);
+
+  // 7. Update Real-Time En-Route Weather & METAR HUD
+  updateWeatherHudUI(state);
 }
 
 function renderRecommendationCards(recs) {
