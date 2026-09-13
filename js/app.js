@@ -16,6 +16,13 @@ import {
 } from "./flightRouteManager.js";
 import { updateWeatherHudUI } from "./enRouteWeather.js";
 import { updateDamageModalUI, setDamageCategoryFilter } from "./aircraftDamageMro.js";
+import { 
+  getAirportAtcData, 
+  checkRunwayAvailability, 
+  clearLatestScheduledFlight, 
+  generateAtcTacticalPlans,
+  resetAirportAtcData 
+} from "./airportAtcManager.js";
 
 // Global App State
 const state = {
@@ -594,6 +601,313 @@ function bindEventListeners() {
       updateDamageModalUI(state.emergencyKey);
     });
   });
+
+  // ===================================================
+  // Real-Time Airport Schedule & ATC Modal Controller
+  // ===================================================
+  const openAtcBtn = document.getElementById("openAtcModalBtn");
+  const closeAtcBtn = document.getElementById("closeAtcModalBtn");
+  const closeAtcBtn2 = document.getElementById("closeAtcModalBtn2");
+  const atcModal = document.getElementById("airportAtcModal");
+  let currentAtcAirport = "RKSS"; // Default: Gimpo
+  let lastClearanceResult = null;
+  const atcLogs = [
+    { time: "15:10:20", text: "INCHEON ACC: 모든 접근 관제 레이더 정상 가동 확인." },
+    { time: "15:12:05", text: "TOWER 118.1: 기상 악화 및 비상 착륙 요청 대비 관제 대기령 수신." }
+  ];
+
+  function openAtcModal() {
+    if (!atcModal) return;
+    // Auto-select origin airport or recommended landing site if available
+    if (state.flightPlan?.originIcao && ["RKSI", "RKSS", "RKPC", "RKPK", "RKTU", "RKTN"].includes(state.flightPlan.originIcao)) {
+      currentAtcAirport = state.flightPlan.originIcao;
+    }
+    renderAtcModalUI(currentAtcAirport);
+    atcModal.style.display = "flex";
+  }
+
+  function closeAtcModal() {
+    if (!atcModal) return;
+    atcModal.style.display = "none";
+  }
+
+  if (openAtcBtn) openAtcBtn.addEventListener("click", openAtcModal);
+  if (closeAtcBtn) closeAtcBtn.addEventListener("click", closeAtcModal);
+  if (closeAtcBtn2) closeAtcBtn2.addEventListener("click", closeAtcModal);
+  if (atcModal) {
+    atcModal.addEventListener("click", (e) => {
+      if (e.target === atcModal) closeAtcModal();
+    });
+  }
+
+  // Airport Tab Switching Pills
+  const atcAirportPills = document.querySelectorAll(".atc-apt-pill");
+  atcAirportPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      atcAirportPills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      currentAtcAirport = pill.dataset.apt;
+      lastClearanceResult = null; // Reset clearance on airport switch
+      renderAtcModalUI(currentAtcAirport);
+    });
+  });
+
+  // Emergency Runway Clearance Button Handler
+  const btnClearance = document.getElementById("btnExecuteRunwayClearance");
+  if (btnClearance) {
+    btnClearance.addEventListener("click", () => {
+      const clearance = clearLatestScheduledFlight(currentAtcAirport, state.aircraft.callsign || "HL-737EM");
+      lastClearanceResult = clearance;
+
+      // Add log
+      atcLogs.unshift({
+        time: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+        text: clearance.message,
+        urgent: true
+      });
+
+      renderAtcModalUI(currentAtcAirport);
+    });
+  }
+
+  function renderAtcModalUI(airportId) {
+    const data = getAirportAtcData(airportId);
+    const avail = checkRunwayAvailability(airportId);
+
+    // 1. Header Title & Pills
+    const titleEl = document.getElementById("atcSelectedAirportTitle");
+    if (titleEl) titleEl.textContent = `${data.name} 활주로 실시간 점유 현황`;
+
+    const clockEl = document.getElementById("atcModalClock");
+    if (clockEl) {
+      clockEl.textContent = `KST ${new Date().toLocaleTimeString('ko-KR', { hour12: false })}`;
+    }
+
+    // 2. Runway Availability Pill
+    const availPill = document.getElementById("atcRunwayAvailPill");
+    const availText = document.getElementById("atcAvailSummaryText");
+    if (availPill && availText) {
+      if (avail.hasAvailable) {
+        availPill.className = "runway-avail-pill good";
+        availPill.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>여유 활주로 ${avail.availableCount}개 즉시 사용 가능</span>`;
+      } else {
+        const reservedCount = avail.reservedRunways.length;
+        if (reservedCount > 0) {
+          availPill.className = "runway-avail-pill good";
+          availPill.innerHTML = `<i class="fa-solid fa-shield-check"></i> <span>비상 활주로 ${reservedCount}개 단독 확보 완료</span>`;
+        } else {
+          availPill.className = "runway-avail-pill danger";
+          availPill.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>여유 활주로 없음 (전체 점유 중 - 퇴거 관제 필요)</span>`;
+        }
+      }
+    }
+
+    // 3. Runway Strips List
+    const stripsList = document.getElementById("atcRunwayStripsList");
+    if (stripsList) {
+      // Find latest scheduled flight among occupied
+      let maxMins = -1;
+      let latestFlightNum = null;
+      data.runways.forEach(r => {
+        if (r.status === "OCCUPIED" && r.occupiedBy) {
+          const [h, m] = r.occupiedBy.scheduledTime.split(":").map(Number);
+          const mins = (h || 0) * 60 + (m || 0);
+          if (mins > maxMins) {
+            maxMins = mins;
+            latestFlightNum = r.occupiedBy.flightNumber;
+          }
+        }
+      });
+
+      stripsList.innerHTML = data.runways.map(rwy => {
+        let statusBadge = "";
+        let statusClass = "";
+
+        if (rwy.status === "OCCUPIED") {
+          statusClass = "status-occupied";
+          statusBadge = `<span class="rwy-status-badge occupied"><i class="fa-solid fa-plane"></i> 활주로 점유 중</span>`;
+        } else if (rwy.status === "AVAILABLE") {
+          statusClass = "status-available";
+          statusBadge = `<span class="rwy-status-badge available"><i class="fa-solid fa-check"></i> 여유 활주로 (즉시 착륙 가능)</span>`;
+        } else if (rwy.status === "EMERGENCY_RESERVED") {
+          statusClass = "status-reserved";
+          statusBadge = `<span class="rwy-status-badge reserved"><i class="fa-solid fa-shield-halved"></i> 비상기 단독 확보 (RESERVED)</span>`;
+        }
+
+        let occupantHtml = "";
+        if (rwy.occupiedBy) {
+          const isLatest = rwy.occupiedBy.flightNumber === latestFlightNum;
+          occupantHtml = `
+            <div class="rwy-plane-info">
+              <div class="plane-main">
+                <div class="plane-callsign-row">
+                  <strong class="plane-fn">${rwy.occupiedBy.flightNumber}</strong>
+                  <span class="plane-actype">${rwy.occupiedBy.aircraft}</span>
+                  <span class="text-muted">(${rwy.occupiedBy.origin} ➔ ${rwy.occupiedBy.dest})</span>
+                </div>
+                <div class="plane-phase">
+                  <i class="fa-solid fa-gauge-high text-amber"></i> ${rwy.occupiedBy.phaseDesc}
+                </div>
+              </div>
+              <div class="plane-sched-time">
+                <span class="sched-lbl">비행 예정 시각</span>
+                <span class="sched-val ${isLatest ? 'highlight-latest' : ''}">
+                  ${rwy.occupiedBy.scheduledTime} ${isLatest ? '<small style="color:#d97706; font-weight:800;">(최지연 대상)</small>' : ''}
+                </span>
+              </div>
+            </div>
+          `;
+        } else if (rwy.status === "EMERGENCY_RESERVED") {
+          occupantHtml = `
+            <div class="rwy-plane-info" style="background:#eff6ff; border-color:#bfdbfe;">
+              <div class="plane-main">
+                <div class="plane-callsign-row">
+                  <strong class="plane-fn text-cyan"><i class="fa-solid fa-triangle-exclamation"></i> ${state.aircraft.callsign || 'HL-737EM'} (비상기)</strong>
+                  <span class="plane-actype">Boeing 737-800</span>
+                </div>
+                <div class="plane-phase text-cyan">
+                  <i class="fa-solid fa-tower-broadcast"></i> ${rwy.evacuatedDetails ? rwy.evacuatedDetails.clearanceOrder : '비상 착륙 우선권 발효 (소방 구조대 전진 배치)'}
+                </div>
+              </div>
+              <div class="plane-sched-time">
+                <span class="sched-lbl">비상 접지 예정</span>
+                <span class="sched-val" style="color:#0066cc;">IMMEDIATE</span>
+              </div>
+            </div>
+          `;
+        } else {
+          occupantHtml = `
+            <div class="rwy-plane-info" style="background:#f0fdf4; border-color:#bbf7d0;">
+              <span style="font-size:11px; color:#16a34a; font-weight:700;"><i class="fa-solid fa-circle-check"></i> 장애물 없음 — 비상 접근 시 즉각 진입 유도 가능</span>
+              <span class="text-muted" style="font-size:10px;">ILS ${rwy.ilsCat} 운용 가능</span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="runway-strip-box ${statusClass}">
+            <div class="rwy-top-row">
+              <div class="rwy-id-badge">
+                <i class="fa-solid fa-arrows-left-right-to-line text-cyan"></i>
+                <span>RWY ${rwy.id}</span>
+                <span class="rwy-dim-tag">(${rwy.lengthMeters}m × ${rwy.widthMeters}m | ${rwy.ilsCat})</span>
+              </div>
+              ${statusBadge}
+            </div>
+            ${occupantHtml}
+          </div>
+        `;
+      }).join("");
+    }
+
+    // 4. Emergency Clearance Status Message
+    const msgEl = document.getElementById("clearanceStatusMessage");
+    if (msgEl) {
+      if (lastClearanceResult) {
+        msgEl.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${lastClearanceResult.message}</span>`;
+      } else {
+        msgEl.innerHTML = `현재 ${data.name} 활주로 점유 현황 분석 완료. 비상 착륙 활주로 긴급 확보 버튼 클릭 시, <strong>비행시간(스케줄)이 가장 늦은 기체</strong>에게 자동 관제 퇴거 지시(HOLD / TAXI-OFF)를 내립니다.`;
+      }
+    }
+
+    // 5. Live Schedules Table (FIDS)
+    const tbody = document.getElementById("atcScheduleTbody");
+    const countPill = document.getElementById("atcScheduleCountPill");
+    if (tbody && data.schedules) {
+      if (countPill) countPill.textContent = `총 ${data.schedules.length}편 운항 모니터링`;
+      tbody.innerHTML = data.schedules.map(item => {
+        let typePill = `<span class="atc-type-pill arr">도착 (ARR)</span>`;
+        if (item.type === "DEP") typePill = `<span class="atc-type-pill dep">출발 (DEP)</span>`;
+        if (item.type === "EMERGENCY_DIV") typePill = `<span class="atc-type-pill emg">비상회항 (EMG)</span>`;
+
+        return `
+          <tr>
+            <td><strong class="text-cyan">${item.flightNumber}</strong></td>
+            <td><strong>${item.airline}</strong> <small class="text-muted">(${item.aircraft})</small></td>
+            <td><strong>${item.route}</strong></td>
+            <td>${typePill}</td>
+            <td><strong class="font-mono">${item.schedTime}</strong></td>
+            <td>
+              <span>${item.status}</span>
+              <small class="text-muted" style="display:block;">[${item.runway}] ${item.delayMin > 0 ? `<b style="color:#dc2626;">+${item.delayMin}분 지연</b>` : '정시'}</small>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // 6. Live ATC Broadcast Logs
+    const logContainer = document.getElementById("atcLogsStream");
+    if (logContainer) {
+      logContainer.innerHTML = atcLogs.map(l => `
+        <div class="atc-log-entry">
+          <span class="atc-log-time">[${l.time}]</span>
+          <span class="${l.urgent ? 'atc-log-urgent' : ''}">${l.text}</span>
+        </div>
+      `).join("");
+    }
+
+    // 7. Top 3 AI Tactical ATC Recommendation Plans (Safety 1st, Cost 2nd)
+    const plansGrid = document.getElementById("atcPlansGrid");
+    if (plansGrid) {
+      const plans = generateAtcTacticalPlans(airportId, lastClearanceResult, state.emergencyKey);
+      plansGrid.innerHTML = plans.map(p => {
+        let cardClass = "plan-alpha";
+        if (p.id === "PLAN_BRAVO") cardClass = "plan-bravo";
+        if (p.id === "PLAN_CHARLIE") cardClass = "plan-charlie";
+
+        return `
+          <div class="atc-plan-card ${cardClass}">
+            <div class="plan-head">
+              <span class="plan-badge ${p.badgeClass}">${p.badge}</span>
+              <h5 class="plan-title">${p.name}</h5>
+            </div>
+
+            <div class="plan-scores-strip">
+              <div class="plan-score-item">
+                <span class="sc-lbl"><i class="fa-solid fa-shield-heart"></i> 안전도</span>
+                <span class="sc-val safety">${p.safetyScore}점</span>
+              </div>
+              <div class="plan-score-item">
+                <span class="sc-lbl"><i class="fa-solid fa-coins"></i> 비용/스케줄 절감</span>
+                <span class="sc-val cost">${p.costScore}점</span>
+              </div>
+            </div>
+
+            <div class="plan-directives">
+              <div style="font-size:9.5px; font-weight:800; color:var(--boeing-navy); margin-bottom:2px;">
+                <i class="fa-solid fa-tower-broadcast"></i> 관제탑(ATC) 하달 핵심 지침 :
+              </div>
+              ${p.atcDirectives.map(d => `
+                <div class="directive-item">
+                  <i class="fa-solid fa-chevron-right text-cyan"></i>
+                  <span>${d}</span>
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="plan-cost-impact">
+              <i class="fa-solid fa-circle-info text-muted"></i> ${p.costImpactDesc}
+            </div>
+
+            <button class="btn-adopt-plan" onclick="window.adoptAtcPlan('${p.id}', '${p.name}')">
+              <i class="fa-solid fa-check"></i> ${p.recommendedAction}
+            </button>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+
+  // Global window hook for plan adoption button
+  window.adoptAtcPlan = function(planId, planName) {
+    atcLogs.unshift({
+      time: new Date().toLocaleTimeString('ko-KR', { hour12: false }),
+      text: `[ATC 관제 플랜 채택] "${planName}" 지침이 관제 타워 및 전 공항 시스템에 즉시 발효되었습니다.`,
+      urgent: true
+    });
+    renderAtcModalUI(currentAtcAirport);
+  };
 
   // Enable smooth mouse drag-to-scroll on side panels, card contents, & bottom bar
   const leftPanel = document.querySelector(".left-panel");

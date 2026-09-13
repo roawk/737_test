@@ -2470,5 +2470,710 @@
   box-shadow: 0 3px 10px rgba(0, 102, 204, 0.3);
 }
 
+/* ===================================================
+   Real-Time ATC Tower & Runway Schedule Styles
+   =================================================== */
+.atc-control-btn {
+  background: linear-gradient(135deg, rgba(0, 168, 204, 0.15), rgba(0, 100, 210, 0.22));
+  border: 1px solid rgba(0, 168, 204, 0.5);
+  color: #00e5ff;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
 
+.atc-control-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 168, 204, 0.25), rgba(0, 100, 210, 0.35));
+  border-color: #00e5ff;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+  transform: translateY(-1px);
+}
 
+.atc-rwy-badge {
+  background: rgba(0, 229, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(0, 229, 255, 0.6);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.atc-modal-window {
+  width: 1240px;
+  max-width: 96vw;
+  max-height: 92vh;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1.5px solid #00a8cc;
+  box-shadow: 0 24px 70px rgba(0, 20, 50, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.atc-modal-header {
+  background: linear-gradient(135deg, #06192d, #0d2f52);
+  border-bottom: 2px solid #00d4ff;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.atc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.atc-status-indicator {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.4);
+}
+
+.pulse-green {
+  animation: pulseGreen 1.8s infinite;
+}
+
+@keyframes pulseGreen {
+  0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(0, 230, 118, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+}
+
+/* Airport Selector Bar */
+.atc-airport-tabs-bar {
+  background: #eef5fc;
+  border-bottom: 1px solid #d5e4f5;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.atc-tabs-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atc-airport-pills {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.atc-apt-pill {
+  background: #ffffff;
+  border: 1px solid #c7daf2;
+  color: #1a4f8b;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.atc-apt-pill:hover {
+  background: #e1f0ff;
+  border-color: #0066cc;
+}
+
+.atc-apt-pill.active {
+  background: #0066cc;
+  color: #ffffff;
+  border-color: #0052a3;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.35);
+}
+
+.atc-clock-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  background: #0d2238;
+  color: #00e5ff;
+  padding: 4px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+/* Modal Body Layout */
+.atc-modal-body {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  gap: 14px;
+  padding: 14px 20px;
+  background: #f4f8fc;
+  overflow-y: auto;
+  max-height: calc(92vh - 125px);
+}
+
+.atc-col-left, .atc-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.atc-card {
+  background: #ffffff;
+  border: 1px solid #dce8f5;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(12, 35, 64, 0.05);
+  overflow: hidden;
+}
+
+.atc-card-header {
+  background: #f8fbff;
+  border-bottom: 1px solid #e5effa;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-h-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-h-title h4 {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+}
+
+/* Runway Strips */
+.runway-status-card {
+  border-top: 3px solid #ffaa00;
+}
+
+.runway-avail-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.runway-avail-pill.danger {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.runway-avail-pill.good {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.runway-strips-list {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.runway-strip-box {
+  border: 1.5px solid #d8e6f5;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.runway-strip-box.status-occupied {
+  border-left: 4px solid #e67e22;
+  background: #fffdfa;
+}
+
+.runway-strip-box.status-available {
+  border-left: 4px solid #00b894;
+  background: #fafffd;
+}
+
+.runway-strip-box.status-reserved {
+  border-left: 4px solid #0066cc;
+  background: #f2f8ff;
+  box-shadow: 0 0 10px rgba(0, 102, 204, 0.15);
+}
+
+.rwy-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rwy-id-badge {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rwy-dim-tag {
+  font-size: 10px;
+  color: #6d849e;
+  font-weight: 600;
+}
+
+.rwy-status-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.rwy-status-badge.occupied {
+  background: #fff4e6;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.rwy-status-badge.available {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.rwy-status-badge.reserved {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.rwy-plane-info {
+  background: #f3f8fd;
+  border: 1px solid #e1edf8;
+  border-radius: 6px;
+  padding: 6px 9px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.plane-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plane-callsign-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plane-fn {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: var(--boeing-navy);
+}
+
+.plane-actype {
+  font-size: 10px;
+  color: #4b627a;
+  background: #e2edfa;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.plane-phase {
+  font-size: 10px;
+  color: #637b96;
+}
+
+.plane-sched-time {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sched-lbl {
+  font-size: 9px;
+  color: #7b93ae;
+}
+
+.sched-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: #1e3a8a;
+}
+
+.sched-val.highlight-latest {
+  color: #d97706;
+}
+
+/* Emergency Clearance Action Box */
+.emergency-clearance-box {
+  margin: 4px 14px 14px 14px;
+  background: #fff7ed;
+  border: 1.5px dashed #f97316;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cl-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #c2410c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cl-text {
+  font-size: 10.5px;
+  color: #7c2d12;
+  line-height: 1.4;
+}
+
+.btn-danger-pulse {
+  background: linear-gradient(135deg, #d97706, #dc2626);
+  color: #ffffff;
+  border: none;
+  font-weight: 800;
+  padding: 8px 14px;
+  font-size: 11.5px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger-pulse:hover {
+  background: linear-gradient(135deg, #b45309, #b91c1c);
+  transform: translateY(-1px);
+}
+
+/* ATC Logs Stream */
+.atc-log-card {
+  border-top: 3px solid #00d4ff;
+}
+
+.atc-freq-pill {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  background: #002244;
+  color: #00e5ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.atc-logs-stream {
+  padding: 8px 12px;
+  background: #0b1c2e;
+  color: #e2f1ff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+  max-height: 140px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.atc-log-entry {
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.atc-log-time {
+  color: #00d4ff;
+  margin-right: 6px;
+  font-weight: 700;
+}
+
+.atc-log-urgent {
+  color: #ffaa00;
+  font-weight: 700;
+}
+
+/* Right Column: Schedules & Plans */
+.schedule-table-card {
+  border-top: 3px solid #0066cc;
+}
+
+.schedule-count-pill {
+  font-size: 10px;
+  font-weight: 700;
+  background: #e6f0fa;
+  color: #0066cc;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.atc-table-wrap {
+  padding: 8px 14px;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.atc-schedule-table th {
+  font-size: 10px;
+  padding: 5px 8px;
+  background: #f1f6fb;
+  color: #556c87;
+  font-weight: 700;
+  text-align: left;
+}
+
+.atc-schedule-table td {
+  font-size: 10.5px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #eaf2fa;
+}
+
+.atc-type-pill {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.atc-type-pill.dep {
+  background: #e6f9f0;
+  color: #059669;
+}
+
+.atc-type-pill.arr {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.atc-type-pill.emg {
+  background: #fee2e2;
+  color: #dc2626;
+  animation: blinkEmg 1.2s infinite;
+}
+
+@keyframes blinkEmg {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 3 Tactical Plans Grid */
+.plans-card {
+  border-top: 3px solid #00b894;
+}
+
+.plan-eval-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  background: #e6f9f3;
+  color: #00a884;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.atc-plans-grid {
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.atc-plan-card {
+  background: #ffffff;
+  border: 1.5px solid #dce8f5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.atc-plan-card:hover {
+  border-color: #0066cc;
+  box-shadow: 0 4px 16px rgba(0, 102, 204, 0.12);
+  transform: translateY(-2px);
+}
+
+.atc-plan-card.plan-alpha {
+  border-top: 4px solid #dc2626;
+  background: #fffafa;
+}
+
+.atc-plan-card.plan-bravo {
+  border-top: 4px solid #0066cc;
+  background: #f7faff;
+}
+
+.atc-plan-card.plan-charlie {
+  border-top: 4px solid #00b894;
+  background: #f7fcfa;
+}
+
+.plan-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plan-badge {
+  align-self: flex-start;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-safety {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.badge-cost {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-hybrid {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.plan-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--boeing-navy);
+  line-height: 1.3;
+}
+
+.plan-scores-strip {
+  display: flex;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e5effa;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.plan-score-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sc-lbl {
+  font-size: 8.5px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.sc-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sc-val.safety { color: #dc2626; }
+.sc-val.cost { color: #2563eb; }
+
+.plan-directives {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  color: #334155;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.directive-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1.35;
+}
+
+.directive-item i {
+  margin-top: 2px;
+  font-size: 8px;
+}
+
+.plan-cost-impact {
+  font-size: 9.5px;
+  color: #475569;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 5px;
+  line-height: 1.3;
+}
+
+.btn-adopt-plan {
+  background: #0066cc;
+  color: #ffffff;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-top: auto;
+}
+
+.btn-adopt-plan:hover {
+  background: #0052a3;
+}
+
+.atc-modal-footer {
+  padding: 10px 20px;
+  background: #f8fbff;
+  border-top: 1px solid #dce8f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.atc-disclaimer {
+  font-size: 10.5px;
+  color: #647f9f;
+}

@@ -18,8 +18,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/main.css?v=31">
-  <link rel="stylesheet" href="css/components.css?v=27">
+  <link rel="stylesheet" href="css/main.css?v=32">
+  <link rel="stylesheet" href="css/components.css?v=32">
 </head>
 <body class="cockpit-theme">
 
@@ -54,6 +54,13 @@
 
     <!-- Header Right Controls -->
     <div class="header-right">
+      <!-- Real-Time Airport Schedule & ATC Control Menu Button -->
+      <button class="atc-control-btn" id="openAtcModalBtn" title="공항별 실시간 비행 스케줄 & 활주로 점유 현황 및 비상 착륙 관제 시스템 열기">
+        <i class="fa-solid fa-tower-broadcast"></i>
+        <span>실시간 관제 & 스케줄</span>
+        <span class="atc-rwy-badge" id="headerAtcRwyBadge">활주로 관제</span>
+      </button>
+
       <button class="aircraft-diag-btn" id="openDamageModalBtn" title="737 기체 손상도 및 수리/교체 필요 부품 실시간 진단 열기">
         <i class="fa-solid fa-wrench"></i>
         <span>기체 손상 & 부품 진단</span>
@@ -721,10 +728,152 @@
     </div>
   </div>
 
+  <!-- Real-Time Airport Schedule & ATC Runway Control Modal Popup -->
+  <div class="modal-overlay" id="airportAtcModal" style="display: none;">
+    <div class="modal-window atc-modal-window">
+      <!-- Modal Header -->
+      <div class="modal-header atc-modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-tower-broadcast text-cyan"></i>
+          <div>
+            <h3>공항별 실시간 비행 스케줄 & 활주로 점유 현황 및 비상 관제 센터</h3>
+            <span class="modal-subtitle">REAL-TIME AIRPORT ATC SCHEDULE, RUNWAY OCCUPANCY & EMERGENCY CLEARANCE TOWER</span>
+          </div>
+        </div>
+        <div class="atc-header-actions">
+          <span class="atc-status-indicator pulse-green"><i class="fa-solid fa-circle"></i> ATC RADAR ACTIVE</span>
+          <button class="modal-close-btn" id="closeAtcModalBtn" title="닫기">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Airport Tabs Selector -->
+      <div class="atc-airport-tabs-bar">
+        <div class="atc-tabs-label"><i class="fa-solid fa-plane-arrival"></i> 공항 선택 :</div>
+        <div class="atc-airport-pills" id="atcAirportPills">
+          <button class="atc-apt-pill active" data-apt="RKSS">김포 (RKSS)</button>
+          <button class="atc-apt-pill" data-apt="RKSI">인천 (RKSI)</button>
+          <button class="atc-apt-pill" data-apt="RKPC">제주 (RKPC)</button>
+          <button class="atc-apt-pill" data-apt="RKPK">김해/부산 (RKPK)</button>
+          <button class="atc-apt-pill" data-apt="RKTU">청주 (RKTU)</button>
+          <button class="atc-apt-pill" data-apt="RKTN">대구 (RKTN)</button>
+        </div>
+        <div class="atc-clock-tag" id="atcModalClock">KST 15:15:00</div>
+      </div>
+
+      <!-- Modal Body (Two-Column Layout) -->
+      <div class="modal-body atc-modal-body">
+        
+        <!-- Left Column: Runway Real-Time Occupancy & Clearance Control -->
+        <div class="atc-col-left">
+          <!-- Runway Overview Card -->
+          <div class="atc-card runway-status-card">
+            <div class="atc-card-header">
+              <div class="card-h-title">
+                <i class="fa-solid fa-road text-amber"></i>
+                <h4 id="atcSelectedAirportTitle">김포국제공항 (RKSS) 활주로 실시간 점유 현황</h4>
+              </div>
+              <div class="runway-avail-pill" id="atcRunwayAvailPill">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="atcAvailSummaryText">여유 활주로 없음 (전체 점유 중)</span>
+              </div>
+            </div>
+
+            <!-- Runway Graphical Visualizer List -->
+            <div class="runway-strips-list" id="atcRunwayStripsList">
+              <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- Emergency Runway Clearance Action Strip -->
+            <div class="emergency-clearance-box" id="emergencyClearanceBox">
+              <div class="clearance-desc">
+                <div class="cl-title"><i class="fa-solid fa-shield-halved text-red"></i> 비상 착륙 활주로 확보 긴급 관제</div>
+                <div class="cl-text" id="clearanceStatusMessage">
+                  현재 여유 활주로가 부족합니다. 비상 활주로 긴급 확보 시, 활주로 점유 항공기 중 <strong>비행시간(스케줄)이 가장 늦은 기체</strong>에게 즉시 활주로 퇴거 및 유도로 대기 지시를 하달합니다.
+                </div>
+              </div>
+              <button class="cockpit-action-btn btn-danger-pulse" id="btnExecuteRunwayClearance">
+                <i class="fa-solid fa-forward-fast"></i> 최지연 기체 퇴거 및 비상 활주로 확보
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom: Live ATC Broadcast Log -->
+          <div class="atc-card atc-log-card">
+            <div class="atc-card-header">
+              <div class="card-h-title">
+                <i class="fa-solid fa-headset text-cyan"></i>
+                <h4>ATC 관제탑 비상 교신 전문 & 지시 내역 (Directives)</h4>
+              </div>
+              <span class="atc-freq-pill" id="atcFrequencyBadge">TOWER 118.1 MHz</span>
+            </div>
+            <div class="atc-logs-stream" id="atcLogsStream">
+              <!-- Logs injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Schedules & AI Top 3 Tactical Plans -->
+        <div class="atc-col-right">
+          <!-- Live Airport Flight Schedule Table -->
+          <div class="atc-card schedule-table-card">
+            <div class="atc-card-header">
+              <div class="card-h-title">
+                <i class="fa-solid fa-calendar-days text-cyan"></i>
+                <h4>공항 실시간 출·도착 비행 스케줄 (Live FIDS)</h4>
+              </div>
+              <span class="schedule-count-pill" id="atcScheduleCountPill">총 5편 운항 대기</span>
+            </div>
+            <div class="atc-table-wrap">
+              <table class="cockpit-table atc-schedule-table">
+                <thead>
+                  <tr>
+                    <th>편명</th>
+                    <th>항공사/기종</th>
+                    <th>운항 구간</th>
+                    <th>구분</th>
+                    <th>예정 시각</th>
+                    <th>현 상태 및 점유 활주로</th>
+                  </tr>
+                </thead>
+                <tbody id="atcScheduleTbody">
+                  <!-- Dynamically populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top 3 AI Tactical ATC Recommendation Plans -->
+          <div class="atc-card plans-card">
+            <div class="atc-card-header">
+              <div class="card-h-title">
+                <i class="fa-solid fa-brain text-green"></i>
+                <h4>안전 1순위 · 비용 2순위 AI 관제 플랜 3선 (Tactical ATC Recommendations)</h4>
+              </div>
+              <span class="plan-eval-pill">Safety 75% | Cost 25%</span>
+            </div>
+            <div class="atc-plans-grid" id="atcPlansGrid">
+              <!-- Dynamically populated 3 plans via JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer atc-modal-footer">
+        <span class="atc-disclaimer"><i class="fa-solid fa-circle-info"></i> ICAO / 국토교통부 표준 항공교통관제(ATC) 절차 및 슬롯 배정 알고리즘 실시간 반영</span>
+        <button class="cockpit-action-btn" id="closeAtcModalBtn2">관제 센터 닫기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=38"></script>
+  <script type="module" src="js/app.js?v=39"></script>
 </body>
 </html>
