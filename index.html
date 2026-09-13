@@ -19,7 +19,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/main.css?v=34">
-  <link rel="stylesheet" href="css/components.css?v=45">
+  <link rel="stylesheet" href="css/components.css?v=46">
 </head>
 <body class="cockpit-theme">
 
@@ -690,12 +690,12 @@
               <table class="cockpit-table parts-table">
                 <thead>
                   <tr>
-                    <th>부품 번호 (P/N)</th>
-                    <th>교체 부품명</th>
-                    <th>긴급도</th>
-                    <th>정비 작업</th>
-                    <th>예상 단가</th>
-                    <th>소요 시간</th>
+                    <th class="col-pn">부품 번호 (P/N)</th>
+                    <th class="col-name">교체 부품명</th>
+                    <th class="col-urgency">긴급도</th>
+                    <th class="col-action">정비 작업</th>
+                    <th class="col-cost">예상 단가</th>
+                    <th class="col-time">소요 시간</th>
                   </tr>
                 </thead>
                 <tbody id="dmgPartsTbody">
@@ -873,6 +873,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=48"></script>
+  <script type="module" src="js/app.js?v=49"></script>
 </body>
 </html>

@@ -1048,20 +1048,20 @@ export function updateDamageModalUI(emergencyKey) {
 
       return `
         <tr>
-          <td>
+          <td class="col-pn">
             <strong class="part-pn">${part.partNumber}</strong>
             <small class="text-muted" style="display:block;">${part.ammChapter}</small>
           </td>
-          <td>
+          <td class="col-name">
             <strong>${part.name}</strong>
             <small class="text-muted" style="display:block;">분류: ${part.category} | 수량: ${part.qty}</small>
           </td>
-          <td>
+          <td class="col-urgency">
             <span class="urgency-pill ${part.urgency.toLowerCase()}">${part.urgency}</span>
           </td>
-          <td><span class="action-tag">${part.action}</span></td>
-          <td><strong class="text-amber">$${part.estCostUSD.toLocaleString()}</strong></td>
-          <td><strong>${part.leadTimeHours} hrs</strong></td>
+          <td class="col-action"><span class="action-tag">${part.action}</span></td>
+          <td class="col-cost text-amber">$${part.estCostUSD.toLocaleString()}</td>
+          <td class="col-time">${part.leadTimeHours} hrs</td>
         </tr>
       `;
     }).join("");
