@@ -94,6 +94,7 @@ export function generatePlannedRouteWaypoints(originAirport, destAirport, steps 
 export function computeFlightPositionAlongRoute(originAirport, destAirport, progressRatio, cruiseAltFt = 31000) {
   const t = Math.max(0.0, Math.min(1.0, progressRatio));
 
+  // Destination and position coordinates
   const lat = originAirport.lat + (destAirport.lat - originAirport.lat) * t;
   const lng = originAirport.lng + (destAirport.lng - originAirport.lng) * t;
 
@@ -107,22 +108,31 @@ export function computeFlightPositionAlongRoute(originAirport, destAirport, prog
   const distFromOriginNM = Math.round(totalDistanceNM * t);
   const distToDestNM = Math.round(totalDistanceNM * (1 - t));
 
-  // Flight Phase & Altitude profile simulation (0% -> 0 FT, Climb -> Cruise -> Descent -> 100% -> 0 FT)
+  // Cruising altitude protection: Must always be a realistic flight level (>= 15,000 FT, default 31,000 FT)
+  // Cruising altitude represents the flight plan ceiling, NEVER the instantaneous ground altitude.
+  const effectiveCruiseAlt = (typeof cruiseAltFt === 'number' && cruiseAltFt >= 15000) ? cruiseAltFt : 31000;
+
+  // Dynamic Flight Phase & Altitude Profile:
+  // 1. At 0%: Starts on ground (0 FT, Takeoff/Taxi)
+  // 2. 0% -> 25%: Climbs smoothly from 0 FT up to cruise altitude (e.g. 31,000 FT)
+  // 3. 25% -> 75%: Cruising at level altitude (effectiveCruiseAlt)
+  // 4. 75% -> 100%: Descends smoothly from cruise altitude down to 0 FT
+  // 5. At 100%: Touches down at destination runway (0 FT, Touchdown)
   let flightPhase = "CRUISE (순항)";
-  let suggestedAltFt = cruiseAltFt;
+  let suggestedAltFt = effectiveCruiseAlt;
 
   if (t <= 0.001) {
     flightPhase = "TAKEOFF (이륙 대기/지상 0 FT)";
     suggestedAltFt = 0;
   } else if (t < 0.25) {
     flightPhase = "CLIMB (상승)";
-    suggestedAltFt = Math.round(cruiseAltFt * (t / 0.25));
+    suggestedAltFt = Math.round(effectiveCruiseAlt * (t / 0.25));
   } else if (t >= 0.25 && t <= 0.75) {
     flightPhase = "CRUISE (순항)";
-    suggestedAltFt = cruiseAltFt;
+    suggestedAltFt = effectiveCruiseAlt;
   } else if (t > 0.75 && t < 0.999) {
     flightPhase = "DESCENT (강하)";
-    suggestedAltFt = Math.max(0, Math.round(cruiseAltFt * ((1 - t) / 0.25)));
+    suggestedAltFt = Math.max(0, Math.round(effectiveCruiseAlt * ((1 - t) / 0.25)));
   } else {
     flightPhase = "TOUCHDOWN (착륙 접지/지상 0 FT)";
     suggestedAltFt = 0;

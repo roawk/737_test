@@ -42,6 +42,7 @@ const state = {
     originIcao: "RKSS", // Gimpo
     destIcao: "RKPC",   // Jeju
     progress: 0.45,     // 45% (En-route West Coast)
+    plannedCruiseAltFt: 31000,
     activePresetId: "GMP_CJU",
     waypoints: []
   },
@@ -234,6 +235,7 @@ function applyRoutePreset(presetId) {
   state.flightPlan.destIcao = preset.destIcao;
   state.flightPlan.activePresetId = preset.id;
   state.flightPlan.progress = preset.typicalProgress;
+  state.flightPlan.plannedCruiseAltFt = preset.plannedCruiseAltFt || 31000;
   state.aircraft.altitudeFt = preset.plannedCruiseAltFt;
 
   const originSelect = document.getElementById("originAirportSelect");
@@ -299,8 +301,9 @@ function updateFlightRouteAndAircraft(shouldFitBounds = false, updateTelemetryFr
   // Generate waypoints along planned route
   state.flightPlan.waypoints = generatePlannedRouteWaypoints(orig, dest, 24);
 
-  // Compute position along route
-  const posData = computeFlightPositionAlongRoute(orig, dest, state.flightPlan.progress, state.aircraft.altitudeFt);
+  // Compute position along route using planned cruising altitude ceiling
+  const plannedCruise = state.flightPlan.plannedCruiseAltFt || 31000;
+  const posData = computeFlightPositionAlongRoute(orig, dest, state.flightPlan.progress, plannedCruise);
   state.aircraft.lat = posData.lat;
   state.aircraft.lng = posData.lng;
   state.aircraft.headingDeg = posData.headingDeg;
@@ -330,7 +333,8 @@ function updateFlightRouteAndAircraft(shouldFitBounds = false, updateTelemetryFr
 
 function updateRouteUIElements(orig, dest, posData = null) {
   if (!posData) {
-    posData = computeFlightPositionAlongRoute(orig, dest, state.flightPlan.progress, state.aircraft.altitudeFt);
+    const plannedCruise = state.flightPlan.plannedCruiseAltFt || 31000;
+    posData = computeFlightPositionAlongRoute(orig, dest, state.flightPlan.progress, plannedCruise);
   }
 
   const headerRouteVal = document.getElementById("headerRouteVal");
@@ -423,6 +427,7 @@ function bindEventListeners() {
   altSlider.addEventListener("input", (e) => {
     state.aircraft.altitudeFt = parseInt(e.target.value);
     inputAlt.value = state.aircraft.altitudeFt;
+    if (state.aircraft.altitudeFt >= 15000) state.flightPlan.plannedCruiseAltFt = state.aircraft.altitudeFt;
     recomputeAndRender();
   });
   inputAlt.addEventListener("input", (e) => {
@@ -431,6 +436,7 @@ function bindEventListeners() {
     val = Math.max(0, Math.min(41000, val));
     state.aircraft.altitudeFt = val;
     altSlider.value = Math.max(0, Math.min(41000, val));
+    if (val >= 15000) state.flightPlan.plannedCruiseAltFt = val;
     recomputeAndRender();
   });
 
