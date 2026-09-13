@@ -1370,47 +1370,38 @@ function renderMaintenanceMatrix(landingSite) {
 function renderAirspaceAnalysis(evaluatedItem) {
   const site = evaluatedItem.site;
 
-  document.getElementById("impactQueuedFlights").textContent = `${site.activeQueuedFlights} 편 대기`;
-  document.getElementById("impactReroutedFlights").textContent = `${evaluatedItem.trafficConflicts} 대 우회`;
+  document.getElementById("impactQueuedFlights").textContent = `${site.activeQueuedFlights}대 대기`;
+  document.getElementById("impactReroutedFlights").textContent = `${evaluatedItem.trafficConflicts}대 우회`;
 
   // Compare to Incheon (worst disruption)
   const maxDelay = 28 * 25; // Incheon delay min
   const currentDelay = evaluatedItem.estimatedScheduleDelayMinTotal;
   const savedMin = Math.max(0, maxDelay - currentDelay);
-  document.getElementById("impactSavedTime").textContent = `약 ${savedMin} 분 지연 절감`;
+  document.getElementById("impactSavedTime").textContent = `${savedMin}분 절감`;
 
-  document.getElementById("impactCostUSD").textContent = `$${evaluatedItem.estimatedDisruptionCostUSD.toLocaleString()} USD`;
+  document.getElementById("impactCostUSD").textContent = `$${evaluatedItem.estimatedDisruptionCostUSD.toLocaleString()}`;
 
-  // Populate Airborne Traffic Table with 3-tier colors
+  // Populate Airborne Traffic Table with exact 5-column layout
   const tbody = document.getElementById("airborneTrafficTbody");
   tbody.innerHTML = "";
 
   state.trafficList.forEach(trf => {
     const tier = trf.riskTier || (trf.isConflictRisk ? 'danger' : 'safe');
-    let tierColor = "#00e676";
-    let tierBadge = '<span style="background:#00e67622; color:#00a854; border:1px solid #00e676; padding:1px 5px; border-radius:3px; font-weight:700;">안전</span>';
-    let statusDesc = "정상 통과 (안전 간격 확보)";
+    let tierBadge = '<span class="trf-pill safe" title="정상 통과 (안전 간격 확보)">안전</span>';
 
     if (tier === 'danger' || trf.isConflictRisk) {
-      tierColor = "#ff1744";
-      tierBadge = '<span style="background:#ff174422; color:#d50000; border:1px solid #ff1744; padding:1px 5px; border-radius:3px; font-weight:700;">위험 (간섭)</span>';
-      statusDesc = `+${trf.estimatedDelayMinIfRerouted}분 긴급 우회 (+${trf.fuelBurnPenaltyKg}kg)`;
+      tierBadge = `<span class="trf-pill danger" title="+${trf.estimatedDelayMinIfRerouted}분 긴급 우회 (+${trf.fuelBurnPenaltyKg}kg)">위험 (+${trf.estimatedDelayMinIfRerouted}m)</span>`;
     } else if (tier === 'caution') {
-      tierColor = "#ffaa00";
-      tierBadge = '<span style="background:#ffaa0022; color:#b26a00; border:1px solid #ffaa00; padding:1px 5px; border-radius:3px; font-weight:700;">주의 (잠재)</span>';
-      statusDesc = `인접 고도 주의 모니터링 (+${trf.estimatedDelayMinIfRerouted}분 우회 가능)`;
+      tierBadge = `<span class="trf-pill caution" title="인접 고도 주의 모니터링 (+${trf.estimatedDelayMinIfRerouted}분 우회 가능)">주의 (모니터)</span>`;
     }
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><strong>${trf.callsign}</strong></td>
+      <td><strong style="color:var(--boeing-navy);">${trf.callsign}</strong></td>
       <td>${trf.aircraft}</td>
       <td>${trf.origin}➔${trf.dest}</td>
       <td>FL${Math.round(trf.altFt / 100)}</td>
       <td>${tierBadge}</td>
-      <td style="color: ${tierColor}; font-weight:600;">
-        ${statusDesc}
-      </td>
     `;
     tbody.appendChild(row);
   });
