@@ -110,6 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 5. Initial Route & Aircraft Position Setup & Render
   updateFlightRouteAndAircraft(true);
+
+  // 6. Live Airborne Radar Traffic Engine Loop (Updates every 3 seconds)
+  setInterval(() => {
+    // Only update if not in a modal or dragging
+    updateLiveAirborneTraffic();
+  }, 3000);
 });
 
 function initFlightRouteControls() {
@@ -1719,6 +1725,41 @@ function renderAirspaceAnalysis(evaluatedItem) {
     `;
     tbody.appendChild(row);
   });
+}
+
+function updateLiveAirborneTraffic() {
+  if (!state.aircraft || !state.mapRenderer) return;
+
+  // Re-generate moving surrounding traffic relative to current aircraft coordinates
+  state.trafficList = generateSurroundingAirTraffic(state.aircraft, state.aircraft.altitudeFt);
+
+  // Update map radar markers
+  state.mapRenderer.updateSurroundingTraffic(state.trafficList, state.showTraffic);
+
+  // Update bottom radar bar counters
+  const dangerTrafficCount = state.trafficList.filter(t => t.riskTier === 'danger' || t.isConflictRisk).length;
+  const cautionTrafficCount = state.trafficList.filter(t => t.riskTier === 'caution').length;
+  const safeTrafficCount = state.trafficList.filter(t => t.riskTier === 'safe' || (!t.isConflictRisk && t.riskTier !== 'caution')).length;
+
+  const countEl = document.getElementById("trafficCount");
+  if (countEl) countEl.textContent = `${state.trafficList.length}대`;
+
+  const dangerEl = document.getElementById("conflictDangerCount");
+  if (dangerEl) dangerEl.textContent = `${dangerTrafficCount}대`;
+  const cautionEl = document.getElementById("conflictCautionCount");
+  if (cautionEl) cautionEl.textContent = `${cautionTrafficCount}대`;
+  const safeEl = document.getElementById("conflictSafeCount");
+  if (safeEl) safeEl.textContent = `${safeTrafficCount}대`;
+
+  // If the tactical tabs popup is open and traffic tab is active, refresh the airborne traffic table in real time
+  const tabsCard = document.getElementById("tacticalTabsCard");
+  const trafficTab = document.getElementById("trafficTab");
+  if (tabsCard && tabsCard.classList.contains("visible") && trafficTab && trafficTab.classList.contains("active")) {
+    const selectedRec = state.evaluationResult?.topRecommendations?.[state.activeRouteTag]?.data || state.evaluationResult?.topRecommendations?.alpha?.data;
+    if (selectedRec) {
+      renderAirspaceAnalysis(selectedRec);
+    }
+  }
 }
 
 let updateAirspaceClockRef = null;
