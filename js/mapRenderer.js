@@ -57,8 +57,15 @@ export class AirspaceMapRenderer {
 
     const iconHtml = `
       <div class="radar-plane-icon emergency-pulse" style="transform: rotate(${headingDeg}deg);">
-        <svg viewBox="0 0 24 24" width="32" height="32" fill="#00ffff">
-          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        <svg viewBox="0 0 24 24" width="31" height="31" style="overflow: visible;">
+          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+            fill="#00e5ff"
+            stroke="#ffffff"
+            stroke-width="3.85"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            paint-order="stroke fill"
+          />
         </svg>
       </div>
       <div class="radar-label emergency-label">
