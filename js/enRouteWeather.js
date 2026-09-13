@@ -7,7 +7,7 @@ import { LANDING_SITES } from "./airTrafficSim.js";
 /**
  * Computes standard atmospheric conditions based on flight level and wind
  */
-export function calculateEnRouteAtmosphere(altitudeFt, windKts, headingDeg = 180) {
+export function calculateEnRouteAtmosphere(altitudeFt, windKts, headingDeg = 180, customWindDir = null, customWindSpeed = null) {
   // ISA Temperature lapse rate (-1.98°C per 1,000ft up to 36,089ft)
   const clampedAlt = Math.min(39000, Math.max(0, altitudeFt));
   const isaTemp = 15 - (clampedAlt / 1000) * 1.98;
@@ -15,8 +15,12 @@ export function calculateEnRouteAtmosphere(altitudeFt, windKts, headingDeg = 180
 
   // Upper jetstream wind computation
   const windFactor = Math.min(1.8, Math.max(0.7, clampedAlt / 25000));
-  const upperWindSpeed = Math.round(Math.abs(windKts) * 1.6 * windFactor) + 12;
-  const upperWindDir = (headingDeg + 85) % 360;
+  const upperWindSpeed = typeof customWindSpeed === 'number'
+    ? customWindSpeed
+    : (Math.round(Math.abs(windKts) * 1.6 * windFactor) + 12);
+  const upperWindDir = typeof customWindDir === 'number'
+    ? customWindDir
+    : ((headingDeg + 85) % 360);
 
   // Turbulence calculation (CAT - Clear Air Turbulence index)
   let turbulenceLabel = "NONE / SMOOTH";
@@ -70,7 +74,13 @@ export function updateWeatherHudUI(state) {
   const dest = getAirportByIcao(destIcao);
 
   // 1. Atmosphere at current aircraft position
-  const atmo = calculateEnRouteAtmosphere(state.aircraft.altitudeFt, state.aircraft.windKts, state.aircraft.headingDeg);
+  const atmo = calculateEnRouteAtmosphere(
+    state.aircraft.altitudeFt, 
+    state.aircraft.windKts, 
+    state.aircraft.headingDeg,
+    state.aircraft.windDirDeg,
+    state.aircraft.windSpeedKts
+  );
 
   const oatEl = document.getElementById("wxOatVal");
   if (oatEl) oatEl.textContent = `${atmo.oatCelsius > 0 ? '+' : ''}${atmo.oatCelsius}°C`;

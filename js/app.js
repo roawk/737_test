@@ -300,11 +300,14 @@ function updateFlightRouteAndAircraft(shouldFitBounds = false, updateTelemetryFr
   state.aircraft.lat = posData.lat;
   state.aircraft.lng = posData.lng;
   state.aircraft.headingDeg = posData.headingDeg;
+  if (typeof posData.suggestedWindDirDeg === 'number') state.aircraft.windDirDeg = posData.suggestedWindDirDeg;
+  if (typeof posData.suggestedWindSpeedKts === 'number') state.aircraft.windSpeedKts = posData.suggestedWindSpeedKts;
 
   if (updateTelemetryFromProfile) {
-    if (posData.suggestedAltFt) state.aircraft.altitudeFt = posData.suggestedAltFt;
-    if (posData.suggestedFuelKg) state.aircraft.fuelKg = posData.suggestedFuelKg;
-    if (posData.suggestedSpeedKts) state.aircraft.groundSpeedKts = posData.suggestedSpeedKts;
+    if (typeof posData.suggestedAltFt === 'number') state.aircraft.altitudeFt = posData.suggestedAltFt;
+    if (typeof posData.suggestedFuelKg === 'number') state.aircraft.fuelKg = posData.suggestedFuelKg;
+    if (typeof posData.suggestedSpeedKts === 'number') state.aircraft.groundSpeedKts = posData.suggestedSpeedKts;
+    if (typeof posData.suggestedWindKts === 'number') state.aircraft.windKts = posData.suggestedWindKts;
     syncFlightControlsUI();
   }
 
@@ -420,9 +423,9 @@ function bindEventListeners() {
   inputAlt.addEventListener("input", (e) => {
     let val = parseInt(e.target.value);
     if (isNaN(val)) return;
-    val = Math.max(3000, Math.min(41000, val));
+    val = Math.max(0, Math.min(41000, val));
     state.aircraft.altitudeFt = val;
-    altSlider.value = Math.max(5000, Math.min(39000, val));
+    altSlider.value = Math.max(0, Math.min(41000, val));
     recomputeAndRender();
   });
 
@@ -1282,11 +1285,11 @@ function recomputeAndRender() {
   document.getElementById("maxGlideRangeVal").textContent = cap.maxGlideRangeNM;
   const rangeKm = Math.round(cap.maxGlideRangeNM * 1.852);
   document.getElementById("maxGlideKm").textContent = `NM (약 ${rangeKm} km)`;
-  const rangePercent = Math.min(100, Math.max(10, (cap.maxGlideRangeNM / 120) * 100));
+  const rangePercent = cap.maxGlideRangeNM <= 0 ? 0 : Math.min(100, Math.max(5, (cap.maxGlideRangeNM / 120) * 100));
   document.getElementById("glideRangeBar").style.width = `${rangePercent}%`;
 
   document.getElementById("remainingEnduranceVal").textContent = cap.remainingTimeMinutes;
-  const endurancePercent = Math.min(100, Math.max(10, (cap.remainingTimeMinutes / 60) * 100));
+  const endurancePercent = cap.remainingTimeMinutes <= 0 ? 0 : Math.min(100, Math.max(5, (cap.remainingTimeMinutes / 60) * 100));
   document.getElementById("enduranceBar").style.width = `${endurancePercent}%`;
 
   document.getElementById("descentRateVal").textContent = `${cap.descentRate.toLocaleString()}`;

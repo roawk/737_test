@@ -181,8 +181,13 @@ export function calculateFlightCapabilities(altitudeFt, groundSpeedKts, fuelKg, 
     effectiveGlideRatio = Math.max(4.0, Math.min(13.5, effectiveGlideRatio));
 
     // Range in NM = (Altitude in feet / 6076.12) * effective glide ratio
-    maxGlideRangeNM = Math.max(5, Math.round((altitudeFt / 6076.12) * effectiveGlideRatio));
-    remainingTimeMinutes = Math.max(1, Math.round(altitudeFt / Math.abs(descentRate)));
+    if (altitudeFt <= 0) {
+      maxGlideRangeNM = 0;
+      remainingTimeMinutes = 0;
+    } else {
+      maxGlideRangeNM = Math.max(1, Math.round((altitudeFt / 6076.12) * effectiveGlideRatio));
+      remainingTimeMinutes = Math.max(1, Math.round(altitudeFt / Math.abs(descentRate)));
+    }
     glideDistancePer1000ft = Math.round(((1000 / 6076.12) * effectiveGlideRatio) * 100) / 100;
     limitingFactor = `전체 엔진 추력 상실에 따른 무동력 공기역학 활공비 한계 (안전 계수 50% 축소 반경)`;
   } else if (emergencyKey === "single_engine_failure") {

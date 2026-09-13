@@ -557,11 +557,11 @@
             <div class="control-label-wrap">
               <span>현재 고도 (Altitude)</span>
               <div class="num-input-group">
-                <input type="number" id="inputAlt" class="cockpit-num-input" min="5000" max="39000" step="500" value="31000" title="클릭하여 고도를 직접 숫자로 입력">
+                <input type="number" id="inputAlt" class="cockpit-num-input" min="0" max="41000" step="500" value="31000" title="클릭하여 고도를 직접 숫자로 입력">
                 <span class="unit-tag">FT</span>
               </div>
             </div>
-            <input type="range" id="altSlider" min="5000" max="39000" step="500" value="31000" class="cockpit-slider">
+            <input type="range" id="altSlider" min="0" max="41000" step="500" value="31000" class="cockpit-slider">
           </div>
 
           <div class="control-row">
@@ -873,6 +873,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=40"></script>
+  <script type="module" src="js/app.js?v=42"></script>
 </body>
 </html>

@@ -97,41 +97,69 @@ export function computeFlightPositionAlongRoute(originAirport, destAirport, prog
   const lat = originAirport.lat + (destAirport.lat - originAirport.lat) * t;
   const lng = originAirport.lng + (destAirport.lng - originAirport.lng) * t;
 
-  // Heading towards destination
-  const headingDeg = Math.round(calculateBearing(lat, lng, destAirport.lat, destAirport.lng));
+  // Heading towards destination (preserve route bearing when aircraft reaches destination)
+  const headingDeg = t >= 0.999
+    ? Math.round(calculateBearing(originAirport.lat, originAirport.lng, destAirport.lat, destAirport.lng))
+    : Math.round(calculateBearing(lat, lng, destAirport.lat, destAirport.lng));
 
   // Distance metrics
   const totalDistanceNM = Math.round(calculateDistanceNM(originAirport.lat, originAirport.lng, destAirport.lat, destAirport.lng));
   const distFromOriginNM = Math.round(totalDistanceNM * t);
   const distToDestNM = Math.round(totalDistanceNM * (1 - t));
 
-  // Flight Phase & Altitude profile simulation
-  let flightPhase = "CRUISE";
+  // Flight Phase & Altitude profile simulation (0% -> 0 FT, Climb -> Cruise -> Descent -> 100% -> 0 FT)
+  let flightPhase = "CRUISE (순항)";
   let suggestedAltFt = cruiseAltFt;
 
-  if (t < 0.20) {
+  if (t <= 0.001) {
+    flightPhase = "TAKEOFF (이륙 대기/지상 0 FT)";
+    suggestedAltFt = 0;
+  } else if (t < 0.25) {
     flightPhase = "CLIMB (상승)";
-    suggestedAltFt = Math.round(5000 + (cruiseAltFt - 5000) * (t / 0.20));
-  } else if (t > 0.80) {
-    flightPhase = "DESCENT (강하)";
-    suggestedAltFt = Math.round(cruiseAltFt - (cruiseAltFt - 4000) * ((t - 0.80) / 0.20));
-  } else {
+    suggestedAltFt = Math.round(cruiseAltFt * (t / 0.25));
+  } else if (t >= 0.25 && t <= 0.75) {
     flightPhase = "CRUISE (순항)";
     suggestedAltFt = cruiseAltFt;
+  } else if (t > 0.75 && t < 0.999) {
+    flightPhase = "DESCENT (강하)";
+    suggestedAltFt = Math.max(0, Math.round(cruiseAltFt * ((1 - t) / 0.25)));
+  } else {
+    flightPhase = "TOUCHDOWN (착륙 접지/지상 0 FT)";
+    suggestedAltFt = 0;
   }
 
-  // Speed & Fuel simulation along flight progress
+  // Speed simulation along flight progress
   let suggestedSpeedKts = 280;
-  if (t < 0.20) {
-    suggestedSpeedKts = Math.round(200 + (280 - 200) * (t / 0.20));
-  } else if (t > 0.75) {
-    suggestedSpeedKts = Math.round(280 - (280 - 190) * ((t - 0.75) / 0.25));
+  if (t <= 0.001) {
+    suggestedSpeedKts = 150;
+  } else if (t < 0.25) {
+    suggestedSpeedKts = Math.round(150 + (280 - 150) * (t / 0.25));
+  } else if (t >= 0.25 && t <= 0.75) {
+    suggestedSpeedKts = 280;
+  } else if (t > 0.75 && t < 0.999) {
+    suggestedSpeedKts = Math.round(280 - (280 - 150) * ((t - 0.75) / 0.25));
+  } else {
+    suggestedSpeedKts = 150;
   }
 
   // Realistic fuel burn along route: departure with approx 6,800kg, burning down with distance
   const baseFuel = Math.round(Math.min(14000, 3200 + totalDistanceNM * 14.0));
   const burnedKg = Math.round((baseFuel - 2200) * t);
   const suggestedFuelKg = Math.max(1200, baseFuel - burnedKg);
+
+  // Dynamic realistic wind simulation along route (shifts smoothly as aircraft moves across peninsula)
+  // Wind direction shifts from North/NW (320°) towards West (270°) and Southern sea (245°)
+  const windDirDeg = Math.round((320 - (t * 70) + (Math.sin(t * Math.PI) * 15) + 360) % 360);
+  // Altitude-dependent wind velocity (surface ~8-10 KT, upper flight level 32-40 KT)
+  const altFactor = Math.min(1.0, Math.max(0.0, suggestedAltFt / 33000));
+  const windSpeedKts = Math.round(10 + 26 * Math.pow(altFactor, 0.75));
+
+  // Calculate headwind/tailwind component along aircraft heading
+  // relAngle = angle difference between wind origin direction and aircraft heading
+  const relAngleRad = ((windDirDeg - headingDeg) * Math.PI) / 180;
+  // Negative = Headwind (맞바람), Positive = Tailwind (뒷바람)
+  let suggestedWindKts = Math.round(-Math.cos(relAngleRad) * windSpeedKts);
+  suggestedWindKts = Math.max(-35, Math.min(35, suggestedWindKts));
 
   return {
     lat: Number(lat.toFixed(4)),
@@ -141,6 +169,9 @@ export function computeFlightPositionAlongRoute(originAirport, destAirport, prog
     suggestedAltFt,
     suggestedSpeedKts,
     suggestedFuelKg,
+    suggestedWindKts,
+    suggestedWindDirDeg: windDirDeg,
+    suggestedWindSpeedKts: windSpeedKts,
     totalDistanceNM,
     distFromOriginNM,
     distToDestNM,
