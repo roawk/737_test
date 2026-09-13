@@ -222,7 +222,14 @@ function initFlightRouteControls() {
       if (progressSlider) progressSlider.value = Math.round(state.flightPlan.progress * 100);
     }
 
-    updateRouteUIElements(orig, dest);
+    const plannedCruise = state.flightPlan.plannedCruiseAltFt || 31000;
+    const posData = computeFlightPositionAlongRoute(orig, dest, state.flightPlan.progress, plannedCruise);
+    if (typeof posData.suggestedWindDirDeg === 'number') state.aircraft.windDirDeg = posData.suggestedWindDirDeg;
+    if (typeof posData.suggestedWindSpeedKts === 'number') state.aircraft.windSpeedKts = posData.suggestedWindSpeedKts;
+    if (typeof posData.suggestedWindKts === 'number') state.aircraft.windKts = posData.suggestedWindKts;
+    syncFlightControlsUI();
+
+    updateRouteUIElements(orig, dest, posData);
     recomputeAndRender();
   });
 }
