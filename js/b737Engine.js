@@ -208,7 +208,7 @@ export function calculateFlightCapabilities(altitudeFt, groundSpeedKts, fuelKg, 
     const fuelHours = fuelKg / 2500;
     remainingTimeMinutes = Math.min(130, Math.round(fuelHours * 60));
     const effectiveSpeed = Math.max(170, groundSpeedKts + windKts);
-    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.82 * 0.35);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.82 * 0.35 * 0.7);
     effectiveGlideRatio = 0;
     limitingFactor = "승객 화학 산소 발생기(Chemical O2) 유효 공급시간(약 14분) 한계";
   } else if (emergencyKey === "hydraulic_total_loss") {
