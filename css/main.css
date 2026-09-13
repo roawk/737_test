@@ -338,7 +338,7 @@ body.cockpit-theme {
 .cockpit-container {
   flex: 1;
   display: grid;
-  grid-template-columns: 320px 1fr 390px;
+  grid-template-columns: 320px 1fr 415px;
   gap: 10px;
   padding: 10px;
   overflow: hidden;
