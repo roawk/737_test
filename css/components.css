@@ -2436,9 +2436,10 @@
   border-bottom: 1px solid #eaf1f8;
 }
 
-.parts-table .col-pn {
-  width: 17%;
-  min-width: 110px;
+.parts-table th.col-pn,
+.parts-table td.col-pn {
+  width: 16% !important;
+  min-width: 105px !important;
 }
 
 .parts-table .col-pn .part-pn {
@@ -2447,7 +2448,7 @@
   font-size: 11px;
   font-weight: 700;
   display: block;
-  white-space: nowrap;
+  white-space: nowrap !important;
 }
 
 .parts-table .col-pn small {
@@ -2457,9 +2458,10 @@
   margin-top: 2px;
 }
 
-.parts-table .col-name {
-  width: 31%;
-  min-width: 180px;
+.parts-table th.col-name,
+.parts-table td.col-name {
+  width: 28% !important;
+  min-width: 170px !important;
 }
 
 .parts-table .col-name strong {
@@ -2479,15 +2481,18 @@
   word-break: keep-all;
 }
 
-.parts-table .col-urgency {
-  width: 12%;
-  min-width: 85px;
-  text-align: center;
+.parts-table th.col-urgency,
+.parts-table td.col-urgency {
+  width: 11% !important;
+  min-width: 75px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
 }
 
-.parts-table .col-action {
-  width: 22%;
-  min-width: 130px;
+.parts-table th.col-action,
+.parts-table td.col-action {
+  width: 21% !important;
+  min-width: 125px !important;
 }
 
 .parts-table .col-action .action-tag {
@@ -2499,24 +2504,33 @@
   word-break: keep-all;
 }
 
-.parts-table .col-cost {
-  width: 10%;
-  min-width: 75px;
-  text-align: right;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
+.parts-table th.col-cost,
+.parts-table td.col-cost {
+  width: 12% !important;
+  min-width: 80px !important;
+  text-align: right !important;
   white-space: nowrap !important;
 }
 
-.parts-table .col-time {
-  width: 8%;
-  min-width: 60px;
-  text-align: right;
+.parts-table td.col-cost {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
+}
+
+.parts-table th.col-time,
+.parts-table td.col-time {
+  width: 12% !important;
+  min-width: 85px !important;
+  text-align: right !important;
   white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+.parts-table td.col-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .urgency-pill {

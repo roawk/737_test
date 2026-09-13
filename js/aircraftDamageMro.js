@@ -1061,7 +1061,7 @@ export function updateDamageModalUI(emergencyKey) {
           </td>
           <td class="col-action"><span class="action-tag">${part.action}</span></td>
           <td class="col-cost text-amber">$${part.estCostUSD.toLocaleString()}</td>
-          <td class="col-time">${part.leadTimeHours} hrs</td>
+          <td class="col-time" style="white-space: nowrap;"><strong>${part.leadTimeHours} hrs</strong></td>
         </tr>
       `;
     }).join("");
