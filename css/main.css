@@ -396,10 +396,10 @@ body.cockpit-theme {
   position: absolute;
   bottom: 54px;
   right: 350px;
-  width: 450px;
+  width: 530px;
   max-width: calc(100% - 370px);
-  max-height: 520px;
-  background: rgba(255, 255, 255, 0.97);
+  max-height: 540px;
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid #0064d2;
@@ -529,12 +529,19 @@ body.cockpit-theme {
   color: #0064d2;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1360px) {
+  .tactical-tabs-card {
+    right: 345px;
+    width: 500px;
+  }
+}
+
+@media (max-width: 1200px) {
   .tactical-tabs-card {
     right: auto;
     left: 14px;
     max-width: calc(100% - 360px);
-    width: 410px;
+    width: 480px;
   }
 }
 
