@@ -195,7 +195,7 @@ export function calculateFlightCapabilities(altitudeFt, groundSpeedKts, fuelKg, 
     const fuelHours = fuelKg / fuelConsumptionPerHour;
     remainingTimeMinutes = Math.min(260, Math.round(fuelHours * 60));
     const effectiveCruiseSpeed = Math.max(160, groundSpeedKts + windKts);
-    maxGlideRangeNM = Math.round(fuelHours * effectiveCruiseSpeed * 0.88);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveCruiseSpeed * 0.88 * 0.7);
     effectiveGlideRatio = 0;
     limitingFactor = "단발 엔진 지속 순항 및 잔여 연료 소모율(1,750 kg/h) 한계";
   } else if (emergencyKey === "cargo_fire") {
@@ -208,14 +208,14 @@ export function calculateFlightCapabilities(altitudeFt, groundSpeedKts, fuelKg, 
     const fuelHours = fuelKg / 2500;
     remainingTimeMinutes = Math.min(130, Math.round(fuelHours * 60));
     const effectiveSpeed = Math.max(170, groundSpeedKts + windKts);
-    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.82);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.82 * 0.7);
     effectiveGlideRatio = 0;
     limitingFactor = "승객 화학 산소 발생기(Chemical O2) 유효 공급시간(약 14분) 한계";
   } else if (emergencyKey === "hydraulic_total_loss") {
     const fuelHours = fuelKg / 2350;
     remainingTimeMinutes = Math.min(95, Math.round(fuelHours * 60));
     const effectiveSpeed = Math.max(150, groundSpeedKts + windKts);
-    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.72);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveSpeed * 0.72 * 0.7);
     effectiveGlideRatio = 0;
     limitingFactor = "매뉴얼 리버전 수동 비행 조종 부하 및 브레이크 어큐뮬레이터 잔압 한계";
   }
