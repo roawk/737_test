@@ -2,6 +2,7 @@
 // Supports Origin/Destination Selection, Progress Interpolation, and Route Planning
 
 import { calculateDistanceNM, calculateBearing } from "./routeOptimizer.js";
+import { LANDING_SITES } from "./airTrafficSim.js";
 
 export const AIRPORTS_DIRECTORY = [
   { icao: "RKSS", iata: "GMP", name: "김포국제공항 (Gimpo)", city: "서울/김포", lat: 37.5583, lng: 126.7906 },
@@ -88,6 +89,28 @@ export function generatePlannedRouteWaypoints(originAirport, destAirport, steps 
   return waypoints;
 }
 
+export function interpolateBearing(dir1, dir2, frac) {
+  let diff = (dir2 - dir1) % 360;
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+  return Math.round((dir1 + diff * frac + 360) % 360);
+}
+
+export function getAirportMetarWind(icao) {
+  const site = LANDING_SITES.find(s => s.icao === icao);
+  if (site && site.weather && site.weather.wind) {
+    const match = site.weather.wind.match(/(\d{3})@(\d{1,2})kt/i);
+    if (match) {
+      return {
+        dirDeg: parseInt(match[1], 10),
+        speedKts: parseInt(match[2], 10),
+        raw: site.weather.wind
+      };
+    }
+  }
+  return { dirDeg: 310, speedKts: 10, raw: "310@10kt" };
+}
+
 /**
  * Interpolates flight status (position, heading, altitude) based on progress (0.0 to 1.0)
  */
@@ -157,19 +180,52 @@ export function computeFlightPositionAlongRoute(originAirport, destAirport, prog
   const burnedKg = Math.round((baseFuel - 2200) * t);
   const suggestedFuelKg = Math.max(1200, baseFuel - burnedKg);
 
-  // Dynamic realistic wind simulation along route (shifts smoothly as aircraft moves across peninsula)
-  // Wind direction shifts from North/NW (320°) towards West (270°) and Southern sea (245°)
-  const windDirDeg = Math.round((320 - (t * 70) + (Math.sin(t * Math.PI) * 15) + 360) % 360);
-  // Altitude-dependent wind velocity (surface ~8-10 KT, upper flight level 32-40 KT)
-  const altFactor = Math.min(1.0, Math.max(0.0, suggestedAltFt / 33000));
-  const windSpeedKts = Math.round(10 + 26 * Math.pow(altFactor, 0.75));
+  // Dynamic Route-Specific Wind Simulation:
+  // References Origin/Destination real airport METAR surface winds, regional jetstreams, and altitude layers
+  const depMetar = getAirportMetarWind(originAirport.icao);
+  const arrMetar = getAirportMetarWind(destAirport.icao);
 
-  // Calculate headwind/tailwind component along aircraft heading
+  // 1. Surface wind shifts smoothly between Departure METAR and Arrival METAR across progress t
+  const surfaceWindDirDeg = interpolateBearing(depMetar.dirDeg, arrMetar.dirDeg, t);
+  const surfaceWindSpeedKts = depMetar.speedKts + (arrMetar.speedKts - depMetar.speedKts) * t;
+
+  // 2. Regional En-route Upper Jetstream (FL240 - FL390) based on aircraft coordinates
+  let upperJetstreamDir = 275;
+  let upperJetstreamSpeed = 44;
+
+  if (lng > 129.2) {
+    // Eastern corridor toward Japan / East Sea (Kansai, Fukuoka, Tokyo): Strong Pacific westerly jet stream
+    upperJetstreamDir = 265;
+    upperJetstreamSpeed = 48;
+  } else if (lat > 37.0) {
+    // Northern / Capital / Gyeonggi Bay sector: Northwesterly upper stream
+    upperJetstreamDir = 295;
+    upperJetstreamSpeed = 38;
+  } else if (lat < 35.0) {
+    // Southern maritime corridor / Jeju Strait: Subtropical westerly jet
+    upperJetstreamDir = 260;
+    upperJetstreamSpeed = 36;
+  } else {
+    // Central inland corridor (Chungcheong / Yeongnam): Prevailing westerly jet
+    upperJetstreamDir = 275;
+    upperJetstreamSpeed = 44;
+  }
+
+  // 3. Altitude-dependent blending between Surface METAR and Upper Jetstream
+  // At 0 FT (ground level): 100% Surface METAR wind
+  // At Cruise Level (>= 28,000 FT): 100% Regional Upper Jetstream
+  const altFactor = Math.min(1.0, Math.max(0.0, suggestedAltFt / 28000));
+  const windDirDeg = interpolateBearing(surfaceWindDirDeg, upperJetstreamDir, altFactor);
+  const windSpeedKts = Math.round(
+    surfaceWindSpeedKts + (upperJetstreamSpeed - surfaceWindSpeedKts) * Math.pow(altFactor, 0.85)
+  );
+
+  // 4. Calculate headwind/tailwind component along current aircraft heading
   // relAngle = angle difference between wind origin direction and aircraft heading
   const relAngleRad = ((windDirDeg - headingDeg) * Math.PI) / 180;
   // Negative = Headwind (맞바람), Positive = Tailwind (뒷바람)
   let suggestedWindKts = Math.round(-Math.cos(relAngleRad) * windSpeedKts);
-  suggestedWindKts = Math.max(-35, Math.min(35, suggestedWindKts));
+  suggestedWindKts = Math.max(-60, Math.min(60, suggestedWindKts));
 
   return {
     lat: Number(lat.toFixed(4)),
