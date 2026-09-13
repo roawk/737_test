@@ -19,7 +19,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/main.css?v=28">
-  <link rel="stylesheet" href="css/components.css?v=23">
+  <link rel="stylesheet" href="css/components.css?v=24">
 </head>
 <body class="cockpit-theme">
 
@@ -481,17 +481,17 @@
         </div>
       </section>
 
-      <!-- Bottom Tab Container: Decision Rationale / QRH Checklist / Airspace Delay (Opens when 1순위, 2순위, 3순위 is clicked) -->
+      <!-- Bottom Tab Container: AI Selection Rationale / Emergency Checklist / Schedule & Costs -->
       <section class="panel-card tactical-tabs-card" id="tacticalTabsCard" style="display: none;">
         <div class="card-tabs">
           <div class="tabs-nav-group">
             <button class="tab-btn active" data-tab="rationaleTab">
               <i class="fa-solid fa-brain-circuit"></i>
-              <span>AI 판단 근거</span>
+              <span>AI 선택 이유</span>
             </button>
             <button class="tab-btn" data-tab="qrhTab">
               <i class="fa-solid fa-clipboard-list-check"></i>
-              <span>비상수칙 (QRH)</span>
+              <span>비상 수칙</span>
             </button>
             <button class="tab-btn" data-tab="trafficTab">
               <i class="fa-solid fa-clock-rotate-left"></i>
@@ -499,7 +499,6 @@
             </button>
           </div>
           <div class="tabs-extra-controls">
-            <span class="inspecting-route-pill" id="inspectingRoutePill">1순위 상세</span>
             <button class="close-tabs-btn" id="closeTacticalTabsBtn" title="상세 정보 창 닫기">
               <i class="fa-solid fa-xmark"></i> 닫기
             </button>
@@ -508,28 +507,10 @@
 
         <div class="card-content tab-content-area">
           
-          <!-- TAB 0: AI Decision Rationale (NEW) -->
+          <!-- TAB 0: AI Selection Rationale -->
           <div class="tab-pane active" id="rationaleTab">
-            <div class="rationale-header">
-              <div class="r-title-group">
-                <span class="r-badge">AI MULTI-CRITERIA EVALUATION</span>
-                <h4>1 · 2 · 3 순위 최적 항로 선정 근거 브리핑</h4>
-              </div>
-              <p class="r-desc">
-                <strong>원칙 1순위: 절대 안전 확보 (가중치 75%)</strong> ➔ 활주로 길이, ARFF 소방 10등급, 계기착륙(ILS), 도달 고도 여유<br/>
-                <strong>원칙 2순위: 스케줄 및 비용 낭비 최소화 (가중치 25%)</strong> ➔ 공항 대기편 딜레이 방지, 주변 통과기 우회 최소화, 정비창(MRO) 복구
-              </p>
-            </div>
-
-            <!-- Dynamic Rationale Comparison Cards for Rank 1, 2, 3 -->
             <div class="rationale-cards-list" id="rationaleCardsList">
               <!-- Dynamically rendered via JS -->
-            </div>
-
-            <!-- Comparative Matrix Table -->
-            <div class="rationale-matrix-wrap">
-              <h5>후보 공항별 안전성 및 운영 파급 종합 평가표</h5>
-              <div id="rationaleMatrixTable"></div>
             </div>
           </div>
 
@@ -744,6 +725,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=34"></script>
+  <script type="module" src="js/app.js?v=35"></script>
 </body>
 </html>

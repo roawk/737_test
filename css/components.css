@@ -1017,144 +1017,178 @@
   display: flex;
 }
 
-/* AI DECISION RATIONALE TAB (Bright Aero Theme) */
-.rationale-header {
-  border-bottom: 1px solid #e2ecf7;
-  padding-bottom: 10px;
+/* AI SELECTION RATIONALE VIEW */
+.ai-rationale-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.r-title-group {
+.ai-verdict-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2ecf7;
+}
+
+.ai-verdict-title-box {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.r-badge {
+.ai-verdict-badge {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 800;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
   background: #eaf3fd;
   color: #0064d2;
   border: 1px solid #b8d7fa;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.r-title-group h4 {
-  font-size: 13.5px;
+.ai-verdict-title-box h4 {
+  font-size: 14px;
   color: var(--boeing-navy);
   font-weight: 800;
+  margin: 0;
 }
 
-.r-desc {
-  font-size: 11.5px;
-  color: var(--text-body);
-  line-height: 1.5;
-  margin-top: 6px;
+.ai-verdict-score {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  background: #f0f7ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #d4e6fa;
+}
+
+.ai-score-val {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  color: #0064d2;
+}
+
+.ai-score-denom {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.ai-strategy-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   background: #f6faff;
-  padding: 8px 12px;
-  border-radius: 8px;
   border: 1px solid #dce8f5;
   border-left: 4px solid #0064d2;
+  border-radius: 8px;
+  padding: 8px 12px;
 }
 
-.rationale-cards-list {
+.ai-strategy-summary i {
+  color: #0064d2;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.ai-strategy-summary p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--boeing-navy);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.ai-reasons-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 9px;
 }
 
-.rationale-item-card {
+.ai-reason-card {
   background: #ffffff;
   border: 1px solid #dbe7f5;
-  border-radius: 10px;
-  padding: 10px 14px;
+  border-radius: 9px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-.rationale-item-card.rank1 { border-left: 4px solid #00b894; }
-.rationale-item-card.rank2 { border-left: 4px solid #0064d2; }
-.rationale-item-card.rank3 { border-left: 4px solid #e67e22; }
+.ai-reason-card.safety {
+  border-left: 4px solid #00b894;
+}
 
-.r-card-top {
+.ai-reason-card.efficiency {
+  border-left: 4px solid #0064d2;
+}
+
+.ai-reason-card-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #f0f4f9;
+  padding-bottom: 6px;
 }
 
-.r-card-rank-tag {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 800;
+.head-tag {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-size: 12px;
+  color: var(--boeing-navy);
 }
 
-.r-card-score-pill {
-  font-family: var(--font-mono);
+.head-tag i {
   font-size: 13px;
+}
+
+.score-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
   font-weight: 800;
 }
 
-.r-key-reasons {
+.ai-reason-items {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin-top: 2px;
+  gap: 7px;
 }
 
-.reason-bullet {
-  font-size: 11.5px;
-  color: var(--text-body);
+.ai-reason-item {
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-body);
   line-height: 1.45;
 }
 
-.reason-bullet i {
+.ai-reason-item i {
   font-size: 12px;
   margin-top: 2px;
+  width: 14px;
+  text-align: center;
 }
 
-.r-score-breakdown-bar {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  background: #f4f8fd;
-  padding: 6px 10px;
-  border-radius: 6px;
-  margin-top: 4px;
-}
-
-.bar-chunk span {
-  font-size: 9.5px;
-  color: var(--text-muted);
-  display: block;
-  font-weight: 600;
-}
-
-.bar-chunk strong {
-  font-family: var(--font-mono);
-  font-size: 12px;
-}
-
-.rationale-matrix-wrap {
-  margin-top: 10px;
-  border-top: 1px dashed #dce7f3;
-  padding-top: 10px;
-}
-
-.rationale-matrix-wrap h5 {
-  font-size: 12px;
+.ai-reason-item strong {
   color: var(--boeing-navy);
-  font-weight: 700;
-  margin-bottom: 6px;
+}
+
+.ai-reason-item.warning {
+  background: rgba(213, 0, 0, 0.05);
+  border-left: 3px solid #d50000;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
 /* 5. QRH & Checklists */

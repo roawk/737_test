@@ -943,21 +943,8 @@ function selectRoute(tag) {
     renderMaintenanceMatrix(currentRec.site);
     renderAirspaceAnalysis(currentRec);
 
-    // Update inspecting route pill badge
-    const rankNum = tag === "alpha" ? "1순위" : tag === "bravo" ? "2순위" : "3순위";
-    const pill = document.getElementById("inspectingRoutePill");
-    if (pill) {
-      pill.textContent = `${rankNum} ${currentRec.site.name} 상세`;
-      pill.className = `inspecting-route-pill ${tag}`;
-    }
-
-    // Highlight the selected rank in AI rationale cards list
-    document.querySelectorAll(".rationale-item-card").forEach(rc => {
-      const isTarget = (tag === 'alpha' && rc.classList.contains('rank1')) ||
-                       (tag === 'bravo' && rc.classList.contains('rank2')) ||
-                       (tag === 'charlie' && rc.classList.contains('rank3'));
-      rc.classList.toggle("highlighted-rank", isTarget);
-    });
+    // Re-render AI selection rationale for the selected airport
+    renderAIRationale(state.evaluationResult.topRecommendations[tag], state.emergencyKey, state.evaluationResult.capabilities);
 
     // Smooth scroll into view
     setTimeout(() => {
@@ -1156,7 +1143,7 @@ function renderRecommendationCards(recs) {
         </div>
       </div>
       <div class="route-details-trigger">
-        <span><i class="fa-solid fa-circle-info text-cyan"></i> 클릭하여 AI 판단 근거 & 비상수칙 보기</span>
+        <span><i class="fa-solid fa-circle-info text-cyan"></i> 클릭하여 AI 선택 이유 & 비상수칙 보기</span>
         <i class="fa-solid ${isSelected ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
       </div>
     `;
@@ -1179,120 +1166,133 @@ function renderRecommendationCards(recs) {
   }
 }
 
-function renderAIRationale(recs, emergencyKey, capabilities) {
+function renderAIRationale(activeRec, emergencyKey, capabilities) {
   const container = document.getElementById("rationaleCardsList");
   if (!container) return;
   container.innerHTML = "";
 
-  const ranks = [
-    { rankLabel: "1순위 추천", colorCode: "#00e676", cssClass: "rank1", rec: recs.alpha },
-    { rankLabel: "2순위 대안", colorCode: "#00d4ff", cssClass: "rank2", rec: recs.bravo },
-    { rankLabel: "3순위 비상", colorCode: "#ff9100", cssClass: "rank3", rec: recs.charlie }
-  ];
-
-  ranks.forEach(item => {
-    const rData = item.rec.data;
-    const site = rData.site;
-    const runwayMarginMeters = site.maxRunwayLength - capabilities.requiredRunwayMeters;
-    const marginClass = runwayMarginMeters >= 500 ? "text-green" : runwayMarginMeters >= 0 ? "text-cyan" : "text-red";
-
-    const card = document.createElement("div");
-    card.className = `rationale-item-card ${item.cssClass}`;
-
-    // Generate logical reasons
-    let reachabilityBullet = !rData.isReachable
-      ? `<div class="reason-bullet" style="background: rgba(213,0,0,0.06); border-left: 3px solid #d50000; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px;">
-           <i class="fa-solid fa-triangle-exclamation text-red"></i>
-           <span><strong class="text-red">[도달 마진 부족]</strong> 비상 활공 반경 대비 <strong>${Math.abs(rData.glideMarginNM)} NM</strong> 거리 부족 (안전 결손 감점 ${rData.safetyScore}점 적용)</span>
-         </div>`
-      : '';
-
-    let safetyBullet1 = `활주로 길이 <strong>${site.maxRunwayLength.toLocaleString()}m</strong> 보유 (요구 길이 ${capabilities.requiredRunwayMeters.toLocaleString()}m 대비 <span class="${marginClass}">${runwayMarginMeters >= 0 ? '+' : ''}${runwayMarginMeters}m</span> 여유 확보)`;
-    let safetyBullet2 = `소방 구조대 <strong>ARFF Cat ${site.arffCategory}</strong> 등급 배속 (비상 화재 진압 및 비상 탈출 골든타임 완비)`;
-    let safetyBullet3 = `계기 접근: <strong>${site.runways[0]?.ilsCat || 'VISUAL'}</strong> 지원, 기상 조건: <strong>${site.weather.conditions}</strong>`;
-    
-    let efficiencyBullet1 = `공항 대기편: <strong>${site.activeQueuedFlights}대</strong> (인천 28대 대비 공항 지상 마비 위험 최소화)`;
-    let efficiencyBullet2 = `주변 비행 통과기 간섭: <strong>${rData.trafficConflicts}대</strong>, 예상 네트워크 지연 손실: <strong>$${(rData.estimatedDisruptionCostUSD).toLocaleString()}</strong>`;
-    let efficiencyBullet3 = site.maintenanceHub 
-      ? `항공사 전용 정비 격납고(MRO Hub) 보유 ➔ 엔진/부품 교체 및 승객 대체편 수송 비용 수억 원 절감`
-      : `군/지방 비행장 ➔ 부품 출장 수송 및 페리 비행(Ferry Flight) 필요`;
-
-    card.innerHTML = `
-      <div class="r-card-top">
-        <div class="r-card-rank-tag" style="color: ${item.colorCode};">
-          <i class="fa-solid fa-trophy"></i>
-          <span>${item.rankLabel}: ${site.name} (${site.icao})</span>
-        </div>
-        <div class="r-card-score-pill">
-          <span style="color:${item.colorCode}; font-size:14px;">${rData.compositeScore}점</span>
-          <small style="color:var(--text-muted); font-size:9.5px;">/ 100</small>
-        </div>
-      </div>
-
-      <div class="r-key-reasons">
-        ${reachabilityBullet}
-        <div class="reason-bullet">
-          <i class="fa-solid fa-shield-check text-green"></i>
-          <span><strong>[안전성 근거 (75%)]</strong> ${safetyBullet1} / ${safetyBullet2} / ${safetyBullet3}</span>
-        </div>
-        <div class="reason-bullet">
-          <i class="fa-solid fa-coins text-amber"></i>
-          <span><strong>[스케줄/비용 근거 (25%)]</strong> ${efficiencyBullet1} / ${efficiencyBullet2} / ${efficiencyBullet3}</span>
-        </div>
-      </div>
-
-      <div class="r-score-breakdown-bar">
-        <div class="bar-chunk">
-          <span>안전성 평가 점수 (가중치 75%)</span>
-          <strong class="${rData.safetyScore < 0 ? 'text-red' : 'text-green'}">${rData.safetyScore} / 100 점</strong>
-        </div>
-        <div class="bar-chunk">
-          <span>스케줄/비용 절감 점수 (가중치 25%)</span>
-          <strong class="text-amber">${rData.efficiencyScore} / 100 점</strong>
-        </div>
-      </div>
-    `;
-
-    container.appendChild(card);
-  });
-
-  // Comparative Matrix Table
-  const tableContainer = document.getElementById("rationaleMatrixTable");
-  if (tableContainer) {
-    tableContainer.innerHTML = `
-      <table class="cockpit-table">
-        <thead>
-          <tr>
-            <th>순위</th>
-            <th>공항/착륙지</th>
-            <th>비행거리/ETE</th>
-            <th>활주로 길이</th>
-            <th>소방 등급</th>
-            <th>대기편/손실비용</th>
-            <th>정비 허브</th>
-            <th>종합 점수</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${ranks.map(r => {
-            const d = r.rec.data;
-            return `
-              <tr>
-                <td><strong style="color:${r.colorCode}">${r.rankLabel.split(' ')[0]}</strong></td>
-                <td><strong>${d.site.name}</strong> (${d.site.icao})</td>
-                <td>${d.distanceNM}NM / ${d.estimatedMinutes}분</td>
-                <td>${d.site.maxRunwayLength}m</td>
-                <td>ARFF Cat ${d.site.arffCategory}</td>
-                <td>${d.site.activeQueuedFlights}대 / $${(d.estimatedDisruptionCostUSD).toLocaleString()}</td>
-                <td>${d.site.maintenanceHub ? '<span class="text-green">보유 (Hub)</span>' : '<span class="text-muted">미보유</span>'}</td>
-                <td><strong style="color:${r.colorCode}; font-size:12px;">${d.compositeScore}점</strong></td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
-    `;
+  // If recommendations map (alpha, bravo, charlie) is passed, extract the current active route
+  let rec = activeRec;
+  if (rec && rec.alpha) {
+    rec = rec[state.activeRouteTag] || rec.alpha;
   }
+  if (!rec || !rec.data) return;
+
+  const rData = rec.data;
+  const site = rData.site;
+  const cap = capabilities || state.evaluationResult?.capabilities || { requiredRunwayMeters: 2190 };
+  const runwayMarginMeters = site.maxRunwayLength - cap.requiredRunwayMeters;
+  const marginClass = runwayMarginMeters >= 500 ? "text-green" : runwayMarginMeters >= 0 ? "text-cyan" : "text-red";
+
+  const card = document.createElement("div");
+  card.className = "ai-rationale-view";
+
+  let reachabilityBullet = !rData.isReachable
+    ? `<div class="ai-reason-item warning">
+         <i class="fa-solid fa-triangle-exclamation text-red"></i>
+         <div>
+           <strong class="text-red">활공 도달 주의 (거리 부족)</strong>
+           <span>비상 활공 반경 대비 <strong>${Math.abs(rData.glideMarginNM)} NM</strong> 부족 (안전 결손 감점 ${rData.safetyScore}점 적용)</span>
+         </div>
+       </div>`
+    : `<div class="ai-reason-item">
+         <i class="fa-solid fa-compass text-green"></i>
+         <div>
+           <strong>도달 고도 마진</strong>
+           <span>비상 활공 안전 반경 내 도달 여유 확보 (도달 여유: <strong>+${rData.glideMarginNM.toFixed(1)} NM</strong>)</span>
+         </div>
+       </div>`;
+
+  card.innerHTML = `
+    <div class="ai-verdict-header">
+      <div class="ai-verdict-title-box">
+        <span class="ai-verdict-badge"><i class="fa-solid fa-robot"></i> AI RECOMMENDATION</span>
+        <h4>${site.name} (${site.icao}) 선정 이유</h4>
+      </div>
+      <div class="ai-verdict-score">
+        <span class="ai-score-val">${rData.compositeScore}점</span>
+        <small class="ai-score-denom">/ 100</small>
+      </div>
+    </div>
+
+    <div class="ai-strategy-summary">
+      <i class="fa-solid fa-quote-left"></i>
+      <p>${rec.strategy || '최적의 안전 마진과 운영 연속성을 종합 평가하여 비상 착륙지로 선정되었습니다.'}</p>
+    </div>
+
+    <div class="ai-reasons-grid">
+      <!-- 1. Safety Criteria (75%) -->
+      <div class="ai-reason-card safety">
+        <div class="ai-reason-card-head">
+          <div class="head-tag">
+            <i class="fa-solid fa-shield-halved text-green"></i>
+            <strong>안전성 평가 근거 (가중치 75%)</strong>
+          </div>
+          <span class="score-tag ${rData.safetyScore < 0 ? 'text-red' : 'text-green'}">${rData.safetyScore} / 100점</span>
+        </div>
+        <div class="ai-reason-items">
+          <div class="ai-reason-item">
+            <i class="fa-solid fa-road text-cyan"></i>
+            <div>
+              <strong>활주로 길이 및 안전 마진</strong>
+              <span>길이 <strong>${site.maxRunwayLength.toLocaleString()}m</strong> 보유 (요구 길이 ${cap.requiredRunwayMeters.toLocaleString()}m 대비 <strong class="${marginClass}">${runwayMarginMeters >= 0 ? '+' : ''}${runwayMarginMeters}m</strong> 안전 여유 확보)</span>
+            </div>
+          </div>
+          <div class="ai-reason-item">
+            <i class="fa-solid fa-truck-medical text-amber"></i>
+            <div>
+              <strong>소방 구조대 (ARFF)</strong>
+              <span><strong>ARFF Cat ${site.arffCategory}</strong> 등급 배치 (비상 화재 진압 및 비상 탈출 골든타임 완비)</span>
+            </div>
+          </div>
+          <div class="ai-reason-item">
+            <i class="fa-solid fa-satellite-dish text-cyan"></i>
+            <div>
+              <strong>착륙 계기 접근 및 기상</strong>
+              <span><strong>${site.runways[0]?.ilsCat || 'VISUAL'}</strong> 정밀 계기접근 지원, 공항 기상: <strong>${site.weather.conditions}</strong></span>
+            </div>
+          </div>
+          ${reachabilityBullet}
+        </div>
+      </div>
+
+      <!-- 2. Schedule & Cost Criteria (25%) -->
+      <div class="ai-reason-card efficiency">
+        <div class="ai-reason-card-head">
+          <div class="head-tag">
+            <i class="fa-solid fa-clock-rotate-left text-amber"></i>
+            <strong>스케줄 및 비용 절감 근거 (가중치 25%)</strong>
+          </div>
+          <span class="score-tag text-amber">${rData.efficiencyScore} / 100점</span>
+        </div>
+        <div class="ai-reason-items">
+          <div class="ai-reason-item">
+            <i class="fa-solid fa-plane-arrival text-cyan"></i>
+            <div>
+              <strong>공항 지상 혼잡도</strong>
+              <span>공항 대기편 <strong>${site.activeQueuedFlights}대</strong> (인천 28대 대비 공항 지상 마비 및 연쇄 회항 위험 최소화)</span>
+            </div>
+          </div>
+          <div class="ai-reason-item">
+            <i class="fa-solid fa-route text-amber"></i>
+            <div>
+              <strong>공역 통과기 간섭 & 지연 손실</strong>
+              <span>주변 비행 통과기 간섭 <strong>${rData.trafficConflicts}대</strong>, 예상 네트워크 지연 손실: <strong>$${(rData.estimatedDisruptionCostUSD).toLocaleString()}</strong></span>
+            </div>
+          </div>
+          <div class="ai-reason-item">
+            <i class="fa-solid fa-wrench text-blue"></i>
+            <div>
+              <strong>정비(MRO) 및 후속 조치</strong>
+              <span>${site.maintenanceHub ? '항공사 전용 정비 격납고(MRO Hub) 보유 ➔ 신속한 엔진/부품 교체 및 승객 대체편 수송 비용 대폭 절감' : '군/지방 비행장 ➔ 부품 출장 수송 및 페리 비행(Ferry Flight) 필요'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(card);
 }
 
 function renderQRHChecklist() {
