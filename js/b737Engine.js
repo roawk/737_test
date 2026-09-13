@@ -195,7 +195,7 @@ export function calculateFlightCapabilities(altitudeFt, groundSpeedKts, fuelKg, 
     const fuelHours = fuelKg / fuelConsumptionPerHour;
     remainingTimeMinutes = Math.min(260, Math.round(fuelHours * 60));
     const effectiveCruiseSpeed = Math.max(160, groundSpeedKts + windKts);
-    maxGlideRangeNM = Math.round(fuelHours * effectiveCruiseSpeed * 0.88 * 0.35);
+    maxGlideRangeNM = Math.round(fuelHours * effectiveCruiseSpeed * 0.88 * 0.35 * 0.3);
     effectiveGlideRatio = 0;
     limitingFactor = "단발 엔진 지속 순항 및 잔여 연료 소모율(1,750 kg/h) 한계";
   } else if (emergencyKey === "cargo_fire") {
