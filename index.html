@@ -18,8 +18,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/main.css?v=28">
-  <link rel="stylesheet" href="css/components.css?v=24">
+  <link rel="stylesheet" href="css/main.css?v=29">
+  <link rel="stylesheet" href="css/components.css?v=25">
 </head>
 <body class="cockpit-theme">
 
@@ -327,6 +327,135 @@
       <!-- Leaflet Map Container -->
       <div id="airspaceMap" class="radar-map-view"></div>
 
+      <!-- Tactical Detail Tabs Popup (지도 하단, 항로 기상 팝업 좌측에 플로팅 팝업으로 위치) -->
+      <section class="panel-card tactical-tabs-card" id="tacticalTabsCard" style="display: none;">
+        <!-- Top Resizer Handle for Bottom-Anchored Popup -->
+        <div class="tactical-card-resizer top" id="tacticalCardResizer" title="위아래로 드래그하여 상세 창 크기 조절 (더블클릭: 기본/확대 토글)">
+          <div class="resizer-handle-pill">
+            <i class="fa-solid fa-up-down"></i>
+            <span>위 · 아래로 드래그하여 상세 창 높이 조절</span>
+            <i class="fa-solid fa-grip-lines"></i>
+          </div>
+        </div>
+
+        <div class="card-tabs">
+          <div class="tabs-nav-group">
+            <button class="tab-btn active" data-tab="rationaleTab">
+              <i class="fa-solid fa-brain-circuit"></i>
+              <span>AI 선택 이유</span>
+            </button>
+            <button class="tab-btn" data-tab="qrhTab">
+              <i class="fa-solid fa-clipboard-list-check"></i>
+              <span>비상 수칙</span>
+            </button>
+            <button class="tab-btn" data-tab="trafficTab">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>스케줄 / 비용</span>
+            </button>
+          </div>
+          <div class="tabs-extra-controls">
+            <button class="close-tabs-btn" id="closeTacticalTabsBtn" title="상세 정보 창 닫기">
+              <i class="fa-solid fa-xmark"></i> 닫기
+            </button>
+          </div>
+        </div>
+
+        <div class="card-content tab-content-area">
+          
+          <!-- TAB 0: AI Selection Rationale -->
+          <div class="tab-pane active" id="rationaleTab">
+            <div class="rationale-cards-list" id="rationaleCardsList">
+              <!-- Dynamically rendered via JS -->
+            </div>
+          </div>
+
+          <!-- TAB 1: QRH Checklist -->
+          <div class="tab-pane" id="qrhTab">
+            <div class="qrh-header">
+              <span class="qrh-badge">BOEING 737 QRH</span>
+              <h4 id="qrhTitle">ALL ENGINES FLAMEOUT</h4>
+            </div>
+            
+            <div class="qrh-section">
+              <div class="section-title text-red">
+                <i class="fa-solid fa-bolt"></i> 조종사 즉시 암기 조치 (Memory Items)
+              </div>
+              <div class="checklist-items" id="qrhMemoryItems">
+                <!-- Checklist injected dynamically -->
+              </div>
+            </div>
+
+            <div class="qrh-section">
+              <div class="section-title text-amber">
+                <i class="fa-solid fa-tower-broadcast"></i> 관제탑 (ATC) 비상 송신 가이드
+              </div>
+              <div class="atc-phrases" id="qrhAtcItems">
+                <!-- ATC communication lines injected -->
+              </div>
+            </div>
+
+            <div class="qrh-section">
+              <div class="section-title text-cyan">
+                <i class="fa-solid fa-plane-arrival"></i> 최종 착륙 진입 준비 (Landing Prep)
+              </div>
+              <div class="landing-preps" id="qrhLandingItems">
+                <!-- Landing prep lines injected -->
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: Airspace & Schedule Disruption Analyzer -->
+          <div class="tab-pane" id="trafficTab">
+            <div class="disruption-header">
+              <h4>공항 슬롯 및 주변 비행편 스케줄 영향 분석</h4>
+              <p>추천 착륙지 선택에 따른 지연 및 손실 비용 시뮬레이션</p>
+            </div>
+
+            <div class="impact-metrics-grid">
+              <div class="impact-metric-box">
+                <span class="m-label">선택 공항 대기 항공편</span>
+                <span class="m-val text-cyan" id="impactQueuedFlights">1 편</span>
+                <span class="m-sub">비상 착륙 시 지상 대기</span>
+              </div>
+              <div class="impact-metric-box">
+                <span class="m-label">주변 공역 우회 항공편</span>
+                <span class="m-val text-amber" id="impactReroutedFlights">1 대</span>
+                <span class="m-sub">비상 분리 최소 10NM 적용</span>
+              </div>
+              <div class="impact-metric-box">
+                <span class="m-label">예상 총 지연 시간 절감</span>
+                <span class="m-val text-green" id="impactSavedTime">약 420 분 절약</span>
+                <span class="m-sub">인천 대비 지연 극소화</span>
+              </div>
+              <div class="impact-metric-box">
+                <span class="m-label">경제적 파급 손실 비용</span>
+                <span class="m-val text-green" id="impactCostUSD">$12,000 USD</span>
+                <span class="m-sub">항공사 네트워크 파급 최소</span>
+              </div>
+            </div>
+
+            <div class="traffic-impact-table-wrap">
+              <h5>인근 비행 중인 항공편 현황 (Airborne Traffic)</h5>
+              <table class="cockpit-table" id="airborneTrafficTable">
+                <thead>
+                  <tr>
+                    <th>편명</th>
+                    <th>기종</th>
+                    <th>구간</th>
+                    <th>고도</th>
+                    <th>회피 영향</th>
+                  </tr>
+                </thead>
+                <tbody id="airborneTrafficTbody">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
       <!-- Floating Real-Time En-Route Weather HUD Popup (지도 우측 하단 팝업) -->
       <div class="weather-hud-popup" id="weatherHudPopup">
         <div class="weather-hud-header">
@@ -481,135 +610,6 @@
         </div>
       </section>
 
-      <!-- Bottom Tab Container: AI Selection Rationale / Emergency Checklist / Schedule & Costs -->
-      <section class="panel-card tactical-tabs-card" id="tacticalTabsCard" style="display: none;">
-        <div class="card-tabs">
-          <div class="tabs-nav-group">
-            <button class="tab-btn active" data-tab="rationaleTab">
-              <i class="fa-solid fa-brain-circuit"></i>
-              <span>AI 선택 이유</span>
-            </button>
-            <button class="tab-btn" data-tab="qrhTab">
-              <i class="fa-solid fa-clipboard-list-check"></i>
-              <span>비상 수칙</span>
-            </button>
-            <button class="tab-btn" data-tab="trafficTab">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-              <span>스케줄 / 비용</span>
-            </button>
-          </div>
-          <div class="tabs-extra-controls">
-            <button class="close-tabs-btn" id="closeTacticalTabsBtn" title="상세 정보 창 닫기">
-              <i class="fa-solid fa-xmark"></i> 닫기
-            </button>
-          </div>
-        </div>
-
-        <div class="card-content tab-content-area">
-          
-          <!-- TAB 0: AI Selection Rationale -->
-          <div class="tab-pane active" id="rationaleTab">
-            <div class="rationale-cards-list" id="rationaleCardsList">
-              <!-- Dynamically rendered via JS -->
-            </div>
-          </div>
-
-          <!-- TAB 1: QRH Checklist -->
-          <div class="tab-pane" id="qrhTab">
-            <div class="qrh-header">
-              <span class="qrh-badge">BOEING 737 QRH</span>
-              <h4 id="qrhTitle">ALL ENGINES FLAMEOUT</h4>
-            </div>
-            
-            <div class="qrh-section">
-              <div class="section-title text-red">
-                <i class="fa-solid fa-bolt"></i> 조종사 즉시 암기 조치 (Memory Items)
-              </div>
-              <div class="checklist-items" id="qrhMemoryItems">
-                <!-- Checklist injected dynamically -->
-              </div>
-            </div>
-
-            <div class="qrh-section">
-              <div class="section-title text-amber">
-                <i class="fa-solid fa-tower-broadcast"></i> 관제탑 (ATC) 비상 송신 가이드
-              </div>
-              <div class="atc-phrases" id="qrhAtcItems">
-                <!-- ATC communication lines injected -->
-              </div>
-            </div>
-
-            <div class="qrh-section">
-              <div class="section-title text-cyan">
-                <i class="fa-solid fa-plane-arrival"></i> 최종 착륙 진입 준비 (Landing Prep)
-              </div>
-              <div class="landing-preps" id="qrhLandingItems">
-                <!-- Landing prep lines injected -->
-              </div>
-            </div>
-          </div>
-
-
-          <!-- TAB 3: Airspace & Schedule Disruption Analyzer -->
-          <div class="tab-pane" id="trafficTab">
-            <div class="disruption-header">
-              <h4>공항 슬롯 및 주변 비행편 스케줄 영향 분석</h4>
-              <p>추천 착륙지 선택에 따른 지연 및 손실 비용 시뮬레이션</p>
-            </div>
-
-            <div class="impact-metrics-grid">
-              <div class="impact-metric-box">
-                <span class="m-label">선택 공항 대기 항공편</span>
-                <span class="m-val text-cyan" id="impactQueuedFlights">1 편</span>
-                <span class="m-sub">비상 착륙 시 지상 대기</span>
-              </div>
-              <div class="impact-metric-box">
-                <span class="m-label">주변 공역 우회 항공편</span>
-                <span class="m-val text-amber" id="impactReroutedFlights">1 대</span>
-                <span class="m-sub">비상 분리 최소 10NM 적용</span>
-              </div>
-              <div class="impact-metric-box">
-                <span class="m-label">예상 총 지연 시간 절감</span>
-                <span class="m-val text-green" id="impactSavedTime">약 420 분 절약</span>
-                <span class="m-sub">인천 대비 지연 극소화</span>
-              </div>
-              <div class="impact-metric-box">
-                <span class="m-label">경제적 파급 손실 비용</span>
-                <span class="m-val text-green" id="impactCostUSD">$12,000 USD</span>
-                <span class="m-sub">항공사 네트워크 파급 최소</span>
-              </div>
-            </div>
-
-            <div class="traffic-impact-table-wrap">
-              <h5>인근 비행 중인 항공편 현황 (Airborne Traffic)</h5>
-              <table class="cockpit-table" id="airborneTrafficTable">
-                <thead>
-                  <tr>
-                    <th>편명</th>
-                    <th>기종</th>
-                    <th>구간</th>
-                    <th>고도</th>
-                    <th>회피 영향</th>
-                  </tr>
-                </thead>
-                <tbody id="airborneTrafficTbody">
-                  <!-- Injected via JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-        <!-- Resizer Handle for dragging height up/down -->
-        <div class="tactical-card-resizer" id="tacticalCardResizer" title="위아래로 드래그하여 상세 창 크기 조절 (더블클릭: 기본/확대 토글)">
-          <div class="resizer-handle-pill">
-            <i class="fa-solid fa-up-down"></i>
-            <span>위 · 아래로 드래그하여 상세 창 높이 조절</span>
-            <i class="fa-solid fa-grip-lines"></i>
-          </div>
-        </div>
-      </section>
-
     </aside>
 
   </main>
@@ -725,6 +725,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=35"></script>
+  <script type="module" src="js/app.js?v=36"></script>
 </body>
 </html>

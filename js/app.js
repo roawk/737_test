@@ -681,8 +681,9 @@ function initTacticalCardResizer() {
   window.addEventListener("mousemove", (e) => {
     if (!isResizing) return;
     const dy = e.pageY - startY;
-    const newCardHeight = Math.min(750, Math.max(180, startCardHeight + dy));
-    const newContentHeight = Math.max(110, startContentHeight + dy);
+    // Popup is anchored at bottom: 54px with resizer at top, so dragging UP (dy < 0) increases height
+    const newCardHeight = Math.min(680, Math.max(220, startCardHeight - dy));
+    const newContentHeight = Math.max(120, startContentHeight - dy);
     
     tabsCard.style.maxHeight = `${newCardHeight}px`;
     tabsCard.style.height = `${newCardHeight}px`;
@@ -714,8 +715,8 @@ function initTacticalCardResizer() {
   window.addEventListener("touchmove", (e) => {
     if (!isResizing || e.touches.length !== 1) return;
     const dy = e.touches[0].pageY - startY;
-    const newCardHeight = Math.min(750, Math.max(180, startCardHeight + dy));
-    const newContentHeight = Math.max(110, startContentHeight + dy);
+    const newCardHeight = Math.min(680, Math.max(220, startCardHeight - dy));
+    const newContentHeight = Math.max(120, startContentHeight - dy);
     
     tabsCard.style.maxHeight = `${newCardHeight}px`;
     tabsCard.style.height = `${newCardHeight}px`;
@@ -730,11 +731,11 @@ function initTacticalCardResizer() {
     }
   });
 
-  // Double click toggles between compact (380px) and expanded (620px)
+  // Double click toggles between compact (420px) and expanded (600px)
   resizer.addEventListener("dblclick", () => {
     const curH = tabsCard.getBoundingClientRect().height;
-    const targetH = curH > 480 ? 380 : 620;
-    const targetContentH = targetH - 65;
+    const targetH = curH > 480 ? 420 : 600;
+    const targetContentH = targetH - 75;
 
     tabsCard.style.maxHeight = `${targetH}px`;
     tabsCard.style.height = `${targetH}px`;
@@ -912,13 +913,8 @@ function selectRoute(tag) {
   state.detailsVisible = true;
   playEmergencyChime();
 
-  // Find the clicked route card:
-  // 1순위 클릭 -> 1순위와 2순위 사이에 배치 (clickedCard.after(tabsCard))
-  // 2순위 클릭 -> 2순위와 3순위 사이에 배치 (clickedCard.after(tabsCard))
-  // 3순위 클릭 -> 3순위 아래(기존 위치)에 배치 (clickedCard.after(tabsCard))
-  const clickedCard = document.querySelector(`.route-card[data-tag="${tag}"]`);
-  if (tabsCard && clickedCard) {
-    clickedCard.after(tabsCard);
+  // Show floating popup on the map (located to the left of the weather HUD)
+  if (tabsCard) {
     tabsCard.style.display = "flex";
     tabsCard.classList.add("visible");
   }
@@ -945,11 +941,6 @@ function selectRoute(tag) {
 
     // Re-render AI selection rationale for the selected airport
     renderAIRationale(state.evaluationResult.topRecommendations[tag], state.emergencyKey, state.evaluationResult.capabilities);
-
-    // Smooth scroll into view
-    setTimeout(() => {
-      tabsCard?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 60);
   }
 }
 
@@ -1055,14 +1046,6 @@ function recomputeAndRender() {
 
 function renderRecommendationCards(recs) {
   const container = document.getElementById("routesContainer");
-  const tabsCard = document.getElementById("tacticalTabsCard");
-
-  // Safeguard: temporarily move tabsCard outside container before container.innerHTML = ""
-  if (tabsCard && tabsCard.parentElement === container) {
-    const rightPanel = document.querySelector(".right-panel");
-    if (rightPanel) rightPanel.appendChild(tabsCard);
-  }
-
   container.innerHTML = "";
 
   const routeList = [
@@ -1154,16 +1137,6 @@ function renderRecommendationCards(recs) {
 
     container.appendChild(card);
   });
-
-  // If details are visible, position tabsCard directly under the active card
-  if (state.detailsVisible && tabsCard) {
-    const activeCard = container.querySelector(`.route-card[data-tag="${state.activeRouteTag}"]`);
-    if (activeCard) {
-      activeCard.after(tabsCard);
-      tabsCard.style.display = "flex";
-      tabsCard.classList.add("visible");
-    }
-  }
 }
 
 function renderAIRationale(activeRec, emergencyKey, capabilities) {
