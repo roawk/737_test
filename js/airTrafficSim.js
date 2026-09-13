@@ -348,284 +348,243 @@ export const LANDING_SITES = [
 import { calculateDistanceNM } from "./routeOptimizer.js";
 
 // Comprehensive catalog of commercial flights in Korean airspace
+// Comprehensive catalog of commercial flights in Korean / East Asian airspace
+// Rich variety across Domestic FSC, LCC, and International carriers
 export const AIRBORNE_FLEET_CATALOG = [
-  {
-    callsign: "KAL721",
-    airline: "대한항공",
-    aircraft: "B777-300ER",
-    origin: "ICN",
-    dest: "SIN (싱가포르)",
-    baseLat: 37.04,
-    baseLng: 126.18,
-    heading: 155,
-    speedKts: 460,
-    cruiseAltFt: 30000,
-    passengers: 290,
-    vSpeedFpm: -100
-  },
-  {
-    callsign: "AAR102",
-    airline: "아시아나",
-    aircraft: "A321neo",
-    origin: "CJU",
-    dest: "GMP (김포)",
-    baseLat: 36.42,
-    baseLng: 126.55,
-    heading: 345,
-    speedKts: 380,
-    cruiseAltFt: 26000,
-    passengers: 180,
-    vSpeedFpm: 0
-  },
-  {
-    callsign: "TWB204",
-    airline: "티웨이",
-    aircraft: "B737-MAX8",
-    origin: "GMP",
-    dest: "CJU (제주)",
-    baseLat: 36.72,
-    baseLng: 126.48,
-    heading: 195,
-    speedKts: 330,
-    cruiseAltFt: 25000,
-    passengers: 186,
-    vSpeedFpm: -300
-  },
-  {
-    callsign: "JNA415",
-    airline: "진에어",
-    aircraft: "B737-800",
-    origin: "PUS",
-    dest: "ICN (인천)",
-    baseLat: 36.35,
-    baseLng: 127.10,
-    heading: 330,
-    speedKts: 340,
-    cruiseAltFt: 18000,
-    passengers: 189,
-    vSpeedFpm: 200
-  },
-  {
-    callsign: "CPA469",
-    airline: "캐세이퍼시픽",
-    aircraft: "A350-900",
-    origin: "ICN",
-    dest: "HKG (홍콩)",
-    baseLat: 37.35,
-    baseLng: 125.90,
-    heading: 205,
-    speedKts: 480,
-    cruiseAltFt: 38000,
-    passengers: 310,
-    vSpeedFpm: 0
-  },
-  {
-    callsign: "BX8812",
-    airline: "에어부산",
-    aircraft: "A321-200",
-    origin: "GMP",
-    dest: "PUS (부산)",
-    baseLat: 36.65,
-    baseLng: 127.45,
-    heading: 140,
-    speedKts: 360,
-    cruiseAltFt: 24000,
-    passengers: 195,
-    vSpeedFpm: 0
-  },
-  {
-    callsign: "KAL1235",
-    airline: "대한항공",
-    aircraft: "A220-300",
-    origin: "RSU (여수)",
-    dest: "GMP (김포)",
-    baseLat: 35.80,
-    baseLng: 126.90,
-    heading: 355,
-    speedKts: 320,
-    cruiseAltFt: 19000,
-    passengers: 128,
-    vSpeedFpm: 150
-  },
-  {
-    callsign: "OZ114",
-    airline: "아시아나",
-    aircraft: "A330-300",
-    origin: "ICN",
-    dest: "KIX (오사카)",
-    baseLat: 36.95,
-    baseLng: 127.80,
-    heading: 115,
-    speedKts: 470,
-    cruiseAltFt: 33000,
-    passengers: 290,
-    vSpeedFpm: 0
-  },
-  {
-    callsign: "ZE511",
-    airline: "이스타",
-    aircraft: "B737-800",
-    origin: "CJU",
-    dest: "CJJ (청주)",
-    baseLat: 35.60,
-    baseLng: 127.15,
-    heading: 15,
-    speedKts: 340,
-    cruiseAltFt: 22000,
-    passengers: 189,
-    vSpeedFpm: -150
-  },
-  {
-    callsign: "DL198",
-    airline: "델타항공",
-    aircraft: "A350-900",
-    origin: "SEA",
-    dest: "ICN (인천)",
-    baseLat: 37.60,
-    baseLng: 127.30,
-    heading: 265,
-    speedKts: 410,
-    cruiseAltFt: 28000,
-    passengers: 306,
-    vSpeedFpm: -500
-  },
-  {
-    callsign: "JAL954",
-    airline: "일본항공",
-    aircraft: "B787-8",
-    origin: "NRT",
-    dest: "PUS (부산)",
-    baseLat: 35.15,
-    baseLng: 129.50,
-    heading: 250,
-    speedKts: 420,
-    cruiseAltFt: 27000,
-    passengers: 186,
-    vSpeedFpm: -400
-  },
-  {
-    callsign: "ANA865",
-    airline: "전일본공수",
-    aircraft: "B787-9",
-    origin: "HND",
-    dest: "GMP (김포)",
-    baseLat: 37.10,
-    baseLng: 128.20,
-    heading: 285,
-    speedKts: 450,
-    cruiseAltFt: 34000,
-    passengers: 246,
-    vSpeedFpm: -200
-  }
+  // 1. Domestic FSC (대형 항공사)
+  { callsign: "KAL721", airline: "대한항공", aircraft: "B777-300ER", origin: "ICN", dest: "SIN (싱가포르)", baseSpeedKts: 460, passengers: 290 },
+  { callsign: "KAL1235", airline: "대한항공", aircraft: "A220-300", origin: "RSU", dest: "GMP (김포)", baseSpeedKts: 320, passengers: 128 },
+  { callsign: "KAL085", airline: "대한항공", aircraft: "B747-8F", origin: "ICN", dest: "ANC (앵커리지)", baseSpeedKts: 480, passengers: 4 },
+  { callsign: "AAR102", airline: "아시아나", aircraft: "A321neo", origin: "CJU", dest: "GMP (김포)", baseSpeedKts: 380, passengers: 180 },
+  { callsign: "OZ114", airline: "아시아나", aircraft: "A330-300", origin: "ICN", dest: "KIX (오사카)", baseSpeedKts: 450, passengers: 290 },
+  { callsign: "AAR731", airline: "아시아나", aircraft: "A350-900", origin: "ICN", dest: "HAN (하노이)", baseSpeedKts: 470, passengers: 311 },
+
+  // 2. Domestic LCC (저비용 항공사)
+  { callsign: "JJA127", airline: "제주항공", aircraft: "B737-800", origin: "GMP", dest: "CJU (제주)", baseSpeedKts: 340, passengers: 189 },
+  { callsign: "JJA305", airline: "제주항공", aircraft: "B737-MAX8", origin: "ICN", dest: "FUK (후쿠오카)", baseSpeedKts: 350, passengers: 186 },
+  { callsign: "JNA415", airline: "진에어", aircraft: "B737-800", origin: "PUS", dest: "ICN (인천)", baseSpeedKts: 340, passengers: 189 },
+  { callsign: "JNA102", airline: "진에어", aircraft: "B777-200ER", origin: "ICN", dest: "CJU (제주)", baseSpeedKts: 410, passengers: 393 },
+  { callsign: "TWB204", airline: "티웨이", aircraft: "B737-MAX8", origin: "GMP", dest: "CJU (제주)", baseSpeedKts: 330, passengers: 186 },
+  { callsign: "TWB701", airline: "티웨이", aircraft: "A330-300", origin: "ICN", dest: "SYD (시드니)", baseSpeedKts: 460, passengers: 347 },
+  { callsign: "ABL8812", airline: "에어부산", aircraft: "A321-200", origin: "GMP", dest: "PUS (부산)", baseSpeedKts: 360, passengers: 195 },
+  { callsign: "ABL8123", airline: "에어부산", aircraft: "A321neo", origin: "CJU", dest: "GMP (김포)", baseSpeedKts: 370, passengers: 220 },
+  { callsign: "EOK211", airline: "에어로케이", aircraft: "A320-200", origin: "CJJ", dest: "NRT (도쿄)", baseSpeedKts: 350, passengers: 180 },
+  { callsign: "ESR511", airline: "이스타", aircraft: "B737-800", origin: "CJU", dest: "CJJ (청주)", baseSpeedKts: 340, passengers: 189 },
+  { callsign: "ASV705", airline: "에어서울", aircraft: "A321-200", origin: "ICN", dest: "TAK (다카마쓰)", baseSpeedKts: 360, passengers: 195 },
+  { callsign: "APZ101", airline: "에어프레미아", aircraft: "B787-9", origin: "ICN", dest: "LAX (로스앤젤레스)", baseSpeedKts: 470, passengers: 309 },
+
+  // 3. International Carriers (외항사)
+  { callsign: "CPA469", airline: "캐세이퍼시픽", aircraft: "A350-900", origin: "ICN", dest: "HKG (홍콩)", baseSpeedKts: 480, passengers: 310 },
+  { callsign: "DAL198", airline: "델타항공", aircraft: "A350-900", origin: "SEA", dest: "ICN (인천)", baseSpeedKts: 440, passengers: 306 },
+  { callsign: "SIA601", airline: "싱가포르항공", aircraft: "B787-10", origin: "ICN", dest: "SIN (싱가포르)", baseSpeedKts: 470, passengers: 337 },
+  { callsign: "JAL954", airline: "일본항공", aircraft: "B787-8", origin: "NRT", dest: "PUS (부산)", baseSpeedKts: 420, passengers: 186 },
+  { callsign: "ANA865", airline: "전일본공수", aircraft: "B787-9", origin: "HND", dest: "GMP (김포)", baseSpeedKts: 450, passengers: 246 },
+  { callsign: "DLH718", airline: "루프트한자", aircraft: "A350-900", origin: "MUC", dest: "ICN (인천)", baseSpeedKts: 460, passengers: 293 },
+  { callsign: "UAE342", airline: "에미레이트", aircraft: "A380-800", origin: "DXB", dest: "ICN (인천)", baseSpeedKts: 490, passengers: 516 },
+  { callsign: "HVN415", airline: "베트남항공", aircraft: "A321neo", origin: "SGN", dest: "ICN (인천)", baseSpeedKts: 390, passengers: 184 },
+  { callsign: "CAL160", airline: "중화항공", aircraft: "A330-300", origin: "TPE", dest: "ICN (인천)", baseSpeedKts: 430, passengers: 307 },
+  { callsign: "EVA891", airline: "에바항공", aircraft: "B787-9", origin: "TPE", dest: "ICN (인천)", baseSpeedKts: 450, passengers: 304 },
+  { callsign: "UAL893", airline: "유나이티드", aircraft: "B777-200ER", origin: "SFO", dest: "ICN (인천)", baseSpeedKts: 470, passengers: 276 },
+  { callsign: "QFA87", airline: "콴타스", aircraft: "A330-300", origin: "SYD", dest: "ICN (인천)", baseSpeedKts: 460, passengers: 297 }
 ];
 
-// Runtime dynamic simulation state initialized once per session
-let simStartTime = Date.now();
+// Runtime dynamic simulation session state
+let trafficSession = {
+  lastCenterLat: null,
+  lastCenterLng: null,
+  lastAltFt: null,
+  lastUpdateTimestamp: Date.now(),
+  activePlanes: []
+};
 
 /**
- * Generates neighboring airborne traffic dynamically based on time and current aircraft state.
- * Positions and altitudes move continuously along their headings.
- * Evaluates real-time conflict risk (Danger / Caution / Safe) relative to emergency position.
+ * Resets traffic session to force generation of a fresh non-overlapping batch
+ */
+export function resetTrafficSession() {
+  trafficSession.activePlanes = [];
+  trafficSession.lastCenterLat = null;
+  trafficSession.lastCenterLng = null;
+}
+
+/**
+ * Generates neighboring airborne traffic dynamically.
+ * Strict user constraints:
+ * - Danger (Red): Exactly 1 aircraft
+ * - Caution (Yellow): 1 or 2 aircraft (randomized)
+ * - Safe (Green): 1 to 3 aircraft (randomized)
+ * - Anti-overlap: Radial sector partitioning ensures minimum pairwise distance >= 15 NM.
+ * - Anti-repetition: Distinct airlines for every selected flight in the active batch.
  */
 export function generateSurroundingAirTraffic(emergencyPos = { lat: 36.88, lng: 126.32 }, currentAltFt = 31000) {
-  const eLat = typeof emergencyPos.lat === 'number' ? emergencyPos.lat : 36.88;
-  const eLng = typeof emergencyPos.lng === 'number' ? emergencyPos.lng : 126.32;
-  const alt = typeof currentAltFt === 'number' ? currentAltFt : 31000;
+  const eLat = typeof emergencyPos.lat === 'number' ? emergencyPos.lat : (emergencyPos.aircraft?.lat || 36.88);
+  const eLng = typeof emergencyPos.lng === 'number' ? emergencyPos.lng : (emergencyPos.aircraft?.lng || 126.32);
+  const alt = typeof currentAltFt === 'number' ? currentAltFt : (emergencyPos.altitudeFt || 31000);
 
-  // Elapsed simulation time in seconds
-  const elapsedSec = (Date.now() - simStartTime) / 1000;
+  const now = Date.now();
+  const needsInit = trafficSession.activePlanes.length === 0;
+  const distFromLast = trafficSession.lastCenterLat !== null
+    ? calculateDistanceNM(trafficSession.lastCenterLat, trafficSession.lastCenterLng, eLat, eLng)
+    : 999;
 
-  // Update real-time position of all aircraft in the catalog
-  const evaluatedTraffic = AIRBORNE_FLEET_CATALOG.map((craft, idx) => {
-    // Ground speed in NM/second (e.g. 400 kts = 0.111 NM/s)
-    const speedNMperSec = (craft.speedKts / 3600);
-    // Distance traveled along heading with periodic looping so planes stay in active airspace (loop every 20-30 min)
-    const distanceTraveledNM = (speedNMperSec * elapsedSec) % 70;
-
-    // Heading in radians
-    const headingRad = (craft.heading * Math.PI) / 180;
-    const dLat = (distanceTraveledNM * Math.cos(headingRad)) / 60;
-    const dLng = (distanceTraveledNM * Math.sin(headingRad)) / (60 * Math.cos((craft.baseLat * Math.PI) / 180));
-
-    const curLat = Number((craft.baseLat + dLat).toFixed(4));
-    const curLng = Number((craft.baseLng + dLng).toFixed(4));
-
-    // Dynamic altitude fluctuation with micro turbulence (+-300ft)
-    const altDrift = Math.sin((elapsedSec + idx * 25) / 15) * 280;
-    const curAltFt = Math.max(4000, Math.round(craft.cruiseAltFt + altDrift));
-
-    // Distance to our emergency aircraft in Nautical Miles
-    const distToEmergencyNM = calculateDistanceNM(eLat, eLng, curLat, curLng);
-    const altDiffFt = Math.abs(curAltFt - alt);
-
-    // Dynamic Conflict Risk Evaluation
-    let riskTier = "safe";
-    let color = "#00e676";
-    let isConflictRisk = false;
-    let riskText = "충분한 수평/수직 안전 간격 확보 (안전 통과)";
-    let estDelayMin = 6;
-    let fuelPenaltyKg = 380;
-
-    if (distToEmergencyNM < 16 && altDiffFt < 2500) {
-      // Direct collision / trajectory conflict risk!
-      riskTier = "danger";
-      color = "#ff1744";
-      isConflictRisk = true;
-      riskText = `비상기 강하선 인접 통과 중 (${distToEmergencyNM.toFixed(1)} NM / 고도차 ${altDiffFt}ft - 긴급 분리 요망)`;
-      estDelayMin = 18;
-      fuelPenaltyKg = 1400;
-    } else if (distToEmergencyNM < 28 && altDiffFt < 4500) {
-      // Potential conflict zone - monitoring required
-      riskTier = "caution";
-      color = "#ffaa00";
-      isConflictRisk = false;
-      riskText = `인접 항로 섹터 근접 (${distToEmergencyNM.toFixed(1)} NM / 주의 관제 모니터링)`;
-      estDelayMin = 12;
-      fuelPenaltyKg = 620;
-    } else if (distToEmergencyNM < 45) {
-      riskTier = "safe";
-      color = "#00e676";
-      isConflictRisk = false;
-      riskText = `안전 분리 간격 유지 중 (${distToEmergencyNM.toFixed(1)} NM)`;
-      estDelayMin = 8;
-      fuelPenaltyKg = 450;
-    }
-
-    return {
-      callsign: craft.callsign,
-      airline: craft.airline,
-      aircraft: craft.aircraft,
-      origin: craft.origin,
-      dest: craft.dest,
-      lat: curLat,
-      lng: curLng,
-      altFt: curAltFt,
-      heading: craft.heading,
-      speedKts: craft.speedKts,
-      passengers: craft.passengers,
-      distToEmergencyNM: Number(distToEmergencyNM.toFixed(1)),
-      altDiffFt,
-      riskTier,
-      color,
-      isConflictRisk,
-      riskText,
-      estimatedDelayMinIfRerouted: estDelayMin,
-      fuelBurnPenaltyKg: fuelPenaltyKg
-    };
+  // Check if any aircraft has drifted too far away (> 55 NM)
+  const hasDriftedTooFar = trafficSession.activePlanes.some(p => {
+    return calculateDistanceNM(eLat, eLng, p.lat, p.lng) > 55;
   });
 
-  // Sort by proximity to emergency aircraft so the most critical aircraft appear at the top
-  evaluatedTraffic.sort((a, b) => {
-    // Danger first, then caution, then closest distance
-    const rank = { danger: 0, caution: 1, safe: 2 };
-    if (rank[a.riskTier] !== rank[b.riskTier]) {
-      return rank[a.riskTier] - rank[b.riskTier];
+  // Regenerate if initial, or if emergency aircraft moved noticeably (> 7 NM), or out-of-bounds drift
+  if (needsInit || distFromLast > 7 || hasDriftedTooFar) {
+    trafficSession.lastCenterLat = eLat;
+    trafficSession.lastCenterLng = eLng;
+    trafficSession.lastAltFt = alt;
+    trafficSession.lastUpdateTimestamp = now;
+
+    // 1. Determine Tier Counts strictly according to user prompt:
+    const dangerCount = 1; // 빨간색: 무조건 1개
+    const cautionCount = Math.random() < 0.5 ? 1 : 2; // 노란색: 1개 또는 2개
+    const safeCount = 1 + Math.floor(Math.random() * 3); // 초록색: 1~3개 (1, 2, 3)
+    const totalCount = dangerCount + cautionCount + safeCount; // 3 ~ 6대
+
+    // 2. Select diverse aircraft ensuring UNIQUE airlines (no duplicate airlines)
+    const shuffledCatalog = [...AIRBORNE_FLEET_CATALOG].sort(() => Math.random() - 0.5);
+    const selectedCrafts = [];
+    const usedAirlines = new Set();
+
+    for (const craft of shuffledCatalog) {
+      if (!usedAirlines.has(craft.airline)) {
+        usedAirlines.add(craft.airline);
+        selectedCrafts.push(craft);
+        if (selectedCrafts.length === totalCount) break;
+      }
+    }
+
+    // 3. Radial Sector Partitioning (Spatial Anti-Overlap)
+    // Distribute planes around a 360-degree circle so they NEVER overlap visually
+    const baseAngle = Math.random() * 360;
+    const sectorAngle = 360 / totalCount;
+    const newPlanes = [];
+
+    for (let i = 0; i < totalCount; i++) {
+      const craft = selectedCrafts[i] || shuffledCatalog[i % shuffledCatalog.length];
+      let tier = "safe";
+      let color = "#00e676";
+      let isConflict = false;
+      let distNM = 35;
+      let planeAlt = alt;
+      let heading = 180;
+      let riskText = "";
+      let estDelayMin = 6;
+      let fuelPenaltyKg = 380;
+
+      // Angular sector for this slot (with slight random jitter within sector)
+      const bearing = (baseAngle + i * sectorAngle + (Math.random() * 16 - 8) + 360) % 360;
+
+      if (i === 0) {
+        // Red / Danger (Exactly 1)
+        tier = "danger";
+        color = "#ff1744";
+        isConflict = true;
+        distNM = 9 + Math.random() * 4.5; // 9 ~ 13.5 NM
+        const altSign = Math.random() < 0.5 ? 1 : -1;
+        const altDiff = 700 + Math.floor(Math.random() * 700); // 700 ~ 1,400 ft diff
+        planeAlt = Math.max(3000, alt + (altSign * altDiff));
+        // Heading converging / intersecting emergency flight path
+        heading = Math.round((bearing + 180 + (Math.random() * 30 - 15) + 360) % 360);
+        riskText = `비상기 강하선 인접 통과 중 (${distNM.toFixed(1)} NM / 고도차 ${altDiff}ft - 긴급 분리 요망)`;
+        estDelayMin = 18;
+        fuelPenaltyKg = 1450;
+      } else if (i <= cautionCount) {
+        // Yellow / Caution (1 or 2)
+        tier = "caution";
+        color = "#ffaa00";
+        isConflict = false;
+        distNM = 20 + Math.random() * 6.5; // 20 ~ 26.5 NM
+        const altSign = Math.random() < 0.5 ? 1 : -1;
+        const altDiff = 2600 + Math.floor(Math.random() * 1200); // 2,600 ~ 3,800 ft diff
+        planeAlt = Math.max(4000, alt + (altSign * altDiff));
+        heading = Math.round((bearing + 120 + (Math.random() * 40 - 20) + 360) % 360);
+        riskText = `인접 항로 섹터 근접 (${distNM.toFixed(1)} NM / 주의 관제 모니터링)`;
+        estDelayMin = 12;
+        fuelPenaltyKg = 640;
+      } else {
+        // Green / Safe (1 ~ 3)
+        tier = "safe";
+        color = "#00e676";
+        isConflict = false;
+        distNM = 33 + Math.random() * 13; // 33 ~ 46 NM
+        const safeFLs = [19000, 24000, 27000, 33000, 35000, 39000];
+        planeAlt = safeFLs[Math.floor(Math.random() * safeFLs.length)];
+        heading = Math.round((Math.random() * 360));
+        riskText = `충분한 수평/수직 안전 간격 확보 (${distNM.toFixed(1)} NM / 안전 통과)`;
+        estDelayMin = 6;
+        fuelPenaltyKg = 360;
+      }
+
+      // Convert polar (bearing, distance) to cartesian geographic coordinates
+      const dLat = (distNM * Math.cos((bearing * Math.PI) / 180)) / 60;
+      const dLng = (distNM * Math.sin((bearing * Math.PI) / 180)) / (60 * Math.cos((eLat * Math.PI) / 180));
+      const curLat = Number((eLat + dLat).toFixed(4));
+      const curLng = Number((eLng + dLng).toFixed(4));
+
+      newPlanes.push({
+        callsign: craft.callsign,
+        airline: craft.airline,
+        aircraft: craft.aircraft,
+        origin: craft.origin,
+        dest: craft.dest,
+        lat: curLat,
+        lng: curLng,
+        altFt: planeAlt,
+        baseAltFt: planeAlt,
+        altPhase: Math.random() * Math.PI * 2,
+        heading,
+        speedKts: craft.baseSpeedKts,
+        passengers: craft.passengers,
+        distToEmergencyNM: Number(distNM.toFixed(1)),
+        altDiffFt: Math.abs(planeAlt - alt),
+        riskTier: tier,
+        color,
+        isConflictRisk: isConflict,
+        riskText,
+        estimatedDelayMinIfRerouted: estDelayMin,
+        fuelBurnPenaltyKg: fuelPenaltyKg
+      });
+    }
+
+    trafficSession.activePlanes = newPlanes;
+  } else {
+    // Kinematic real-time step for active planes (every 3 seconds)
+    const dtSec = Math.max(0.1, Math.min(10, (now - trafficSession.lastUpdateTimestamp) / 1000));
+    trafficSession.lastUpdateTimestamp = now;
+
+    trafficSession.activePlanes.forEach(craft => {
+      const speedNMperSec = craft.speedKts / 3600;
+      const stepDistNM = speedNMperSec * dtSec;
+      const hRad = (craft.heading * Math.PI) / 180;
+      const dLat = (stepDistNM * Math.cos(hRad)) / 60;
+      const dLng = (stepDistNM * Math.sin(hRad)) / (60 * Math.cos((craft.lat * Math.PI) / 180));
+
+      craft.lat = Number((craft.lat + dLat).toFixed(4));
+      craft.lng = Number((craft.lng + dLng).toFixed(4));
+
+      // Gentle realistic micro-altitude float (+-60ft)
+      craft.altFt = Math.round(craft.baseAltFt + Math.sin(now / 3500 + craft.altPhase) * 60);
+
+      // Distance and altitude difference relative to emergency craft
+      craft.distToEmergencyNM = Number(calculateDistanceNM(eLat, eLng, craft.lat, craft.lng).toFixed(1));
+      craft.altDiffFt = Math.abs(craft.altFt - alt);
+    });
+  }
+
+  // Sort: Danger first, then Caution, then Safe, then closest distance
+  const tierRank = { danger: 0, caution: 1, safe: 2 };
+  const sorted = [...trafficSession.activePlanes].sort((a, b) => {
+    if (tierRank[a.riskTier] !== tierRank[b.riskTier]) {
+      return tierRank[a.riskTier] - tierRank[b.riskTier];
     }
     return a.distToEmergencyNM - b.distToEmergencyNM;
   });
 
-  // Always return the top 5~6 closest and most relevant flights to display in the UI
-  return evaluatedTraffic.slice(0, 6);
+  return sorted;
 }
 
 

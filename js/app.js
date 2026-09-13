@@ -1,7 +1,7 @@
 // AeroRescue 737 AI - Main Application Controller
 
 import { calculateFlightCapabilities, EMERGENCY_SCENARIOS } from "./b737Engine.js";
-import { generateSurroundingAirTraffic, LANDING_SITES } from "./airTrafficSim.js";
+import { generateSurroundingAirTraffic, resetTrafficSession, LANDING_SITES } from "./airTrafficSim.js";
 import { evaluateLandingSites, calculateDistanceNM, calculateBearing } from "./routeOptimizer.js";
 import { QRH_PROCEDURES } from "./actionChecklist.js";
 import { generateMaintenanceMatrix } from "./postLandingMaint.js";
@@ -165,6 +165,7 @@ function initFlightRouteControls() {
   originSelect.addEventListener("change", (e) => {
     state.flightPlan.originIcao = e.target.value;
     state.flightPlan.activePresetId = null;
+    resetTrafficSession();
     updatePresetButtonsUI();
     updateFlightRouteAndAircraft(true);
   });
@@ -173,6 +174,7 @@ function initFlightRouteControls() {
   destSelect.addEventListener("change", (e) => {
     state.flightPlan.destIcao = e.target.value;
     state.flightPlan.activePresetId = null;
+    resetTrafficSession();
     updatePresetButtonsUI();
     updateFlightRouteAndAircraft(true);
   });
@@ -186,6 +188,7 @@ function initFlightRouteControls() {
       originSelect.value = state.flightPlan.originIcao;
       destSelect.value = state.flightPlan.destIcao;
       state.flightPlan.activePresetId = null;
+      resetTrafficSession();
       updatePresetButtonsUI();
       updateFlightRouteAndAircraft(true);
     });
@@ -245,6 +248,7 @@ function applyRoutePreset(presetId) {
   if (altSlider) altSlider.value = preset.plannedCruiseAltFt;
   if (inputAlt) inputAlt.value = preset.plannedCruiseAltFt;
 
+  resetTrafficSession();
   updatePresetButtonsUI();
   updateFlightRouteAndAircraft(true);
 }
@@ -361,6 +365,7 @@ function bindEventListeners() {
   const scenarioSelect = document.getElementById("emergencyScenarioSelect");
   scenarioSelect.addEventListener("change", (e) => {
     state.emergencyKey = e.target.value;
+    resetTrafficSession();
     const scen = EMERGENCY_SCENARIOS[state.emergencyKey];
 
     // Adapt flight parameters dynamically based on emergency type
@@ -1272,7 +1277,7 @@ function recomputeAndRender() {
   const currentScenario = EMERGENCY_SCENARIOS[state.emergencyKey];
 
   // 1. Run Route Optimizer
-  state.trafficList = generateSurroundingAirTraffic(state.aircraft);
+  state.trafficList = generateSurroundingAirTraffic(state.aircraft, state.aircraft.altitudeFt);
   state.evaluationResult = evaluateLandingSites(state.aircraft, state.emergencyKey, state.trafficList);
   const cap = state.evaluationResult.capabilities;
   const recs = state.evaluationResult.topRecommendations;
