@@ -19,7 +19,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/main.css?v=34">
-  <link rel="stylesheet" href="css/components.css?v=44">
+  <link rel="stylesheet" href="css/components.css?v=45">
 </head>
 <body class="cockpit-theme">
 
@@ -214,9 +214,9 @@
 
             <div class="telemetry-stat">
               <span class="stat-label">실효 활공비 (Glide Ratio)</span>
-              <div class="stat-value text-cyan">
-                <span id="effectiveGlideVal">16.2 : 1</span>
-                <small id="glideDistancePer1000ftVal">(2.67 NM/1kft)</small>
+              <div class="stat-value stat-value-stacked text-cyan">
+                <span id="effectiveGlideVal" class="glide-ratio-main">16.2 : 1</span>
+                <small id="glideDistancePer1000ftVal" class="glide-ratio-sub">(2.67 NM/1kft)</small>
               </div>
             </div>
 
@@ -873,6 +873,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- ES6 Modules Script -->
-  <script type="module" src="js/app.js?v=47"></script>
+  <script type="module" src="js/app.js?v=48"></script>
 </body>
 </html>
